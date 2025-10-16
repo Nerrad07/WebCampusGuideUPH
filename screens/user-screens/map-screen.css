@@ -3,8 +3,7 @@
   padding: 0;
 }
 
-/*Map Screen*/
-nav {
+.topbar nav {
     padding: 1rem;
     display: flex;
     justify-content: flex-start;
@@ -14,9 +13,10 @@ nav {
     top: 0;
     left: 0;
     width: 100%;
+    z-index: 1000;
 }
 
-nav button {
+.topbar nav button {
     border: none;
     width: 40px;
     height: 20px;
@@ -27,7 +27,7 @@ nav button {
     background-color: transparent;
 }
 
-nav button img {
+.topbar nav button img {
     width: 200px;
     height: 50px;
 }
@@ -57,8 +57,9 @@ main{
 .map{
     transform: rotate(90deg);
     width: auto;
-    height: 140%;
+    height: 145%;
     position: absolute;
+    margin-top: 20px;
 }
 
 .buttons{
@@ -75,27 +76,59 @@ main{
 }
 
 .button-b button{
-    top: 79px;
-    left: -264px;
+    top: 90px;
+    left: -270px;
     background-color: rgb(255, 223, 186);
+}
+
+.button-b button:hover{
+    width: 60px;
+    height: 60px;
+    left: -280px;
+    top: 80px;
+    font-size: 30px;
 }
 
 .button-g button{
     top: -105px;
-    left: 430px;
+    left: 440px;
     background-color: rgb(202, 253, 250);
 }
 
+.button-g button:hover{
+    width: 60px;
+    height: 60px;
+    left: 430px;
+    top: -110px;
+    font-size: 30px;
+}
+
 .button-c button{
-    top: -120px;
-    left: -300px;
+    top: -110px;
+    left: -310px;
     background-color: rgb(255, 189, 189);
+}
+
+.button-c button:hover{
+    width: 60px;
+    height: 60px;
+    left: -320px;
+    top: -120px;
+    font-size: 30px;
 }
 
 .button-f button{
     top: -180px;
-    left: 110px;
+    left: 115px;
     background-color: rgb(255, 255, 186);
+}
+
+.button-f button:hover{
+    width: 60px;
+    height: 60px;
+    left: 105px;
+    top: -190px;
+    font-size: 30px;
 }
 
 .button-d button{
@@ -104,13 +137,49 @@ main{
     background-color: rgb(186, 255, 201);
 }
 
+.button-d button:hover{
+    width: 60px;
+    height: 60px;
+    left: 10px;
+    top: -60px;
+    font-size: 30px;
+}
+
 .left{
     display: flex;
     align-items: center;
     gap: 1rem;
 }
 
-.logo{
+.right{
+    display: flex;
+    align-items: center;
+    gap: 3rem;
+    margin-left: auto;
+    padding-right: 50px;
+}
+
+.logotop{
     height: 40px;
     width: auto;
+    margin-left: 20px;
+}
+
+.mapblue img{
+    background-color: white;
+    border-radius: 10px;
+}
+
+nav button{
+    cursor: pointer;
+}
+
+.eventwhite button img{
+    content: url(../../img/event-white.png);
+}
+
+.eventwhite button:hover img{
+    content: url(../../img/event-blue.png);
+    background-color: white;
+    border-radius: 10px;
 }
