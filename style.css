@@ -1,0 +1,116 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+/*Map Screen*/
+nav {
+    padding: 1rem;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    background-color: rgb(29, 33, 96);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
+
+nav button {
+    border: none;
+    width: 40px;
+    height: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+}
+
+nav button img {
+    width: 200px;
+    height: 50px;
+}
+
+.botbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    height: 15px;
+    width: 100%;
+    background-color: rgb(29, 33, 96);
+    padding: 1rem;
+    display: flex;
+    justify-content: center;  
+    align-items: center;     
+    color: white;
+}
+
+main{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    position: relative;
+}
+
+.map{
+    transform: rotate(90deg);
+    width: auto;
+    height: 140%;
+    position: absolute;
+}
+
+.buttons{
+    position: absolute;
+    z-index: 10;
+}
+
+.buttons button{
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.button-b button{
+    top: 79px;
+    left: -264px;
+    background-color: rgb(255, 223, 186);
+}
+
+.button-g button{
+    top: -105px;
+    left: 430px;
+    background-color: rgb(202, 253, 250);
+}
+
+.button-c button{
+    top: -120px;
+    left: -300px;
+    background-color: rgb(255, 189, 189);
+}
+
+.button-f button{
+    top: -180px;
+    left: 110px;
+    background-color: rgb(255, 255, 186);
+}
+
+.button-d button{
+    top: -50px;
+    left: 20px;
+    background-color: rgb(186, 255, 201);
+}
+
+.left{
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.logo{
+    height: 40px;
+    width: auto;
+}
