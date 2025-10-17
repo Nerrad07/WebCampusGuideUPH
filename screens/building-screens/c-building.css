@@ -1,0 +1,220 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+.topbar nav {
+    padding: 1rem;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    background-color: rgb(29, 33, 96);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+.topbar nav button {
+    border: none;
+    width: 40px;
+    height: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+}
+
+.topbar nav button img {
+    width: 200px;
+    height: 50px;
+}
+
+.botbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    height: 15px;
+    width: 100%;
+    background-color: rgb(29, 33, 96);
+    padding: 1rem;
+    display: flex;
+    justify-content: center;  
+    align-items: center;     
+    color: white;
+}
+
+main{
+    background-color: rgb(231, 231, 231);
+    margin: 50px;
+    margin-top: 90px;
+    height: 560px;
+    border: 1px solid;
+    border-radius: 10px;
+}
+
+.map{
+    transform: rotate(90deg);
+    width: auto;
+    height: 145%;
+    position: absolute;
+    margin-top: 20px;
+}
+
+.buttons{
+    position: absolute;
+    z-index: 10;
+}
+
+.buttons button{
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.button-b button{
+    top: 90px;
+    left: -270px;
+    background-color: rgb(255, 223, 186);
+}
+
+.button-b button:hover{
+    width: 60px;
+    height: 60px;
+    left: -280px;
+    top: 80px;
+    font-size: 30px;
+}
+
+.button-g button{
+    top: -105px;
+    left: 440px;
+    background-color: rgb(202, 253, 250);
+}
+
+.button-g button:hover{
+    width: 60px;
+    height: 60px;
+    left: 430px;
+    top: -110px;
+    font-size: 30px;
+}
+
+.button-c button{
+    top: -110px;
+    left: -310px;
+    background-color: rgb(255, 189, 189);
+}
+
+.button-c button:hover{
+    width: 60px;
+    height: 60px;
+    left: -320px;
+    top: -120px;
+    font-size: 30px;
+}
+
+.button-f button{
+    top: -180px;
+    left: 115px;
+    background-color: rgb(255, 255, 186);
+}
+
+.button-f button:hover{
+    width: 60px;
+    height: 60px;
+    left: 105px;
+    top: -190px;
+    font-size: 30px;
+}
+
+.button-d button{
+    top: -50px;
+    left: 20px;
+    background-color: rgb(186, 255, 201);
+}
+
+.button-d button:hover{
+    width: 60px;
+    height: 60px;
+    left: 10px;
+    top: -60px;
+    font-size: 30px;
+}
+
+.left{
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.right{
+    display: flex;
+    align-items: center;
+    gap: 3rem;
+    margin-left: auto;
+    padding-right: 50px;
+}
+
+.logotop{
+    height: 40px;
+    width: auto;
+    margin-left: 20px;
+}
+
+.mapblue img{
+    background-color: white;
+    border-radius: 10px;
+}
+
+nav button{
+    cursor: pointer;
+}
+
+.eventwhite button img{
+    content: url(../../img/event-white.png);
+}
+
+.eventwhite button:hover img{
+    content: url(../../img/event-blue.png);
+    background-color: white;
+    border-radius: 10px;
+}
+
+a{
+    text-decoration: none;
+}
+
+.back-button{
+    margin-top: 20px;
+    margin-left: 20px;
+}
+
+.button-link:focus{
+    outline: none;
+    box-shadow: none;
+}
+
+.back-button button{ 
+    border: 2px solid black; 
+    padding-top: 7px; 
+    padding-bottom: 10px; 
+    padding-left: 10px; 
+    padding-right: 10px; 
+    border-radius: 60%; 
+    background-color: lightgray; 
+    cursor: pointer; 
+    color: black; 
+    font-size: 20px; 
+    display: flex; 
+}
+
+.back-button button:hover{
+    background-color: gray;
+    color: white;
+}
+
