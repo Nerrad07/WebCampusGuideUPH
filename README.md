@@ -1,4 +1,4 @@
-Web Campus Guide for Pelita Harapan University.
+**Campus Guide Web for Pelita Harapan University.**
 
 Made by
 - Annabel Kineta Jovinne Caron (01082230011)
