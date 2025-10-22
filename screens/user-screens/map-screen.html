@@ -11,35 +11,75 @@
     <header class="topbar">
         <nav>
             <div class="left">
-                <button class="hamburger">
+                <label for="navchk" class="hamburger">
                     <img src="../../img/Hamburger.png" alt="">
-                </button>
+                </label>
 
                     <img src="../../img/logo_white.png" alt="" class="logotop">
             </div>
 
             <div class="middle">
-                <div class="search-icon"></div>
                 Search
             </div>
 
             <div class="right">
                 <div class="mapblue">
                     <button>
-                        <img src="../../img/map-blue.png" alt="" >
+                        <img src="../../img/map-blue.png" alt="" class="buttons">
                     </button>
                 </div>
 
                     <div class="eventwhite">
                     <a href="event-screen.html">
                         <button>
-                            <img src="../../img/event-white.png" alt="">
+                            <img src="../../img/event-white.png" alt="" class="buttons">
                         </button>
                     </a>
                 </div>
             </div>
         </nav>
     </header>
+    
+    <input type="checkbox" id="navchk" hidden>
+    <aside class="sidebar">
+
+        <div class="sidebar-header">
+           <img src="../../img/logo_white.png" alt="" class="logotop">
+        </div>
+
+        <div class="sidebar-header-text">
+            <p>Campus Guide UPH <br> Lippo Village</p>
+        </div>
+
+        <nav class="menu">
+            <a href="https://www.uph.edu/id/facility/map-kampus/">
+                <img src="../../img/location-logo.png" alt="">
+                <span>UPH Lippo Village Map</span>
+            </a>
+
+            <a href="https://www.uph.edu/id/">
+                <img src="../../img/web-logo.png" alt="">
+                <span>www.uph.edu/id</span>
+            </a>
+
+            <a href="https://www.instagram.com/uphimpactslives/">
+                <img src="../../img/instagram-logo.png" alt="">
+                <span>@uphimpactslives</span>
+            </a>
+
+            <a href="https://www.uph.edu/id/contact/">
+                <img src="../../img/phone-logo.png" alt="">
+                <span>Contact Us</span>
+            </a>
+
+            <a href="../admin-screens/dashboard.html">
+                <img src="../../img/user-logo.png" alt="">
+                <span>Admin Login</span>
+            </a>
+        </nav>
+    </aside>
+
+    <label for="navchk" class="overlay" aria-hidden="true"></label>
 
     <main>
         <div class="buttons">

@@ -56,5 +56,5 @@
   "C_Cpp_Runner.showCompilationTime": false,
   "C_Cpp_Runner.useLinkTimeOptimization": false,
   "C_Cpp_Runner.msvcSecureNoWarnings": false,
-  "livePreview.defaultPreviewPath": "/intro/intro.html"
+  "livePreview.defaultPreviewPath": "/screens/user-screens/map-screen.html"
 }

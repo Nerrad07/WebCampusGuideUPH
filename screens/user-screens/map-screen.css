@@ -50,14 +50,22 @@ main{
     align-items: center;
     height: 100vh;
     position: relative;
+    padding-bottom: 46px;
 }
+
+body{
+    padding-top: 72px;
+}
+
+
 
 .map{
     transform: rotate(90deg);
     width: auto;
     height: 145%;
     position: absolute;
-    margin-top: 20px;
+    margin-top: 10px;
+    z-index: 0;
 }
 
 .buttons{
@@ -74,58 +82,58 @@ main{
 }
 
 .button-b button{
-    top: 90px;
-    left: -270px;
+    top: 92px;
+    left: -286px;
     background-color: rgb(255, 223, 186);
 }
 
 .button-b button:hover{
     width: 60px;
     height: 60px;
-    left: -280px;
+    left: -300px;
     top: 80px;
     font-size: 30px;
 }
 
 .button-g button{
-    top: -105px;
-    left: 440px;
+    top: -110px;
+    left: 470px;
     background-color: rgb(202, 253, 250);
 }
 
 .button-g button:hover{
     width: 60px;
     height: 60px;
-    left: 430px;
-    top: -110px;
+    left: 460px;
+    top: -120px;
     font-size: 30px;
 }
 
 .button-c button{
-    top: -110px;
-    left: -310px;
+    top: -122px;
+    left: -326px;
     background-color: rgb(255, 189, 189);
 }
 
 .button-c button:hover{
     width: 60px;
     height: 60px;
-    left: -320px;
-    top: -120px;
+    left: -335px;
+    top: -130px;
     font-size: 30px;
 }
 
 .button-f button{
-    top: -180px;
-    left: 115px;
+    top: -195px;
+    left: 120px;
     background-color: rgb(255, 255, 186);
 }
 
 .button-f button:hover{
     width: 60px;
     height: 60px;
-    left: 105px;
-    top: -190px;
+    left: 110px;
+    top: -205px;
     font-size: 30px;
 }
 
@@ -163,6 +171,11 @@ main{
     margin-left: 20px;
 }
 
+.topbar .buttons{
+    height: 40px;
+    width: auto;
+}
+
 .mapblue img{
     background-color: white;
     border-radius: 10px;
@@ -197,25 +210,109 @@ nav button{
     color: gray;
 }
 
-.search-icon{
-    width: 15px;
-    height: 15px;
-    border: 3px solid gray;
-    border-radius: 50%;
-    position: relative;
-    margin: 20px;
-    top: -1px;
-    left: 10px;
+.sidebar{
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100dvh;
+    width: var(--drawer-w);
+    background: rgb(29, 33, 96);
+    color: white;
+    transform: translateX(-100%);
+    transition: transform .23s ease;
+    z-index: 1001;
+    padding: 12px 14px 16px;
+    padding-top: 72px;
 }
 
-.search-icon::after{
-    content: "";
-    position: absolute;
-    width: 10px;
-    height: 3px;
-    background: gray;
-    top: 13px;
-    left: 14px;
-    transform: rotate(45deg);
-    transform-origin: left center;
+.sidebar-header{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 6px 2px 10px;
+    border-bottom: 1px solid white;
+}
+
+.sidebar .logotop {
+    height: 60px;
+    width: auto;
+    margin-left: 10px;
+}
+
+.sidebar-header-text{
+    margin-top: 10px;
+    text-align: center;
+    font-size: 20px;
+}
+
+.menu{
+    display: flex;
+    flex-direction: column;
+    margin-top: 200px;
+    gap: 20px;
+    padding: 10px 2px 0;
+    font-size: 15px;
+}
+
+.menu a{
+    color: white;
+    text-decoration: none;
+    padding: 8px 12px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.menu a:hover{
+    background: rgb(19, 22, 63);
+}
+
+.menu img{
+    width: auto;
+    height: 30px;
+    margin-right: 10px;
+}
+
+.menu a img{
+    width: 22px;
+    height: 22px;
+}
+
+.menu a span{
+    display: flex;
+}
+
+.overlay{
+    position: fixed;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s ease;
+    z-index: 999;
+}
+
+.hamburger{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 0;
+    background: transparent;
+    padding: 0;
+}
+
+.hamburger img {
+    height: 40px; 
+    width: auto;
+}
+
+#navchk:checked ~ .sidebar{
+    transform: translateX(0);
+}
+
+#navchk:checked ~ .overlay{
+    opacity: 1;
+    pointer-events: auto;
 }
