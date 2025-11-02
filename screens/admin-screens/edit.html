@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Campus Guide UPH</title>
-    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="edit.css">
 </head>
 <body>
     
@@ -85,47 +85,82 @@
     </aside>
 
     <label for="navchk" class="overlay" aria-hidden="true"></label>
-
     <main>
-        <div class="container">
-            <div class="info">
-                <H3>Active Events</H3>
-                <div class="titles">
-                    <p class="O">Ongoing</p>
-                    <p class="U">Upcoming</p>
-                    <p class="CS">Coming Soon</p>
-                </div>
-            </div>
-            
-            <div class="buttons">
-                <div class="add">
-                    <a href="add.html">
-                        <button>Add</button>
-                    </a>
-                </div>
 
-                <div class="edit">
-                    <a href="edit.html">
-                        <button>Edit</button>
-                    </a>
-                </div>
-
-                <div class="remove">
-                    <button>Remove</button>
-                </div>
-            </div>
+        <div class="back-button">
+            <a href="dashboard.html"> 
+                <button>
+                    ← 
+                </button>
+            </a>
         </div>
+        
+        <h3>Edit Event</h3>
 
-        <div class="table">
-            <table>
-                <tr>
-                    <td>No.</td>
-                    <td>Event Name</td>
-                    <td>Held By</td>
-                    <td>Time</td>
-                    <td>Date</td>
-                </tr>
-            </table>
+        <div class="container">
+            <form action="" method="post">
+                <div class="start">
+                    <div class="name">
+                        <label for="eventname">Event Name</label>
+                        <input type="text" id="eventname" required>
+                    </div>
+                    
+                    <div class="date">
+                        <label for="eventdate">Event Date</label>
+                        <input type="date" id="eventdate" required>
+                    </div>
+                </div>
+                
+                <div class="time">
+                    <div class="tm">
+                        <label for="starttime">Event Time</label>
+                        <input type="time" id="starttime" required>
+                    </div>
+
+                    <div class="to">
+                        <label for="endtime">To</label>
+                        <input type="time" id="endtime" required>
+                    </div>
+                </div>
+
+                <div class="location">
+                    <div class="loc">
+                        <p>Event Location</p>
+                        <label for="buidlng">Building</label>
+                        <select name="buidlng" id="building" required>
+                            <option value="">Select a Building</option>
+                            <option value="">Building B</option>
+                            <option value="">Building C</option>
+                            <option value="">Building D</option>
+                            <option value="">Building F</option>
+                            <option value="">Building G</option>
+                            <option value="">Building H</option>
+                        </select>
+                    </div>
+
+                    <div class="room">
+                        <label for="room">Room</label>
+                        <select name="room" id="room" required>
+                            <option value="">Select a Room</option>
+                            <option value="">Room ...</option>
+                            <option value="">Room ...</option>
+                            <option value="">Room ...</option>
+                            <option value="">Room ...</option>
+                            <option value="">Room ...</option>
+                            <option value="">Room ...</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="poster">
+                    <label for="poster">Upload Poster</label>
+                    <input type="file" name="" id="poster" required>
+                </div>
+
+                <div class="submit">
+                    <input type="submit">
+                </div>
+            </form>
         </div>
     </main>
 

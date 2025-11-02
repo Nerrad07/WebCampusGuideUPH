@@ -30,111 +30,17 @@
     height: 50px;
 }
 
-main{
+main {
     display: flex;
-    justify-content: center;
-    align-items: center;
+    flex-direction: column;
+    justify-content: flex-start;  
+    align-items: center;         
     height: 100vh;
-    position: relative;
-    padding-bottom: 46px;
+    padding-top: 40px;       
 }
 
 body{
     padding-top: 72px;
-}
-
-
-
-.map{
-    transform: rotate(90deg);
-    width: auto;
-    height: 145%;
-    position: absolute;
-    margin-top: 10px;
-    z-index: 0;
-}
-
-.buttons{
-    position: absolute;
-    z-index: 10;
-}
-
-.buttons button{
-    position: absolute;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    cursor: pointer;
-}
-
-.button-b button{
-    top: 92px;
-    left: -286px;
-    background-color: rgb(255, 223, 186);
-}
-
-.button-b button:hover{
-    width: 60px;
-    height: 60px;
-    left: -300px;
-    top: 80px;
-    font-size: 30px;
-}
-
-.button-g button{
-    top: -110px;
-    left: 470px;
-    background-color: rgb(202, 253, 250);
-}
-
-.button-g button:hover{
-    width: 60px;
-    height: 60px;
-    left: 460px;
-    top: -120px;
-    font-size: 30px;
-}
-
-.button-c button{
-    top: -122px;
-    left: -326px;
-    background-color: rgb(255, 189, 189);
-}
-
-.button-c button:hover{
-    width: 60px;
-    height: 60px;
-    left: -335px;
-    top: -130px;
-    font-size: 30px;
-}
-
-.button-f button{
-    top: -195px;
-    left: 120px;
-    background-color: rgb(255, 255, 186);
-}
-
-.button-f button:hover{
-    width: 60px;
-    height: 60px;
-    left: 110px;
-    top: -205px;
-    font-size: 30px;
-}
-
-.button-d button{
-    top: -50px;
-    left: 20px;
-    background-color: rgb(186, 255, 201);
-}
-
-.button-d button:hover{
-    width: 60px;
-    height: 60px;
-    left: 10px;
-    top: -60px;
-    font-size: 30px;
 }
 
 .left{
@@ -148,7 +54,8 @@ body{
     align-items: center;
     gap: 3rem;
     margin-left: auto;
-    padding-right: 50px;
+    padding-right: 70px;
+    margin-bottom: 20px;
 }
 
 .logotop{
@@ -162,7 +69,13 @@ body{
     width: auto;
 }
 
-.mapblue img{
+.mapwhite button img{
+    content: url(../../img/map-white.png);
+    border-radius: 10px;
+}
+
+.mapwhite button:hover img{
+    content: url(../../img/map-blue.png);
     background-color: white;
     border-radius: 10px;
 }
@@ -306,4 +219,106 @@ nav button{
 #navchk:checked ~ .overlay{
     opacity: 1;
     pointer-events: auto;
+}
+
+/*Dashboard*/
+
+.container{
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 40px;
+}
+
+.info{
+    background-color: rgb(29, 33, 96);
+    height: 250px;
+    width: 500px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 20px;
+    font-size: 30px;
+}
+
+.info h3{
+    margin-bottom: 30px;
+}
+
+.titles{
+    display: flex;
+    gap: 30px;
+    font-size: 22px;
+    margin-bottom: 85px;
+}
+
+.O{
+    background-color: rgb(144, 197, 247);
+    color: black;
+    width: 130px;
+    display: flex;
+    justify-content: center;
+    border-radius: 20px;
+}
+
+.U{
+    background-color: rgb(144, 247, 175);
+    color: black;
+    width: 130px;
+    display: flex;
+    justify-content: center;
+    border-radius: 20px;
+}
+
+.CS{
+    background-color: rgb(247, 230, 144);
+    color: black;
+    width: 130px;
+    display: flex;
+    justify-content: center;
+    border-radius: 20px;
+}
+
+.buttons{
+    display: flex;
+    gap: 50px;
+    margin-top: 20px;
+}
+
+.buttons button{
+    height: 35px;
+    width: 130px;
+    font-size: 20px;
+    background-color: rgb(29, 33, 110);
+    color: white;
+    font-weight: bold;
+    border-radius: 20px;
+}
+
+.buttons button:hover{
+    cursor: pointer;
+    background-color: rgb(57, 65, 175);
+    border: none;
+}
+
+.buttons button:active{
+    background-color: rgb(76, 86, 234);
+    cursor: pointer;
+}
+
+.table table{
+    width: 700px;
+    border-spacing: 10px;
+    border-collapse: separate;
+    background-color: rgb(29, 33, 96);
+    color: white;
+    text-align: center;
+    border-radius: 20px;
+}
+
+.table td {
+    padding: 10px;
+    font-weight: bold;
+    font-size: 20px;
 }

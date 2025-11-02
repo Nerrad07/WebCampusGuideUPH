@@ -30,111 +30,17 @@
     height: 50px;
 }
 
-main{
+main {
     display: flex;
-    justify-content: center;
-    align-items: center;
+    flex-direction: column;
+    justify-content: flex-start;  
+    align-items: center;         
     height: 100vh;
-    position: relative;
-    padding-bottom: 46px;
+    padding-top: 40px;       
 }
 
 body{
     padding-top: 72px;
-}
-
-
-
-.map{
-    transform: rotate(90deg);
-    width: auto;
-    height: 145%;
-    position: absolute;
-    margin-top: 10px;
-    z-index: 0;
-}
-
-.buttons{
-    position: absolute;
-    z-index: 10;
-}
-
-.buttons button{
-    position: absolute;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    cursor: pointer;
-}
-
-.button-b button{
-    top: 92px;
-    left: -286px;
-    background-color: rgb(255, 223, 186);
-}
-
-.button-b button:hover{
-    width: 60px;
-    height: 60px;
-    left: -300px;
-    top: 80px;
-    font-size: 30px;
-}
-
-.button-g button{
-    top: -110px;
-    left: 470px;
-    background-color: rgb(202, 253, 250);
-}
-
-.button-g button:hover{
-    width: 60px;
-    height: 60px;
-    left: 460px;
-    top: -120px;
-    font-size: 30px;
-}
-
-.button-c button{
-    top: -122px;
-    left: -326px;
-    background-color: rgb(255, 189, 189);
-}
-
-.button-c button:hover{
-    width: 60px;
-    height: 60px;
-    left: -335px;
-    top: -130px;
-    font-size: 30px;
-}
-
-.button-f button{
-    top: -195px;
-    left: 120px;
-    background-color: rgb(255, 255, 186);
-}
-
-.button-f button:hover{
-    width: 60px;
-    height: 60px;
-    left: 110px;
-    top: -205px;
-    font-size: 30px;
-}
-
-.button-d button{
-    top: -50px;
-    left: 20px;
-    background-color: rgb(186, 255, 201);
-}
-
-.button-d button:hover{
-    width: 60px;
-    height: 60px;
-    left: 10px;
-    top: -60px;
-    font-size: 30px;
 }
 
 .left{
@@ -148,7 +54,7 @@ body{
     align-items: center;
     gap: 3rem;
     margin-left: auto;
-    padding-right: 50px;
+    padding-right: 70px;
 }
 
 .logotop{
@@ -162,7 +68,13 @@ body{
     width: auto;
 }
 
-.mapblue img{
+.mapwhite button img{
+    content: url(../../img/map-white.png);
+    border-radius: 10px;
+}
+
+.mapwhite button:hover img{
+    content: url(../../img/map-blue.png);
     background-color: white;
     border-radius: 10px;
 }
@@ -179,6 +91,40 @@ nav button{
     content: url(../../img/event-blue.png);
     background-color: white;
     border-radius: 10px;
+}
+
+.back-button a{
+    text-decoration: none;
+}
+
+.back-button{
+    align-self: flex-start;
+    margin-top: -20px;
+    margin-left: 20px;
+}
+
+.button-link:focus{
+    outline: none;
+    box-shadow: none;
+}
+
+.back-button button{ 
+    border: 2px solid black; 
+    padding-top: 7px; 
+    padding-bottom: 10px; 
+    padding-left: 10px; 
+    padding-right: 10px; 
+    border-radius: 60%; 
+    background-color: lightgray; 
+    cursor: pointer; 
+    color: black; 
+    font-size: 20px; 
+    display: flex; 
+}
+
+.back-button button:hover{
+    background-color: gray;
+    color: white;
 }
 
 /*Search Bar*/
@@ -306,4 +252,139 @@ nav button{
 #navchk:checked ~ .overlay{
     opacity: 1;
     pointer-events: auto;
+}
+
+
+/*Add Event*/
+
+main h3{
+    font-size: 30px;
+    margin-bottom: 20px;
+}
+
+.container{
+    background-color: rgb(29, 33, 96);
+    height: 55vh;
+    color: white;
+    border-radius: 20px;
+    padding: 40px;
+}
+
+.container form .start, .container form .location, .container form .room, .container form p{
+    display: block;
+    margin-bottom: 30px;
+}
+
+.container form .time, .container form .name{
+    margin-bottom: 30px;
+}
+
+.container form{
+    margin-bottom: 30px;
+}
+
+.container form .start input, .container form .date input, .container form .time input, .container form select{
+    height: 25px;
+    width: 150px;
+    box-sizing: border-box;
+}
+
+.container form .start input, .container form .date input{
+    width: 330px;
+}
+
+.container form .time input{
+    width: 148px;
+}
+
+.container form .date input{
+    margin-left: 17px;
+    text-align: center;
+}
+
+.start{
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+}
+
+.start .name label{
+    margin-right: 10px;
+}
+
+.start .name input{
+    padding-left: 5px;
+}
+
+.time{
+    display: flex;
+}
+
+.time input{
+    text-align: center;
+}
+
+.time .tm{
+    margin-right: 10px;
+}
+
+.time .tm input{
+    margin-left: 14px;
+}
+
+.time .to label{
+    margin-right: 5px;
+}
+
+.loc{
+    display: flex;
+}
+
+.loc p{
+    margin-right: 70px;
+}
+
+.loc select{
+    margin-left: 10px;
+}
+
+.room{
+    display: flex;
+    gap: 20px;
+    margin-left: 182px;
+}
+
+.room select{
+    margin-left: 10px;
+}
+
+.poster{
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.submit{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 18vh;
+}
+
+.submit input{
+    height: 40px;
+    width: 400px;
+    border-radius: 20px;
+}
+
+.submit input:hover{
+    cursor: pointer;
+    background-color: grey;
+    color: white;
+}
+
+.submit input:active{
+    cursor: pointer;
+    background-color: rgb(207, 207, 207);
+    color: black;
 }
