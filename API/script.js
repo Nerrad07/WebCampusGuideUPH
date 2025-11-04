@@ -1,17 +1,15 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-analytics.js";
+import { 
+  getDatabase, ref, get, push, set, update, remove, onValue 
+} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyDLFaOnFD4ICf3VJcIfNdeS1Pp5v0P7jLU",
   authDomain: "campus-guide-map-uph.firebaseapp.com",
   databaseURL: "https://campus-guide-map-uph-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "campus-guide-map-uph",
-  storageBucket: "campus-guide-map-uph.firebasestorage.app",
+  storageBucket: "campus-guide-map-uph.appspot.com",
   messagingSenderId: "685591421741",
   appId: "1:685591421741:web:61d36494c445b4b6b3a9a4",
   measurementId: "G-NX379L2PWL"
@@ -20,8 +18,8 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
+const db = getDatabase(app);
 
-// Helper to convert date → key (YYYYMMDD)
 function formatDateKey(date) {
   if (typeof date === "number") return date.toString();
   if (typeof date === "string") return date.replaceAll("-", "");
@@ -33,11 +31,7 @@ export async function getAllEvents() {
   const snapshot = await get(eventsRef);
   const data = snapshot.val();
   if (!data) return [];
-
-  return Object.entries(data).map(([id, event]) => ({
-    id,
-    ...event
-  }));
+  return Object.entries(data).map(([id, event]) => ({ id, ...event }));
 }
 
 export async function getEventsByDate(dateKey) {
@@ -45,13 +39,11 @@ export async function getEventsByDate(dateKey) {
   const dateSnap = await get(dateRef);
   const eventIds = dateSnap.val();
   if (!eventIds) return [];
-
   const events = [];
   for (const eventId of Object.keys(eventIds)) {
     const eventSnap = await get(ref(db, `events/${eventId}`));
     if (eventSnap.exists()) events.push({ id: eventId, ...eventSnap.val() });
   }
-
   return events;
 }
 
@@ -60,7 +52,6 @@ export async function createEvent(eventData) {
 
   const newEventRef = push(ref(db, "events"));
   const newEventId = newEventRef.key;
-
   const formattedDate = formatDateKey(eventData.date);
   const timestamp = Date.now();
 
@@ -70,15 +61,10 @@ export async function createEvent(eventData) {
     updatedAt: timestamp,
   };
 
-  // Write to /events
   await set(newEventRef, event);
-
-  // Write to /eventsByDate
   await set(ref(db, `eventsByDate/${formattedDate}/${newEventId}`), true);
-
   return { id: newEventId, ...event };
 }
-
 
 export async function updateEvent(eventId, updatedData) {
   const eventRef = ref(db, `events/${eventId}`);
@@ -88,13 +74,10 @@ export async function updateEvent(eventId, updatedData) {
   const existingEvent = snap.val();
   const oldDateKey = formatDateKey(existingEvent.date);
   const newDateKey = formatDateKey(updatedData.date || existingEvent.date);
-
   const timestamp = Date.now();
 
-  // Update /events
   await update(eventRef, { ...updatedData, updatedAt: timestamp });
 
-  // Update /eventsByDate if date changed
   if (oldDateKey !== newDateKey) {
     await remove(ref(db, `eventsByDate/${oldDateKey}/${eventId}`));
     await set(ref(db, `eventsByDate/${newDateKey}/${eventId}`), true);
@@ -111,8 +94,8 @@ export async function deleteEvent(eventId) {
   const event = snap.val();
   const dateKey = formatDateKey(event.date);
 
-  await remove(eventRef); // remove from /events
-  await remove(ref(db, `eventsByDate/${dateKey}/${eventId}`)); // remove index entry
+  await remove(eventRef);
+  await remove(ref(db, `eventsByDate/${dateKey}/${eventId}`));
 
   return { success: true };
 }
