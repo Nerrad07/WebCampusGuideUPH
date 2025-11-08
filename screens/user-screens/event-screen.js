@@ -8,6 +8,7 @@ const state = {
     status:   "All",
     from:     null,   // yyyy-mm-dd
     to:       null,   // yyyy-mm-dd
+    query:    "",     // search text
     events:   [],    
 }
 
@@ -25,6 +26,10 @@ const ui = {
     fromDate:     $("#fromDate"),
     toDate:       $("#toDate"),
     clearDates:   $("#clearDates"),
+
+    searchForm:    $("#searchForm"),
+    searchInput:   $("#searchInput"),
+    clearSearch:   $("#clearSearch"),
 
     list:         $("#eventsList"),
     empty:        $("#emptyState"),
@@ -109,7 +114,28 @@ function withinRange(isoDate, from, to) {
     return true;
 }
 
-// Render
+function matchesQuery(ev, query) {
+    // empty query => always match
+    if (!query) return true;
+
+    const q = query.trim().toLowerCase();
+    if (!q) return true;
+
+    // token-based: every token must be found somewhere
+    const tokens = q.split(/\s+/);
+
+    const haystack = [
+        ev.title, ev.heldBy, ev.building, ev.room,
+        ev.status, ev.date, ev.timeStart, ev.timeEnd
+    ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+    return tokens.every(t => haystack.includes(t));
+}
+
+// render
 function render(events) {
     ui.list.innerHTML = "";
 
@@ -137,13 +163,14 @@ function render(events) {
 }
 
 function applyFilters() {
-    const { building, status, from, to, events } = state;
+    const { building, status, from, to, query, events } = state;
 
     const filtered = events.filter(ev => {
         const byBuilding = building === "All" || ev.building === building;
         const byStatus   = status   === "All" || ev.status   === status;
         const byDate     = withinRange(ev.date, from, to);
-        return byBuilding && byStatus && byDate;
+        const bySearch   = matchesQuery(ev, query);
+        return byBuilding && byStatus && byDate && bySearch;
     });
 
     render(filtered);
@@ -237,6 +264,35 @@ async function init() {
         state.to   = null;
         applyFilters();
     });
+
+  // search
+    if (ui.searchForm) {
+        ui.searchForm.addEventListener("submit", (e) => e.preventDefault()); 
+    }
+
+    if (ui.searchInput) {
+        ui.searchInput.addEventListener("input", () => {
+            state.query = ui.searchInput.value;
+            applyFilters();
+        });
+
+        ui.searchInput.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+            ui.searchInput.value = "";
+            state.query = "";
+            applyFilters();
+        }
+        });
+    }
+
+    if (ui.clearSearch) {
+        ui.clearSearch.addEventListener("click", () => {
+            ui.searchInput.value = "";
+            state.query = "";
+            applyFilters();
+            ui.searchInput.focus();
+        });
+    }
 
     // close menus dengan outside click
     document.addEventListener("click", closeAllMenus);

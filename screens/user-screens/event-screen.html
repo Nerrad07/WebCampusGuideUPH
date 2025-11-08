@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="event-screen.css">
 </head>
 <body>
-
+    <!-- Navbar -->
     <header class="topbar">
         <nav>
             <div class="left">
@@ -16,6 +16,17 @@
                 </label>
 
                     <img src="../../img/logo_white.png" alt="" class="logotop">
+            </div>
+
+            <!-- Search bar -->
+            <div class="middle">
+                <form id="searchForm" role="search" class="searchbar" autocomplete="off">
+                    <input id="searchInput"
+                            type="search"
+                            placeholder="Search events, buildings, rooms…"
+                            aria-label="Search events">
+                    <button id="clearSearch" type="button" aria-label="Clear">×</button>
+                </form>
             </div>
 
             <div class="right">
