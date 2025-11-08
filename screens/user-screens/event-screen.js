@@ -60,7 +60,7 @@ async function fetchEventsMock() {
             date: "2025-10-16",
             timeStart: "09:00",
             timeEnd: "11:00",
-            status: "Ongoing",
+            status: "Upcoming",
         },
         {
             id: "e3",

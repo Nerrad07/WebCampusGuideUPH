@@ -394,6 +394,7 @@ a{
     margin-bottom: .6rem;
 }
 
+/* list faculties */
 .faculty-list {
     display: flex;
     gap: .8rem;
@@ -435,6 +436,83 @@ a{
     margin-top: .25rem;
 }
 
+/* popup faculties info */
+.modal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    z-index: 2000;                 
+}
+
+.modal.is-open {
+    display: flex;                 
+    align-items: center;
+    justify-content: center;
+}
+
+.modal_backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(2,6,23,.45);
+    backdrop-filter: blur(2px);
+}
+
+.modal_dialog {
+    position: relative;
+    width: min(720px, calc(100% - 24px));
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.18);
+    overflow: hidden;
+}
+
+.modal_header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    border-bottom: 1px solid #e5e7eb;
+    background: #f8fafc;
+}
+
+.modal_title {
+    margin: 0; 
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.modal_close {
+    border: 0;
+    background: #e2e8f0;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+} 
+
+.modal_close:hover { 
+    background:#dbe3ef; 
+}
+
+.modal_body {
+    padding: 30px;
+    display: grid;
+    gap: 1px;
+}
+
+.modal_list {
+    margin-left: 30px;
+}
+
+.modal_line {          
+    color: #1f2937;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* --- floor pada building.html --- */
 .floors {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -462,39 +540,142 @@ a{
     outline: none;
 }
 
+/* events list */
+.events-list{
+    display: grid;
+    gap: 12px;
+    margin-top: 12px;
+}
+
 .event-card {
     display: grid;
     grid-template-columns: 1fr auto;
-    align-items: center;
-    gap: .75rem;
+    gap: 12px;
+    align-items: start;
+    padding: 14px 16px;
     background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    padding: .9rem 1rem;
-    box-shadow: 0 1px 3px rgba(0,0,0,.05);
+    border-radius: 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.08);
 }
 
-.event-card_title {
-    margin: 0 0 .2rem;
-    font-size: 1rem;
+.event-title {
+    margin: 0 0 8px;
+    font-size: 1.15rem;
+    font-weight: 800;
 }
 
-.event-card_inside {
+.event-inside{
     margin: 0;
-    font-size: .9rem;
-    color: #475569;
-    line-height: 1.35;
+    display: grid;
+    gap: 6px;
+    font-size: .95rem;
 }
 
+.event-inside dt {
+    display: inline;
+    margin-right: 6px;
+    font-weight: 600;
+}
 
-.event-card_status {
+.event-inside dd {
+    display: inline;
+    margin: 0;
+}
+
+/* status badges */
+.badge {
+    display: inline-block;
+    padding: 8px 10px;
+    border-radius: 999px;
     font-size: .85rem;
     font-weight: 700;
-    padding: .35rem .6rem;
-    border-radius: 10px;
-    background: #f1f5f9; 
-    color: #475569; 
-    border: 1px solid #e2e8f0;
+    white-space: nowrap;
+}
+
+.badge.status[data-status="Ongoing"] {
+    background:#e6fff3;
+    color:#007a3d;
+    border:1px solid #b8f1d6;
+}
+
+.badge.status[data-status="Upcoming"] {
+    background:#fff6e6;
+    color:#8a4b00;
+    border:1px solid #ffe3b8;
+}
+
+.badge.status[data-status="Coming Soon"]{
+    background:#eaf0ff;
+    color:#163f9b;
+    border:1px solid #d1ddff;
+}
+
+/* empty state pada status*/
+.empty {
+    margin: 24px 0;
+    padding: 20px;
+    color:#2c3a4d;
+    background:#f7faff;
+    border:2px dashed #c9d6ef;
+    border-radius:12px;
+}
+
+/* -- floor pada building-floor.html -- */
+.panel{
+    background:#ffffff;
+    border:1px solid #e5e7eb;
+    border-radius:18px;
+    box-shadow:0 4px 16px rgba(2,6,23,.06);
+    overflow:hidden;
+}
+
+.panel_header{
+    padding:14px 16px;
+    border-bottom:1px solid #bfdcff;
+    background:linear-gradient(180deg,#f8fafc,#f3f6fb);
+}
+
+.section_title{
+    margin: 15px;
+    font-size:1.15rem;
+    font-weight:800;
+    color:#0f172a;
+}
+
+.room-grid {
+    list-style:none;
+    margin:0;
+    padding:19px;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:10px;
+}
+
+.room-grid li {
+    display:flex;
+    align-items: center;
+    text-align: center;
+    justify-content:center;
+    background:#f8fafc;
+    border:1px solid #e5e7eb;
+    border-radius:12px;
+    padding:12px 10px;
+    font-weight:700;
+    color:#1f2937;
+    box-shadow:0 1px 2px rgba(0,0,0,.03);
+    transition:transform .12s ease, box-shadow .12s ease, background .12s ease;
+}
+
+.room-grid li:hover,
+.room-grid li:focus-visible {
+    outline:none;
+    transform:translateY(-1px);
+    background:#ffffff;
+    box-shadow:0 8px 18px rgba(2,6,23,.08);
+}
+
+.page_title {
+    text-shadow:0 1px 2px rgba(255,255,255,.7);
 }
 
 
@@ -502,7 +683,7 @@ a{
     height: 24px;
 }
 
-.page, .section, .faculty-list, .floors, .event-card{
+.page, .section, .faculty-list, .floors, .event-card {
     position: static !important;
 }
 

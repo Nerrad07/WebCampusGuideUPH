@@ -399,15 +399,17 @@ a{
     align-items: center;
     gap: 8px;
     padding: 8px 10px;
-    color: #eaf0ff;  
-    background: #102446; 
+    color: #000000;  
+    background: #ddf2ff; 
     border-radius: 999px;
+    font-size: 18px;
+    align-items: center;
 }
 
 .date-chip input[type="date"] {
     appearance: none;
     padding: 2px 4px;
-    color: #eaf0ff;
+    color: #1f3365;
     background: transparent;
     border: 0;
     outline: 0;

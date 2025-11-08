@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Building B — Floor</title>
+    <link rel="stylesheet" href="building.css"/>
+</head>
+<body>
+
+    <header class="topbar">
+        <nav>
+            <div class="left">
+                <label for="navchk" class="hamburger">
+                    <img src="../../img/Hamburger.png" alt="">
+                </label>
+                <img src="../../img/logo_white.png" alt="" class="logotop">
+            </div>
+
+            <div class="right">
+                <div class="mapblue">
+                    <a href="../user-screens/map-screen.html">
+                        <button><img src="../../img/map-blue.png" alt="" class="buttons"></button>
+                    </a>
+                </div>
+
+                <div class="eventwhite">
+                    <a href="../user-screens/event-screen.html">
+                        <button><img src="../../img/event-white.png" alt="" class="buttons"></button>
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="page">
+
+        <div class="back-button">
+            <a href="b-building.html"><button>←</button></a>
+        </div>
+
+        <!-- floor title  -->
+        <div class="main">
+            <img class="main_img" src="../../img/Map.png" alt="">
+            <h1 id="floorTitle" class="page_title">Building B</h1>
+        </div>
+
+        <!-- room panel -->
+        <section class="section">
+            <div class="panel">
+                <header class="panel_header">
+                    <h2 class="section_title">Classrooms</h2>
+                </header>
+
+                <ul id="roomList" class="room-grid" aria-live="polite"></ul>
+            </div>
+        </section>
+    </main>
+
+    <footer class="botbar" aria-hidden="true"></footer>
+
+    <script type="module" src="building-floor.js"></script>
+</body>
+</html>
