@@ -4,36 +4,57 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="f-building.css">
+    <link rel="stylesheet" href="building.css">
 </head>
 <body>
-    
+
+    <!-- top bar
     <header class="topbar">
+        <nav class="topbar_nav" aria-label="Global navigation">
+            <div class="left">
+                <button class="icon-btn" aria-label="Open menu">
+                    <img src="../../img/Hamburger.png">
+                </button>
+                <a class="brand brand_link" href="../user-screens/map-screen.html" aria-label="Go to Map screen">
+                    <img class="brand_logo" src="../../img/logo_white.png" alt="UPH">
+                    <span class="brand_title">Campus Map</span>
+                </a>
+            </div>
+            <div class ="topbar_right">
+                <button class="icon-btn search" aria-label="Search">
+                    <span class="search-icon" aria-hidden="true"></span>
+                </button>
+            </div>
+        </nav>
+    </header> -->
+
+        <header class="topbar">
         <nav>
             <div class="left">
-                <button>
-                    <img src="../../img/Hamburger.png" alt="" class="hamburger">
-                </button>
+                <label for="navchk" class="hamburger">
+                    <img src="../../img/Hamburger.png" alt="">
+                </label>
 
                     <img src="../../img/logo_white.png" alt="" class="logotop">
             </div>
-
+            
             <div class="middle">
-                <div class="search-icon"></div>
                 Search
             </div>
 
             <div class="right">
                 <div class="mapblue">
-                    <button>
-                        <img src="../../img/map-blue.png" alt="" >
-                    </button>
+                    <a href="../user-screens/map-screen.html">
+                        <button>
+                            <img src="../../img/map-blue.png" alt="" class="buttons">
+                        </button>
+                    </a>
                 </div>
 
                 <div class="eventwhite">
                     <a href="../user-screens/event-screen.html">
                         <button>
-                            <img src="../../img/event-white.png" alt="">
+                            <img src="../../img/event-white.png" alt="" class="buttons">
                         </button>
                     </a>
                 </div>
@@ -41,7 +62,49 @@
         </nav>
     </header>
 
-    <main>
+    <input type="checkbox" id="navchk" hidden>
+    <aside class="sidebar">
+
+        <div class="sidebar-header">
+           <img src="../../img/logo_white.png" alt="" class="logotop">
+        </div>
+
+        <div class="sidebar-header-text">
+            <p>Campus Guide UPH <br> Lippo Village</p>
+        </div>
+
+        <nav class="menu">
+            <a href="https://www.uph.edu/id/facility/map-kampus/">
+                <img src="../../img/location-logo.png" alt="">
+                <span>UPH Lippo Village Map</span>
+            </a>
+
+            <a href="https://www.uph.edu/id/">
+                <img src="../../img/web-logo.png" alt="">
+                <span>www.uph.edu/id</span>
+            </a>
+
+            <a href="https://www.instagram.com/uphimpactslives/">
+                <img src="../../img/instagram-logo.png" alt="">
+                <span>@uphimpactslives</span>
+            </a>
+
+            <a href="https://www.uph.edu/id/contact/">
+                <img src="../../img/phone-logo.png" alt="">
+                <span>Contact Us</span>
+            </a>
+
+            <a href="../admin-screens/login.html">
+                <img src="../../img/user-logo.png" alt="">
+                <span>Admin Login</span>
+            </a>
+        </nav>
+    </aside>
+
+    <label for="navchk" class="overlay" aria-hidden="true"></label>
+
+    <main class="page">
+
         <div class="back-button">
             <a href="../user-screens/map-screen.html"> 
                 <button>
@@ -49,10 +112,63 @@
                 </button>
             </a>
         </div>
+
+        <!-- background utk title bar-->
+        <div class="main">
+            <img class="main_img" src="../../img/Map.png" alt="" >
+            <button class="back-btn" onclick="history.back()" aria-label="Back">
+                <img src="../../img/back-button.png">
+            </button>
+            <h1 class="page_title">Building D</h1>
+        </div>
+
+        <section class ="section">
+            <h2 class="section_title">List of Faculties</h2>
+            <div class="faculty-list" role="list" aria-label="Faculties (drag sideways)">
+                <button class="faculty-card" role="listitem">Faculty of Economy & Business</button>
+                <button class="faculty-card" role="listitem">Faculty of Law</button>
+                <button class="faculty-card" role="listitem">Faculty of Economy & Business</button>
+                <button class="faculty-card" role="listitem">Faculty of Social and Political Sciences</button>
+            </div>
+            <p class="hint">Tip: drag secara horizontal untuk explore fakultas selanjutnya!</p>
+        </section>
+
+        <section class="section">
+            <h2 class="section_title">Floor Navigation</h2>
+            <div class="floors">
+                <a class="floor" href="#floor-1">Floor 1</a>
+                <a class="floor" href="#floor-2">Floor 2</a>
+                <a class="floor" href="#floor-3">Floor 3</a>
+                <a class="floor" href="#floor-5">Floor 5</a>
+                <a class="floor" href="#floor-6">Floor 6</a>
+                <a class="floor" href="#floor-7">Floor 7</a>
+                <a class="floor" href="#floor-8">Floor 8</a>
+                <a class="floor" href="#floor-9">Floor 9</a>
+                <a class="floor" href="#floor-10">Floor 10</a>
+                <a class="floor" href="#floor-11">Floor 11</a>
+                <a class="floor" href="#floor-12">Floor 12</a>
+                <a class="floor" href="#floor-15">Floor 15</a>
+                <a class="floor" href="#floor-16">Floor 16</a>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section_title">Events</h2>
+            <article class="event-card">
+                <div class="event-card_body">
+                    <h3 class="event-card_title">Law Figure Talkshow</h3>
+                    <p class="event-card_inside">
+                        Held By: HM Hukum <br>
+                        Date: 2025-11-15 <br>
+                        Time: 13:00 - 15:30 <br> 
+                        Room: F601
+                    </p>
+                </div>
+                <div class="event-card_status">Coming Soon</div>
+            </article>
+        </section>
     </main>
-    <footer class="botbar">
 
-    </footer>
-
+    <footer class="botbar" aria-hidden="true"></footer>
 </body>
 </html>
