@@ -1,52 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-    <link rel="stylesheet" href="create.css">
-</head>
-<body>
-    
+    <link rel="stylesheet" href="create.css" />
+  </head>
+  <body>
     <header>
-        <div class="img">
-            <img src="../../img/main-logo.png" alt="">
-        </div>
+      <div class="img">
+        <img src="../../img/main-logo.png" alt="" />
+      </div>
     </header>
 
     <main>
-        <div class="container">
-            <div class="login">
-                <form action="" method="post">
+      <div class="container">
+        <div class="login">
+          <form action="" method="post">
+            <h2 class="title">Create Account</h2>
 
-                    <h2 class="title">Create Account</h2>
+            <label for="email">Email</label>
+            <input class="email" type="email" required min="8" /> <br />
 
-                    <label for="email">Email</label>
-                    <input class="email" type="email" required min="8"> <br>
+            <label for="pass">Password</label>
+            <input class="pass" type="password" required min="8" />
 
-                    <label for="pass">Password</label>
-                    <input class="pass" type="password" required min="8">
-                    
-                    <label for="confirm">Confirm <br> Password</label>
-                    <input class="confirm" type="password" required min="8">
+            <label for="confirm"
+              >Confirm <br />
+              Password</label
+            >
+            <input class="confirm" type="password" required min="8" />
 
-                    <div class="submit">
-                        <button><b>Create Account</b></button>
-                    </div>
-
-                    <div class="google">
-                        <button>
-                            <img src="../../img/google-logo.png" alt="">
-                        </button>
-                    </div>
-                </form>
+            <div class="submit">
+              <button><b>Create Account</b></button>
             </div>
-            <div class="temp">
-                <a href="dashboard.html">
-                    <button>Dashboard Temporary Button</button>
-                </a>
+
+            <div class="google">
+              <button>
+                <img src="../../img/google-logo.png" alt="" />
+              </button>
             </div>
+          </form>
         </div>
+        <div class="temp">
+          <a href="dashboard.html">
+            <button>Dashboard Temporary Button</button>
+          </a>
+        </div>
+      </div>
     </main>
-</body>
+  </body>
 </html>
