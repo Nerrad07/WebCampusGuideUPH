@@ -8,7 +8,12 @@ import cors from "cors";
 dotenv.config();
 
 const app = express();
-app.use(cors({ origin: ["https://campus-guide-map-uph.vercel.app"] }));
+app.use(cors({
+  origin: [
+    "http://127.0.0.1:5500", // for local testing
+    "https://web-campus-guide-uph.vercel.app" // replace with your actual frontend URL
+  ]
+}));
 app.use(express.json());
 
 // Initialize Firebase Admin SDK

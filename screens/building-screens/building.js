@@ -1,6 +1,6 @@
 // ✅ building.js (with event time classification)
 
-const API_URL = "https://vercel.com/darr-jov-no-brys-projects/web-campus-guide-uph/2cbeTRpg6FcERi1SJvQnK9uvmJZP";
+const API_URL = "https://web-campus-guide-uph.vercel.app";
 const API_KEY = "myLocalTestKey123"; // same as in Firebase RTDB
 
 const eventsContainer = document.getElementById("events-container-b");
@@ -72,12 +72,8 @@ async function loadBuildingBEvents() {
   try {
     console.log("🔹 Fetching events from API...");
 
-    const response = await fetch(API_URL, {
-      method: "GET",
-      headers: {
-        "x-api-key": API_KEY
-      }
-    });
+    const response = await fetch("https://web-campus-guide-uph.vercel.app/events?apiKey=myLocalTestKey123");
+
 
     if (!response.ok) {
       throw new Error(`Failed to fetch (status: ${response.status})`);
