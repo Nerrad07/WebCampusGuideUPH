@@ -1,5 +1,3 @@
-// forgot.js — local change password (no email) using Firebase Auth
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
 import {
   getAuth,
@@ -10,7 +8,6 @@ import {
   signOut,
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 
-/* ---- Firebase config (replace with your project values) ---- */
 const app = initializeApp({
   apiKey: "AIzaSyDLFaOnFD4ICf3VJcIfNdeS1Pp5v0P7jLU",
   authDomain: "campus-guide-map-uph.firebaseapp.com",
@@ -18,7 +15,6 @@ const app = initializeApp({
 });
 const auth = getAuth(app);
 
-/* ---- DOM ---- */
 const form = document.getElementById("changeForm");
 const curEl = document.getElementById("currentPass");
 const newEl = document.getElementById("newPass");
@@ -28,7 +24,6 @@ const tCur = document.getElementById("toggleCurrent");
 const tNew = document.getElementById("toggleNew");
 const tCfm = document.getElementById("toggleConfirm");
 
-/* show/hide toggles */
 const bindToggle = (btn, input) =>
   btn?.addEventListener("click", () => {
     const show = input.type === "password";
@@ -39,15 +34,13 @@ bindToggle(tCur, curEl);
 bindToggle(tNew, newEl);
 bindToggle(tCfm, cfmEl);
 
-/* must be signed in */
 onAuthStateChanged(auth, (user) => {
   if (!user) location.replace("./login.html");
 });
 
-/* submit */
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
-  msgEl.style.color = "#e11"; // red
+  msgEl.style.color = "#e11";
   msgEl.textContent = "";
 
   const current = curEl.value;
@@ -74,14 +67,12 @@ form.addEventListener("submit", async (e) => {
   }
 
   try {
-    // reauthenticate with current password
     const cred = EmailAuthProvider.credential(user.email, current);
     await reauthenticateWithCredential(user, cred);
 
-    // update to new password
     await updatePassword(user, next);
 
-    msgEl.style.color = "#10b981"; // green
+    msgEl.style.color = "#10b981";
     msgEl.textContent = "Password updated. Please sign in again.";
     setTimeout(async () => {
       await signOut(auth);

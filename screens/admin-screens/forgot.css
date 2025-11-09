@@ -141,14 +141,12 @@ main {
   text-decoration: underline;
 }
 
-/* keep your existing styles … */
-
-/* tiny helpers for the show/hide button */
 .input-wrap {
   position: relative;
   display: flex;
   align-items: center;
 }
+
 .input-wrap .reveal {
   position: absolute;
   right: 8px;
@@ -162,6 +160,7 @@ main {
   color: #111;
   cursor: pointer;
 }
+
 .input-wrap .reveal:focus {
   outline: 2px solid #fff;
   outline-offset: 2px;
