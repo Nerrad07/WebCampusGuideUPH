@@ -1,11 +1,7 @@
-// ✅ building.js (with event time classification)
-
 const API_URL = "https://web-campus-guide-uph.vercel.app";
-const API_KEY = "myLocalTestKey123"; // same as in Firebase RTDB
 
 const eventsContainer = document.getElementById("events-container-b");
 
-// Helper to build each event card
 function createEventCard(event) {
   const card = document.createElement("article");
   card.classList.add("event-card");
@@ -24,7 +20,6 @@ function createEventCard(event) {
   body.appendChild(title);
   body.appendChild(details);
 
-  // Determine event status (Ongoing, Upcoming, Past)
   const status = document.createElement("div");
   status.classList.add("event-card_status");
 
@@ -38,7 +33,6 @@ function createEventCard(event) {
   return card;
 }
 
-// 🧠 Determine event status (based on date & start/end times)
 function getEventStatus(event) {
   try {
     // Get event date (in ms)
@@ -49,7 +43,6 @@ function getEventStatus(event) {
     const start = new Date(eventDate);
     const end = new Date(eventDate);
 
-    // Convert minutes since midnight → actual time of day
     start.setMinutes(event.startTimeMinutes || 0);
     end.setMinutes(event.endTimeMinutes || 0);
 
@@ -67,7 +60,6 @@ function getEventStatus(event) {
   }
 }
 
-// 🧩 Fetch and render all events from Building B
 async function loadBuildingBEvents() {
   try {
     console.log("🔹 Fetching events from API...");
@@ -81,14 +73,12 @@ async function loadBuildingBEvents() {
 
     const data = await response.json();
     const events = Object.values(data || {});
-    console.log("✅ Events fetched:", events);
+    console.log("Events fetched:", events);
 
-    // Filter only events from Building B
     const buildingBEvents = events.filter(
       (e) => e.building && e.building.toUpperCase() === "B"
     );
 
-    // Clear old content
     eventsContainer.innerHTML = "";
 
     if (buildingBEvents.length === 0) {
@@ -96,19 +86,16 @@ async function loadBuildingBEvents() {
       return;
     }
 
-    // Sort events by date/time (optional)
     buildingBEvents.sort((a, b) => (a.date || 0) - (b.date || 0));
 
-    // Render all
     buildingBEvents.forEach((event) => {
       const card = createEventCard(event);
       eventsContainer.appendChild(card);
     });
   } catch (error) {
-    console.error("❌ Error loading events:", error);
+    console.error("Error loading events:", error);
     eventsContainer.innerHTML = `<p style="color:red;">Error loading events: ${error.message}</p>`;
   }
 }
 
-// Run after DOM loaded
 document.addEventListener("DOMContentLoaded", loadBuildingBEvents);

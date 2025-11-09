@@ -1,5 +1,3 @@
-// ✅ Express.js + Firebase Admin CRUD API with Auth & API Key Verification
-
 import express from "express";
 import dotenv from "dotenv";
 import admin from "firebase-admin";
@@ -10,14 +8,11 @@ dotenv.config();
 const app = express();
 app.use(cors({
   origin: [
-    "http://127.0.0.1:5500", // for local testing
-    "https://web-campus-guide-uph.vercel.app" // replace with your actual frontend URL
+    "https://web-campus-guide-uph.vercel.app"
   ]
 }));
 app.use(express.json());
 
-// Initialize Firebase Admin SDK
-// Initialize Firebase Admin SDK using environment variables
 const serviceAccount = JSON.parse(process.env.SERVICE_ACCOUNT);
 
 admin.initializeApp({
@@ -27,10 +22,9 @@ admin.initializeApp({
 
 const db = admin.database();
 
-// --- 🔐 AUTH & API KEY VERIFICATION MIDDLEWARE ---
+//AUTH
 async function verifyApiKey(req, res, next) {
   try {
-    // --- 1️⃣ Firebase ID Token (Authorization: Bearer <token>) ---
     const authHeader = (req.headers.authorization || "").split(" ");
     if (authHeader[0] === "Bearer" && authHeader[1]) {
       const idToken = authHeader[1];
@@ -38,14 +32,10 @@ async function verifyApiKey(req, res, next) {
         const decoded = await admin.auth().verifyIdToken(idToken);
         req.auth = decoded;
 
-        // Optional: check /admins/<uid> === true
         const adminSnapshot = await db.ref(`admins/${decoded.uid}`).once("value");
         if (adminSnapshot.exists() && adminSnapshot.val() === true) {
           return next();
         }
-
-        // If you want to allow all signed-in users (no admin restriction), uncomment this:
-        // return next();
 
         return res.status(403).json({ message: "Forbidden: user not authorized" });
       } catch (err) {
@@ -53,7 +43,6 @@ async function verifyApiKey(req, res, next) {
       }
     }
 
-    // --- 2️⃣ x-api-key stored in Realtime DB (/apiKeys/<key>) ---
     const clientKey =
       req.headers["x-api-key"] ||
       req.query.apiKey ||
@@ -77,9 +66,7 @@ async function verifyApiKey(req, res, next) {
   }
 }
 
-// --- 🧩 CRUD ROUTES ---
-
-// 🟢 CREATE EVENT
+//CREATE EVENT
 app.post("/events", verifyApiKey, async (req, res) => {
   try {
     const event = req.body;
@@ -100,8 +87,7 @@ app.post("/events", verifyApiKey, async (req, res) => {
   }
 });
 
-// 🔵 READ ALL EVENTS
-app.get("/events", verifyApiKey, async (req, res) => {
+app.get("/events", async (req, res) => {
   try {
     const snapshot = await db.ref("events").once("value");
     const events = snapshot.val() || {};
@@ -111,8 +97,7 @@ app.get("/events", verifyApiKey, async (req, res) => {
   }
 });
 
-// 🔵 READ SINGLE EVENT
-app.get("/events/:id", verifyApiKey, async (req, res) => {
+app.get("/events/:id", async (req, res) => {
   try {
     const snapshot = await db.ref(`events/${req.params.id}`).once("value");
     if (!snapshot.exists()) {
@@ -124,7 +109,7 @@ app.get("/events/:id", verifyApiKey, async (req, res) => {
   }
 });
 
-// 🟠 UPDATE EVENT
+//UPDATE EVENT
 app.put("/events/:id", verifyApiKey, async (req, res) => {
   try {
     const eventId = req.params.id;
@@ -155,7 +140,7 @@ app.put("/events/:id", verifyApiKey, async (req, res) => {
   }
 });
 
-// 🔴 DELETE EVENT
+//DELETE EVENT
 app.delete("/events/:id", verifyApiKey, async (req, res) => {
   try {
     const eventId = req.params.id;
@@ -177,6 +162,6 @@ app.delete("/events/:id", verifyApiKey, async (req, res) => {
   }
 });
 
-// --- SERVER STARTUP ---
+//local testing only
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Event API running at http://localhost:${PORT}`));
