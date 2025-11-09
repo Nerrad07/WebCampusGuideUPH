@@ -1,60 +1,118 @@
-import { getAllEvents } from "../../API/script.js";
+// ✅ building.js (with event time classification)
 
-const container = document.querySelector('[id^="events-container-"]');
-const id = container?.id || "";
-const buildingLetter = id.split("-").pop().toUpperCase();
-const templateCard = container.querySelector(".event-card");
+const API_URL = "https://vercel.com/darr-jov-no-brys-projects/web-campus-guide-uph/2cbeTRpg6FcERi1SJvQnK9uvmJZP";
+const API_KEY = "myLocalTestKey123"; // same as in Firebase RTDB
 
-// Function to render one event
-function renderEvent(event) {
-  // Clone the template so you can reuse the same structure
-  const card = templateCard.cloneNode(true);
+const eventsContainer = document.getElementById("events-container-b");
 
-  // Fill in values
-  card.querySelector(".event-card_title").textContent = event.name;
-  
-  const startHour = Math.floor(event.startTimeMinutes / 60);
-  const startMin = (event.startTimeMinutes % 60).toString().padStart(2, "0");
-  const endHour = Math.floor(event.endTimeMinutes / 60);
-  const endMin = (event.endTimeMinutes % 60).toString().padStart(2, "0");
+// Helper to build each event card
+function createEventCard(event) {
+  const card = document.createElement("article");
+  card.classList.add("event-card");
 
-  const inside = `
-    Held By: ${event.heldBy || "Unknown"} <br>
-    Date: ${new Date(event.date).toLocaleDateString()} <br>
-    Time: ${startHour}:${startMin} - ${endHour}:${endMin} <br>
-    Room: ${event.room || "-"}
-  `;
+  const body = document.createElement("div");
+  body.classList.add("event-card_body");
 
-  card.querySelector(".event-card_inside").innerHTML = inside;
-  card.querySelector(".event-card_status").textContent = event.published ? "Ongoing" : "Coming Soon";
+  const title = document.createElement("h3");
+  title.classList.add("event-card_title");
+  title.textContent = event.name || "Untitled Event";
+
+  const details = document.createElement("p");
+  details.classList.add("event-card_inside");
+  details.textContent = `${event.heldBy || "Unknown"} • Floor ${event.floor || "?"} • Room ${event.room || "-"}`;
+
+  body.appendChild(title);
+  body.appendChild(details);
+
+  // Determine event status (Ongoing, Upcoming, Past)
+  const status = document.createElement("div");
+  status.classList.add("event-card_status");
+
+  const eventStatus = getEventStatus(event);
+  status.textContent = eventStatus.label;
+  status.style.color = eventStatus.color;
+
+  card.appendChild(body);
+  card.appendChild(status);
 
   return card;
 }
 
-async function loadEvents() {
+// 🧠 Determine event status (based on date & start/end times)
+function getEventStatus(event) {
   try {
-    const events = await getAllEvents();
+    // Get event date (in ms)
+    const eventDate = new Date(event.date);
+    if (isNaN(eventDate)) return { label: "Unknown", color: "gray" };
 
-    // Filter for Building B
-    const buildingBEvents = events.filter(e => e.building?.toUpperCase() === buildingLetter);
+    const now = new Date();
+    const start = new Date(eventDate);
+    const end = new Date(eventDate);
 
-    // Clear container but keep one template for cloning
-    container.innerHTML = "";
-    
-    if (buildingBEvents.length === 0) {
-      container.innerHTML = "<p>No events found for Building B.</p>";
-      return;
+    // Convert minutes since midnight → actual time of day
+    start.setMinutes(event.startTimeMinutes || 0);
+    end.setMinutes(event.endTimeMinutes || 0);
+
+    // Compare times
+    if (now >= start && now <= end) {
+      return { label: "Ongoing", color: "green" };
+    } else if (now < start) {
+      return { label: "Upcoming", color: "orange" };
+    } else {
+      return { label: "Past", color: "gray" };
     }
-
-    // Add all events
-    buildingBEvents.forEach(event => {
-      const card = renderEvent(event);
-      container.appendChild(card);
-    });
   } catch (err) {
-    console.error("Failed to load events:", err);
-    container.innerHTML = "<p style='color:red;'>Error loading events</p>";
+    console.warn("Error parsing event time:", err);
+    return { label: "Unknown", color: "gray" };
   }
 }
 
-loadEvents();
+// 🧩 Fetch and render all events from Building B
+async function loadBuildingBEvents() {
+  try {
+    console.log("🔹 Fetching events from API...");
+
+    const response = await fetch(API_URL, {
+      method: "GET",
+      headers: {
+        "x-api-key": API_KEY
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch (status: ${response.status})`);
+    }
+
+    const data = await response.json();
+    const events = Object.values(data || {});
+    console.log("✅ Events fetched:", events);
+
+    // Filter only events from Building B
+    const buildingBEvents = events.filter(
+      (e) => e.building && e.building.toUpperCase() === "B"
+    );
+
+    // Clear old content
+    eventsContainer.innerHTML = "";
+
+    if (buildingBEvents.length === 0) {
+      eventsContainer.textContent = "No events found in Building B.";
+      return;
+    }
+
+    // Sort events by date/time (optional)
+    buildingBEvents.sort((a, b) => (a.date || 0) - (b.date || 0));
+
+    // Render all
+    buildingBEvents.forEach((event) => {
+      const card = createEventCard(event);
+      eventsContainer.appendChild(card);
+    });
+  } catch (error) {
+    console.error("❌ Error loading events:", error);
+    eventsContainer.innerHTML = `<p style="color:red;">Error loading events: ${error.message}</p>`;
+  }
+}
+
+// Run after DOM loaded
+document.addEventListener("DOMContentLoaded", loadBuildingBEvents);
