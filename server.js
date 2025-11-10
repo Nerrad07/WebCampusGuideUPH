@@ -16,21 +16,25 @@ const allowedOrigins = [
   "http://127.0.0.1:5500",
 ];
 
-app.use(cors({
+const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl)
     if (!origin) return callback(null, true);
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     } else {
-      console.warn("Blocked by CORS:", origin);
+      console.warn("🚫 Blocked by CORS:", origin);
       return callback(new Error("Not allowed by CORS"));
     }
   },
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
-}));
-app.options("*", cors());
+  optionsSuccessStatus: 200,
+};
+
+app.use(cors(corsOptions));
+
+app.options("*", cors(corsOptions));
 
 app.use(express.json());
 
