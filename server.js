@@ -9,32 +9,29 @@ dotenv.config();
 
 const app = express();
 
+app.use((req, res, next) => {
+  const allowedOrigins = [
+    "https://web-campus-guide-uph.vercel.app",
+    "http://localhost:5500",
+    "http://127.0.0.1:5500",
+  ];
 
-const allowedOrigins = [
-  "https://web-campus-guide-uph.vercel.app",
-  "http://localhost:5500",
-  "http://127.0.0.1:5500",
-];
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
 
-const corsOptions = {
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    } else {
-      console.warn("🚫 Blocked by CORS:", origin);
-      return callback(new Error("Not allowed by CORS"));
-    }
-  },
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true,
-  optionsSuccessStatus: 200,
-};
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
 
-app.use(cors(corsOptions));
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
 
-app.options("*", cors(corsOptions));
+  next();
+});
+
 
 app.use(express.json());
 
