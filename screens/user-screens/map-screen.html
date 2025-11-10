@@ -1,125 +1,103 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Campus Guide UPH</title>
-    <link rel="stylesheet" href="map-screen.css">
-</head>
-<body>
-    
+    <link rel="stylesheet" href="map-screen.css" />
+  </head>
+  <body>
     <header class="topbar">
-        <nav>
-            <div class="left">
-                <label for="navchk" class="hamburger">
-                    <img src="../../img/Hamburger.png" alt="">
-                </label>
+      <nav>
+        <div class="left">
+          <label for="navchk" class="hamburger">
+            <img src="../../img/Hamburger.png" alt="" />
+          </label>
 
-                    <img src="../../img/logo_white.png" alt="" class="logotop">
-            </div>
+          <img src="../../img/logo_white.png" alt="" class="logotop" />
+        </div>
 
-            <div class="middle">
-                Search
-            </div>
+        <div class="right">
+          <div class="mapblue">
+            <button>
+              <img src="../../img/map-blue.png" alt="" class="" />
+            </button>
+          </div>
 
-            <div class="right">
-                <div class="mapblue">
-                    <button>
-                        <img src="../../img/map-blue.png" alt="" class="buttons">
-                    </button>
-                </div>
-
-                    <div class="eventwhite">
-                    <a href="event-screen.html">
-                        <button>
-                            <img src="../../img/event-white.png" alt="" class="buttons">
-                        </button>
-                    </a>
-                </div>
-            </div>
-        </nav>
+          <div class="eventwhite">
+            <a href="event-screen.html">
+              <button>
+                <img src="../../img/event-white.png" alt="" class="" />
+              </button>
+            </a>
+          </div>
+        </div>
+      </nav>
     </header>
-    
-    <input type="checkbox" id="navchk" hidden>
+
+    <input type="checkbox" id="navchk" hidden />
     <aside class="sidebar">
+      <div class="sidebar-header">
+        <img src="../../img/logo_white.png" alt="" class="logotop" />
+      </div>
 
-        <div class="sidebar-header">
-           <img src="../../img/logo_white.png" alt="" class="logotop">
-        </div>
+      <div class="sidebar-header-text">
+        <p>
+          Campus Guide UPH <br />
+          Lippo Village
+        </p>
+      </div>
 
-        <div class="sidebar-header-text">
-            <p>Campus Guide UPH <br> Lippo Village</p>
-        </div>
+      <nav class="menu">
+        <a href="https://www.uph.edu/id/facility/map-kampus/">
+          <img src="../../img/location-logo.png" alt="" />
+          <span>UPH Lippo Village Map</span>
+        </a>
 
-        <nav class="menu">
-            <a href="https://www.uph.edu/id/facility/map-kampus/">
-                <img src="../../img/location-logo.png" alt="">
-                <span>UPH Lippo Village Map</span>
-            </a>
+        <a href="https://www.uph.edu/id/">
+          <img src="../../img/web-logo.png" alt="" />
+          <span>www.uph.edu/id</span>
+        </a>
 
-            <a href="https://www.uph.edu/id/">
-                <img src="../../img/web-logo.png" alt="">
-                <span>www.uph.edu/id</span>
-            </a>
+        <a href="https://www.instagram.com/uphimpactslives/">
+          <img src="../../img/instagram-logo.png" alt="" />
+          <span>@uphimpactslives</span>
+        </a>
 
-            <a href="https://www.instagram.com/uphimpactslives/">
-                <img src="../../img/instagram-logo.png" alt="">
-                <span>@uphimpactslives</span>
-            </a>
+        <a href="https://www.uph.edu/id/contact/">
+          <img src="../../img/phone-logo.png" alt="" />
+          <span>Contact Us</span>
+        </a>
 
-            <a href="https://www.uph.edu/id/contact/">
-                <img src="../../img/phone-logo.png" alt="">
-                <span>Contact Us</span>
-            </a>
-
-            <a href="../admin-screens/login.html">
-                <img src="../../img/user-logo.png" alt="">
-                <span>Admin Login</span>
-            </a>
-        </nav>
+        <a href="../admin-screens/login.html">
+          <img src="../../img/user-logo.png" alt="" />
+          <span>Admin Login</span>
+        </a>
+      </nav>
     </aside>
 
     <label for="navchk" class="overlay" aria-hidden="true"></label>
 
     <main>
-        <div class="buttons">
-            <div class="button-b">
-                <a href="../building-screens/b-building.html">
-                    <button>B</button>
-                </a>
-            </div>
+      <div class="buttons">
+        <img class="map" src="../../img/Map.png" alt="" />
+        <a href="../building-screens/b-building.html">
+          <button class="pin pin-b">B</button>
+        </a>
 
-            <div class="button-c">
-                <a href="../building-screens/c-building.html">
-                    <button>C</button>
-                </a>
-            </div>
+        <a href="../building-screens/c-building.html">
+          <button class="pin pin-c">C</button>
+        </a>
 
-            <div class="button-d">
-                <a href="../building-screens/d-building.html">
-                    <button>D</button>
-                </a>
-            </div>
+        <a href="../building-screens/d-building.html">
+          <button class="pin pin-d">D</button>
+        </a>
 
-            <div class="button-f">
-                <a href="../building-screens/f-building.html">
-                    <button>F</button>
-                </a>
-            </div>
-
-            <div class="button-g">
-                <a href="../building-screens/g-building.html">
-                    <button>G</button>
-                </a>
-            </div>
-        </div>
-
-
-        <img class="map" src="../../img/Map.png" alt="">
+        <a href="../building-screens/f-building.html">
+          <button class="pin pin-f">F</button>
+        </a>
+      </div>
     </main>
-    <footer>
-
-    </footer>
-
-</body>
+    <footer></footer>
+  </body>
 </html>

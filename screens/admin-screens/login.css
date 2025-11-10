@@ -76,6 +76,10 @@ main{
     color: white;
 }
 
+.forgot a:hover{
+    text-decoration: underline;
+}
+
 .forgot{
     display: flex;
     justify-content: flex-end;
@@ -106,6 +110,7 @@ main{
     background-color: white;
     color: rgb(29, 33, 96);
     cursor: pointer;
+    font-family: 'Times New Roman', Times, serif;
 }
 
 .submit button:hover{
@@ -113,3 +118,18 @@ main{
     color:white;
 }
 
+.account{
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.account a{
+    color: white;
+    text-decoration: none;
+}
+
+.account a:hover{
+    text-decoration: underline;
+}
