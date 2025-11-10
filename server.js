@@ -2,19 +2,35 @@ import express from "express";
 import dotenv from "dotenv";
 import admin from "firebase-admin";
 import cors from "cors";
+import session from "express-session";
 
 dotenv.config();
 
 const app = express();
+
+// ✅ Allow frontend origins
 app.use(cors({
   origin: [
-    "https://web-campus-guide-uph.vercel.app"
-  ]
+    "https://web-campus-guide-uph.vercel.app",
+    "http://localhost:5500"
+  ],
+  credentials: true // allow cookies
 }));
 app.use(express.json());
 
-const serviceAccount = JSON.parse(process.env.SERVICE_ACCOUNT);
+// ✅ Initialize sessions
+app.use(session({
+  secret: process.env.SESSION_SECRET || "supersecretkey",
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: false, // ⚠️ Set to true if using HTTPS only
+    maxAge: 1000 * 60 * 60 * 6 // 6 hours session
+  }
+}));
 
+// --- Firebase Admin Initialization ---
+const serviceAccount = JSON.parse(process.env.SERVICE_ACCOUNT);
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: process.env.DATABASE_URL
@@ -22,52 +38,61 @@ admin.initializeApp({
 
 const db = admin.database();
 
-//AUTH
-async function verifyApiKey(req, res, next) {
+//
+// 🔐 AUTH LOGIC WITH SESSION
+//
+
+// 🔹 Step 1: One-time verification route
+app.post("/auth/login", async (req, res) => {
   try {
-    const authHeader = (req.headers.authorization || "").split(" ");
-    if (authHeader[0] === "Bearer" && authHeader[1]) {
-      const idToken = authHeader[1];
-      try {
-        const decoded = await admin.auth().verifyIdToken(idToken);
-        req.auth = decoded;
+    const { idToken } = req.body;
+    if (!idToken) return res.status(400).json({ message: "Missing ID token" });
 
-        const adminSnapshot = await db.ref(`admins/${decoded.uid}`).once("value");
-        if (adminSnapshot.exists() && adminSnapshot.val() === true) {
-          return next();
-        }
+    // Verify Firebase ID token
+    const decoded = await admin.auth().verifyIdToken(idToken);
 
-        return res.status(403).json({ message: "Forbidden: user not authorized" });
-      } catch (err) {
-        console.warn("Invalid Firebase token:", err.message || err);
-      }
+    // Only allow admin roles
+    if (decoded.role !== "admin") {
+      return res.status(403).json({ message: "Forbidden: user not an admin" });
     }
 
-    const clientKey =
-      req.headers["x-api-key"] ||
-      req.query.apiKey ||
-      req.body?.apiKey;
-    if (clientKey) {
-      const keySnapshot = await db.ref(`apiKeys/${clientKey}`).once("value");
-      const keyData = keySnapshot.exists() ? keySnapshot.val() : null;
+    // Save user info in session
+    req.session.user = {
+      uid: decoded.uid,
+      email: decoded.email,
+      role: decoded.role
+    };
 
-      if (keyData && ((typeof keyData === "object" && keyData.allowed) || keyData === true)) {
-        req.apiKeyMeta = (typeof keyData === "object") ? keyData : { key: clientKey };
-        return next();
-      }
-
-      return res.status(403).json({ message: "Forbidden: invalid API key" });
-    }
-
-    return res.status(401).json({ message: "Unauthorized: provide Authorization Bearer token or x-api-key" });
+    res.json({ message: "✅ Admin verified and session created", user: req.session.user });
   } catch (err) {
-    console.error("verifyApiKey error:", err);
-    return res.status(500).json({ message: "Internal server error" });
+    console.error("Login verification failed:", err);
+    res.status(401).json({ message: "Invalid or expired token" });
   }
+});
+
+// 🔹 Step 2: Middleware to check session
+function requireAdminSession(req, res, next) {
+  if (req.session.user && req.session.user.role === "admin") {
+    return next();
+  }
+  return res.status(401).json({ message: "Unauthorized or session expired" });
 }
 
-//CREATE EVENT
-app.post("/events", verifyApiKey, async (req, res) => {
+// 🔹 Step 3: Logout route
+app.post("/auth/logout", (req, res) => {
+  req.session.destroy((err) => {
+    if (err) return res.status(500).json({ message: "Error logging out" });
+    res.clearCookie("connect.sid");
+    res.json({ message: "✅ Logged out successfully" });
+  });
+});
+
+//
+// --- 📅 CRUD ROUTES ---
+//
+
+// 🟢 CREATE EVENT (admin only, session verified)
+app.post("/events", requireAdminSession, async (req, res) => {
   try {
     const event = req.body;
     const ref = db.ref("events").push();
@@ -87,16 +112,19 @@ app.post("/events", verifyApiKey, async (req, res) => {
   }
 });
 
+// 🔵 READ ALL EVENTS (public)
 app.get("/events", async (req, res) => {
   try {
     const snapshot = await db.ref("events").once("value");
     const events = snapshot.val() || {};
     res.json(events);
   } catch (error) {
+    console.error("Error reading events:", error);
     res.status(500).json({ error: error.message });
   }
 });
 
+// 🔵 READ SINGLE EVENT (public)
 app.get("/events/:id", async (req, res) => {
   try {
     const snapshot = await db.ref(`events/${req.params.id}`).once("value");
@@ -109,8 +137,8 @@ app.get("/events/:id", async (req, res) => {
   }
 });
 
-//UPDATE EVENT
-app.put("/events/:id", verifyApiKey, async (req, res) => {
+// 🟠 UPDATE EVENT (admin only)
+app.put("/events/:id", requireAdminSession, async (req, res) => {
   try {
     const eventId = req.params.id;
     const updates = req.body;
@@ -140,8 +168,8 @@ app.put("/events/:id", verifyApiKey, async (req, res) => {
   }
 });
 
-//DELETE EVENT
-app.delete("/events/:id", verifyApiKey, async (req, res) => {
+// 🔴 DELETE EVENT (admin only)
+app.delete("/events/:id", requireAdminSession, async (req, res) => {
   try {
     const eventId = req.params.id;
     const snapshot = await db.ref(`events/${eventId}`).once("value");
@@ -162,6 +190,7 @@ app.delete("/events/:id", verifyApiKey, async (req, res) => {
   }
 });
 
-//local testing only
+//
+// --- Local Test Server ---
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Event API running at http://localhost:${PORT}`));
