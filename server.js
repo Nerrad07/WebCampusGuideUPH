@@ -9,29 +9,15 @@ dotenv.config();
 
 const app = express();
 
-app.use((req, res, next) => {
-  const allowedOrigins = [
-    "https://web-campus-guide-uph.vercel.app",
-    "http://localhost:5500",
+app.use(cors({
+  origin: [
+    "https://web-campus-guide-uph.vercel.app", // deployed frontend
+    "http://localhost:5500", // local frontend
     "http://127.0.0.1:5500",
-  ];
-
-  const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-  }
-
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-
-  if (req.method === "OPTIONS") {
-    return res.status(200).end();
-  }
-
-  next();
-});
-
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  credentials: true 
+}));
 
 app.use(express.json());
 
@@ -64,10 +50,6 @@ app.post("/auth/login", async (req, res) => {
       return res.status(400).json({ message: "Missing email or password" });
 
     const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY;
-    if (!FIREBASE_API_KEY)
-      return res.status(500).json({ message: "Missing FIREBASE_API_KEY in server env" });
-
-    // 🔹 Use Firebase REST API to sign in
     const firebaseRes = await fetch(
       `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${FIREBASE_API_KEY}`,
       {
@@ -79,8 +61,9 @@ app.post("/auth/login", async (req, res) => {
 
     const data = await firebaseRes.json();
     if (!firebaseRes.ok) {
-      console.error("Firebase error:", data);
-      return res.status(401).json({ message: data.error?.message || "Invalid credentials" });
+      return res
+        .status(401)
+        .json({ message: data.error?.message || "Invalid credentials" });
     }
 
     const decoded = await admin.auth().verifyIdToken(data.idToken);
@@ -96,7 +79,7 @@ app.post("/auth/login", async (req, res) => {
     };
 
     res.json({
-      message: "Admin verified and session created",
+      message: "✅ Admin verified and session created",
       user: req.session.user,
     });
   } catch (err) {
