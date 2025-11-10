@@ -9,14 +9,26 @@ dotenv.config();
 
 const app = express();
 
+
+const allowedOrigins = [
+  "https://web-campus-guide-uph.vercel.app",
+  "http://localhost:5500",
+  "http://127.0.0.1:5500",
+];
+
 app.use(cors({
-  origin: [
-    "https://web-campus-guide-uph.vercel.app", // deployed frontend
-    "http://localhost:5500", // local frontend
-    "http://127.0.0.1:5500",
-  ],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      console.warn("Blocked by CORS:", origin);
+      return callback(new Error("Not allowed by CORS"));
+    }
+  },
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  credentials: true 
+  credentials: true,
 }));
 
 app.use(express.json());
