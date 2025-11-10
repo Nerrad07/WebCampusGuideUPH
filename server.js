@@ -50,6 +50,10 @@ app.post("/auth/login", async (req, res) => {
       return res.status(400).json({ message: "Missing email or password" });
 
     const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY;
+    if (!FIREBASE_API_KEY)
+      return res.status(500).json({ message: "Missing FIREBASE_API_KEY in server env" });
+
+    // 🔹 Use Firebase REST API to sign in
     const firebaseRes = await fetch(
       `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${FIREBASE_API_KEY}`,
       {
@@ -61,9 +65,8 @@ app.post("/auth/login", async (req, res) => {
 
     const data = await firebaseRes.json();
     if (!firebaseRes.ok) {
-      return res
-        .status(401)
-        .json({ message: data.error?.message || "Invalid credentials" });
+      console.error("Firebase error:", data);
+      return res.status(401).json({ message: data.error?.message || "Invalid credentials" });
     }
 
     const decoded = await admin.auth().verifyIdToken(data.idToken);
@@ -79,7 +82,7 @@ app.post("/auth/login", async (req, res) => {
     };
 
     res.json({
-      message: "✅ Admin verified and session created",
+      message: "Admin verified and session created",
       user: req.session.user,
     });
   } catch (err) {
