@@ -8,14 +8,17 @@ dotenv.config();
 
 const app = express();
 
-// ✅ Allow frontend origins
+// ✅ Allow frontend origins & credentials
 app.use(cors({
   origin: [
-    "https://web-campus-guide-uph.vercel.app",
-    "http://localhost:5500"
+    "https://web-campus-guide-uph.vercel.app", // your deployed frontend
+    "http://localhost:5500", // your local frontend (Live Server)
+    "http://127.0.0.1:5500",
   ],
-  credentials: true // allow cookies
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  credentials: true // allow session cookies to travel across domains
 }));
+
 app.use(express.json());
 
 // ✅ Initialize sessions
@@ -24,13 +27,15 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: false, // ⚠️ Set to true if using HTTPS only
-    maxAge: 1000 * 60 * 60 * 6 // 6 hours session
+    secure: process.env.NODE_ENV === "production", // true on Vercel (HTTPS)
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // allow cross-site cookies only in production
+    maxAge: 1000 * 60 * 60 * 6 // 6 hours
   }
 }));
 
-// --- Firebase Admin Initialization ---
+// --- 🔥 Firebase Admin Initialization ---
 const serviceAccount = JSON.parse(process.env.SERVICE_ACCOUNT);
+
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: process.env.DATABASE_URL
@@ -39,10 +44,10 @@ admin.initializeApp({
 const db = admin.database();
 
 //
-// 🔐 AUTH LOGIC WITH SESSION
+// --- 🔐 AUTH LOGIC WITH SESSION ---
 //
 
-// 🔹 Step 1: One-time verification route
+// 🟢 Step 1: Login once with Firebase ID token
 app.post("/auth/login", async (req, res) => {
   try {
     const { idToken } = req.body;
@@ -51,12 +56,12 @@ app.post("/auth/login", async (req, res) => {
     // Verify Firebase ID token
     const decoded = await admin.auth().verifyIdToken(idToken);
 
-    // Only allow admin roles
+    // Only allow users with custom admin claim
     if (decoded.role !== "admin") {
       return res.status(403).json({ message: "Forbidden: user not an admin" });
     }
 
-    // Save user info in session
+    // ✅ Save session info
     req.session.user = {
       uid: decoded.uid,
       email: decoded.email,
@@ -70,7 +75,7 @@ app.post("/auth/login", async (req, res) => {
   }
 });
 
-// 🔹 Step 2: Middleware to check session
+// 🟠 Step 2: Middleware to protect admin-only routes
 function requireAdminSession(req, res, next) {
   if (req.session.user && req.session.user.role === "admin") {
     return next();
@@ -78,11 +83,15 @@ function requireAdminSession(req, res, next) {
   return res.status(401).json({ message: "Unauthorized or session expired" });
 }
 
-// 🔹 Step 3: Logout route
+// 🔴 Step 3: Logout route (clears session)
 app.post("/auth/logout", (req, res) => {
   req.session.destroy((err) => {
     if (err) return res.status(500).json({ message: "Error logging out" });
-    res.clearCookie("connect.sid");
+    res.clearCookie("connect.sid", {
+      path: "/",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      secure: process.env.NODE_ENV === "production"
+    });
     res.json({ message: "✅ Logged out successfully" });
   });
 });
@@ -91,7 +100,7 @@ app.post("/auth/logout", (req, res) => {
 // --- 📅 CRUD ROUTES ---
 //
 
-// 🟢 CREATE EVENT (admin only, session verified)
+// 🟢 CREATE EVENT (admin only)
 app.post("/events", requireAdminSession, async (req, res) => {
   try {
     const event = req.body;
@@ -112,7 +121,7 @@ app.post("/events", requireAdminSession, async (req, res) => {
   }
 });
 
-// 🔵 READ ALL EVENTS (public)
+// 🔵 READ ALL EVENTS (PUBLIC)
 app.get("/events", async (req, res) => {
   try {
     const snapshot = await db.ref("events").once("value");
@@ -124,7 +133,7 @@ app.get("/events", async (req, res) => {
   }
 });
 
-// 🔵 READ SINGLE EVENT (public)
+// 🔵 READ SINGLE EVENT (PUBLIC)
 app.get("/events/:id", async (req, res) => {
   try {
     const snapshot = await db.ref(`events/${req.params.id}`).once("value");
@@ -191,6 +200,6 @@ app.delete("/events/:id", requireAdminSession, async (req, res) => {
 });
 
 //
-// --- Local Test Server ---
+// --- 🧪 Local Test Server ---
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Event API running at http://localhost:${PORT}`));

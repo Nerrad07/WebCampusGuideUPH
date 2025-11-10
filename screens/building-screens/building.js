@@ -1,5 +1,6 @@
 // ✅ Base API URL
 const API_URL = "https://web-campus-guide-uph.vercel.app";
+// const API_URL = "http://localhost:3000/";
 
 // ✅ DOM reference to event container
 const eventsContainer = document.getElementById("events-container-b");
@@ -72,7 +73,7 @@ async function loadBuildingBEvents() {
     console.log("🔹 Fetching events from API...");
 
     // ✅ Use new public endpoint — no API key required
-    const response = await fetch(`${API_URL}/events`);
+    const response = await fetch(`https://web-campus-guide-uph.vercel.app/events`);
 
     if (!response.ok) {
       throw new Error(`Failed to fetch (status: ${response.status})`);
