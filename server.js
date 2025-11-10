@@ -3,37 +3,37 @@ import dotenv from "dotenv";
 import admin from "firebase-admin";
 import cors from "cors";
 import session from "express-session";
+import fetch from "node-fetch";
 
 dotenv.config();
 
 const app = express();
 
-// ✅ Allow frontend origins & credentials
 app.use(cors({
   origin: [
-    "https://web-campus-guide-uph.vercel.app", // your deployed frontend
-    "http://localhost:5500", // your local frontend (Live Server)
+    "https://web-campus-guide-uph.vercel.app", // deployed frontend
+    "http://localhost:5500", // local frontend
     "http://127.0.0.1:5500",
   ],
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  credentials: true // allow session cookies to travel across domains
+  credentials: true 
 }));
 
 app.use(express.json());
 
-// ✅ Initialize sessions
+// Initialize sessions
 app.use(session({
   secret: process.env.SESSION_SECRET || "supersecretkey",
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: process.env.NODE_ENV === "production", // true on Vercel (HTTPS)
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // allow cross-site cookies only in production
-    maxAge: 1000 * 60 * 60 * 6 // 6 hours
+    secure: process.env.NODE_ENV === "production", 
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", 
+    maxAge: 1000 * 60 * 60 * 6 
   }
 }));
 
-// --- 🔥 Firebase Admin Initialization ---
+// Firebase Admin Initialization 
 const serviceAccount = JSON.parse(process.env.SERVICE_ACCOUNT);
 
 admin.initializeApp({
@@ -43,39 +43,53 @@ admin.initializeApp({
 
 const db = admin.database();
 
-//
-// --- 🔐 AUTH LOGIC WITH SESSION ---
-//
-
-// 🟢 Step 1: Login once with Firebase ID token
 app.post("/auth/login", async (req, res) => {
   try {
-    const { idToken } = req.body;
-    if (!idToken) return res.status(400).json({ message: "Missing ID token" });
+    const { email, password } = req.body;
+    if (!email || !password)
+      return res.status(400).json({ message: "Missing email or password" });
 
-    // Verify Firebase ID token
-    const decoded = await admin.auth().verifyIdToken(idToken);
+    const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY;
+    const firebaseRes = await fetch(
+      `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${FIREBASE_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, returnSecureToken: true }),
+      }
+    );
 
-    // Only allow users with custom admin claim
+    const data = await firebaseRes.json();
+    if (!firebaseRes.ok) {
+      return res
+        .status(401)
+        .json({ message: data.error?.message || "Invalid credentials" });
+    }
+
+    const decoded = await admin.auth().verifyIdToken(data.idToken);
+
     if (decoded.role !== "admin") {
       return res.status(403).json({ message: "Forbidden: user not an admin" });
     }
 
-    // ✅ Save session info
     req.session.user = {
       uid: decoded.uid,
       email: decoded.email,
-      role: decoded.role
+      role: decoded.role,
     };
 
-    res.json({ message: "✅ Admin verified and session created", user: req.session.user });
+    res.json({
+      message: "✅ Admin verified and session created",
+      user: req.session.user,
+    });
   } catch (err) {
-    console.error("Login verification failed:", err);
-    res.status(401).json({ message: "Invalid or expired token" });
+    console.error("Login error:", err);
+    res.status(500).json({ message: "Internal server error" });
   }
 });
 
-// 🟠 Step 2: Middleware to protect admin-only routes
+
+//Middleware to protect admin-only routes
 function requireAdminSession(req, res, next) {
   if (req.session.user && req.session.user.role === "admin") {
     return next();
@@ -83,7 +97,7 @@ function requireAdminSession(req, res, next) {
   return res.status(401).json({ message: "Unauthorized or session expired" });
 }
 
-// 🔴 Step 3: Logout route (clears session)
+//Logout route (clears session)
 app.post("/auth/logout", (req, res) => {
   req.session.destroy((err) => {
     if (err) return res.status(500).json({ message: "Error logging out" });
@@ -96,11 +110,8 @@ app.post("/auth/logout", (req, res) => {
   });
 });
 
-//
-// --- 📅 CRUD ROUTES ---
-//
-
-// 🟢 CREATE EVENT (admin only)
+// CRUD -->
+//CREATE
 app.post("/events", requireAdminSession, async (req, res) => {
   try {
     const event = req.body;
@@ -121,7 +132,7 @@ app.post("/events", requireAdminSession, async (req, res) => {
   }
 });
 
-// 🔵 READ ALL EVENTS (PUBLIC)
+//READ ALL EVENTS
 app.get("/events", async (req, res) => {
   try {
     const snapshot = await db.ref("events").once("value");
@@ -133,7 +144,7 @@ app.get("/events", async (req, res) => {
   }
 });
 
-// 🔵 READ SINGLE EVENT (PUBLIC)
+//READ SINGLE EVENT
 app.get("/events/:id", async (req, res) => {
   try {
     const snapshot = await db.ref(`events/${req.params.id}`).once("value");
@@ -146,7 +157,7 @@ app.get("/events/:id", async (req, res) => {
   }
 });
 
-// 🟠 UPDATE EVENT (admin only)
+//UPDATE EVENT
 app.put("/events/:id", requireAdminSession, async (req, res) => {
   try {
     const eventId = req.params.id;
@@ -177,7 +188,7 @@ app.put("/events/:id", requireAdminSession, async (req, res) => {
   }
 });
 
-// 🔴 DELETE EVENT (admin only)
+//DELETE EVENT
 app.delete("/events/:id", requireAdminSession, async (req, res) => {
   try {
     const eventId = req.params.id;
@@ -200,6 +211,6 @@ app.delete("/events/:id", requireAdminSession, async (req, res) => {
 });
 
 //
-// --- 🧪 Local Test Server ---
+//Local testing
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Event API running at http://localhost:${PORT}`));
