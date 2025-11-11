@@ -11,8 +11,8 @@ const app = express();
 
 app.use(cors({
   origin: [
-    "https://web-campus-guide-uph.vercel.app", // deployed
-    "http://localhost:5500", // local
+    "https://web-campus-guide-uph.vercel.app", // deployed frontend
+    "http://localhost:5500", // local frontend
     "http://127.0.0.1:5500",
   ],
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
