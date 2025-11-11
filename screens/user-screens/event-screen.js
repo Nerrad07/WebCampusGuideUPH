@@ -1,393 +1,227 @@
-// event-screen.js yang bwt front-end, bersifat modular and Firebase-ready later
+const API_BASE = "https://web-campus-guide-uph.vercel.app";
+const eventsList = document.getElementById("eventsList");
+const emptyState = document.getElementById("emptyState");
+const template = document.getElementById("eventCardTmpl");
+const todayLabel = document.getElementById("todayLabel");
 
-const $ = (sel, root = document) => root.querySelector(sel);
-const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
+const searchInput = document.getElementById("searchInput");
+const clearSearchBtn = document.getElementById("clearSearch");
+const buildingMenu = document.getElementById("buildingMenu");
+const buildingValue = document.getElementById("buildingValue");
+const statusMenu = document.getElementById("statusMenu");
+const statusValue = document.getElementById("statusValue");
+const fromDateInput = document.getElementById("fromDate");
+const toDateInput = document.getElementById("toDate");
+const clearDatesBtn = document.getElementById("clearDates");
 
-const state = {
-  building: "All",
-  status: "All",
-  from: null, // yyyy-mm-dd
-  to: null, // yyyy-mm-dd
-  query: "", // search text
-  events: [],
-  lastRendered: [],
-};
+fromDateInput.addEventListener("input", applyFilters);
+toDateInput.addEventListener("input", applyFilters);
 
-const ui = {
-  todayLabel: $("#todayLabel"),
+const modal = document.getElementById("eventModal");
+const modalTitle = document.getElementById("eventModalTitle");
+const modalPoster = document.getElementById("eventPoster");
+const modalDesc = document.getElementById("eventDesc");
+const modalBuilding = document.getElementById("eventBuilding");
+const modalRoom = document.getElementById("eventRoom");
+const modalDate = document.getElementById("eventDate");
+const modalTime = document.getElementById("eventTime");
+const modalStatus = document.getElementById("eventStatus");
 
-  buildingBtn: $("#buildingBtn"),
-  buildingValue: $("#buildingValue"),
-  buildingMenu: $("#buildingMenu"),
+let allEvents = [];
 
-  statusBtn: $("#statusBtn"),
-  statusValue: $("#statusValue"),
-  statusMenu: $("#statusMenu"),
-
-  fromDate: $("#fromDate"),
-  toDate: $("#toDate"),
-  clearDates: $("#clearDates"),
-
-  searchForm: $("#searchForm"),
-  searchInput: $("#searchInput"),
-  clearSearch: $("#clearSearch"),
-
-  list: $("#eventsList"),
-  empty: $("#emptyState"),
-
-  cardTmpl: $("#eventCardTmpl"),
-
-  modalRoot: $("#eventModal"),
-  modalTitle: $("#eventModalTitle"),
-  modalPoster: $("#eventPoster"),
-  modalCaption: $("#eventPosterCaption"),
-  modalDesc: $("#eventDesc"),
-  modalBuilding: $("#eventBuilding"),
-  modalRoom: $("#eventRoom"),
-  modalDate: $("#eventDate"),
-  modalTime: $("#eventTime"),
-  modalStatus: $("#eventStatus"),
-};
-
-// Data layer - soon direplace sama firebase
-async function fetchEventsMock() {
-  return [
-    {
-      id: "e1",
-      title: "Masterclass",
-      heldBy: "SDAE UPH",
-      building: "B",
-      room: "B508",
-      date: "2025-10-17",
-      timeStart: "14:00",
-      timeEnd: "15:30",
-      status: "Upcoming",
-      posterUrl: "../../img/sample-poster-1.png",
-      description:
-        "A focused masterclass session with guest instructors and limited seats.",
-    },
-    {
-      id: "e2",
-      title: "Career Talk",
-      heldBy: "CDC UPH",
-      building: "C",
-      room: "C201",
-      date: "2025-10-16",
-      timeStart: "09:00",
-      timeEnd: "11:00",
-      status: "Upcoming",
-      posterUrl: "../../img/sample-poster-1.png",
-      description:
-        "A focused masterclass session with guest instructors and limited seats.",
-    },
-    {
-      id: "e3",
-      title: "Innovation Expo",
-      heldBy: "Faculty of Science",
-      building: "D",
-      room: "D-Atrium",
-      date: "2025-10-23",
-      timeStart: "10:00",
-      timeEnd: "17:00",
-      status: "Coming Soon",
-      posterUrl: "../../img/sample-poster-1.png",
-      description:
-        "A focused masterclass session with guest instructors and limited seats.",
-    },
-    {
-      id: "e4",
-      title: "UI/UX Workshop",
-      heldBy: "HMIF",
-      building: "B",
-      room: "B341",
-      date: "2025-10-11",
-      timeStart: "13:00",
-      timeEnd: "16:00",
-      status: "Ongoing",
-      posterUrl: "../../img/sample-poster-1.png",
-      description:
-        "A focused masterclass session with guest instructors and limited seats.",
-    },
-    {
-      id: "e5",
-      title: "Music Ensemble",
-      heldBy: "Conservatory",
-      building: "B",
-      room: "B101",
-      date: "2025-10-16",
-      timeStart: "18:00",
-      timeEnd: "19:30",
-      status: "Upcoming",
-      posterUrl: "../../img/sample-poster-1.jpg",
-      description:
-        "A focused masterclass session with guest instructors and limited seats.",
-    },
-  ];
+function formatDate(ms) {
+  const d = new Date(ms);
+  return d.toISOString().split("T")[0];
 }
 
-// Utilities
-function fmtDateLabel(iso) {
-  const d = new Date(iso);
-  return Number.isNaN(d.getTime())
-    ? ""
-    : d.toLocaleDateString(undefined, {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-      });
+function formatTime(start, end) {
+  const toTime = (mins) =>
+    `${String(Math.floor(mins / 60)).padStart(2, "0")}:${String(mins % 60).padStart(2, "0")}`;
+  return `${toTime(start)} – ${toTime(end)}`;
 }
 
-function withinRange(isoDate, from, to) {
-  if (!from && !to) return true;
-  if (from && isoDate < from) return false;
-  if (to && isoDate > to) return false;
-  return true;
+function getEventStatus(event) {
+  const now = new Date();
+  const eventDate = new Date(event.date);
+
+  const daysDiff = Math.floor((eventDate - now) / (1000 * 60 * 60 * 24));
+  const nowMins = now.getHours() * 60 + now.getMinutes();
+
+  if (
+    eventDate.toDateString() === now.toDateString() &&
+    nowMins >= event.startTimeMinutes &&
+    nowMins <= event.endTimeMinutes
+  ) {
+    return "Ongoing";
+  }
+
+  if (daysDiff >= 0 && daysDiff < 21) return "Upcoming";
+  if (daysDiff >= 21) return "Coming Soon";
+
+  return "Past";
 }
 
-const modal = {
-  open(ev) {
-    if (!ui.modalRoot) return;
-    ui.modalTitle.textContent = ev.title || "Event";
-    ui.modalPoster.src = ev.posterUrl || "../../img/placeholder-poster.png";
-    ui.modalPoster.alt = ev.title ? `${ev.title} poster` : "Event poster";
-    ui.modalCaption.textContent = ev.title || "";
-    ui.modalDesc.textContent =
-      ev.description || "Details will be provided by the admin.";
-    ui.modalBuilding.textContent = ev.building || "-";
-    ui.modalRoom.textContent = ev.room || "-";
-    ui.modalDate.textContent = ev.date || "-";
-    ui.modalTime.textContent =
-      ev.timeStart && ev.timeEnd ? `${ev.timeStart} – ${ev.timeEnd}` : "-";
-    ui.modalStatus.textContent = ev.status || "-";
-
-    ui.modalRoot.classList.add("is-open");
-    ui.modalRoot.setAttribute("aria-hidden", "false");
-    document.body.style.overflow = "hidden";
-  },
-  close() {
-    if (!ui.modalRoot) return;
-    ui.modalRoot.classList.remove("is-open");
-    ui.modalRoot.setAttribute("aria-hidden", "true");
-    document.body.style.overflow = "";
-  },
-  bind() {
-    ui.modalRoot?.addEventListener("click", (e) => {
-      if (e.target.matches("[data-close-modal]")) this.close();
-    });
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && ui.modalRoot?.classList.contains("is-open"))
-        this.close();
-    });
-  },
-};
-
-function matchesQuery(ev, query) {
-  // empty query => always match
-  if (!query) return true;
-
-  const q = query.trim().toLowerCase();
-  if (!q) return true;
-
-  // token-based: every token must be found somewhere
-  const tokens = q.split(/\s+/);
-
-  const haystack = [
-    ev.title,
-    ev.heldBy,
-    ev.building,
-    ev.room,
-    ev.status,
-    ev.date,
-    ev.timeStart,
-    ev.timeEnd,
-  ]
-    .filter(Boolean)
-    .join(" ")
-    .toLowerCase();
-
-  return tokens.every((t) => haystack.includes(t));
-}
-
-// render
-function render(events) {
-  ui.list.innerHTML = "";
-
+function renderEvents(events) {
+  eventsList.innerHTML = "";
   if (!events.length) {
-    ui.empty.hidden = false;
+    emptyState.hidden = false;
     return;
   }
-  ui.empty.hidden = true;
-
-  state.lastRendered = events.slice();
+  emptyState.hidden = true;
 
   for (const ev of events) {
-    const node = ui.cardTmpl.content.cloneNode(true);
+    const status = getEventStatus(ev);
+    if (status === "Past") continue;
 
-    $(".event-title", node).textContent = ev.title;
-    $(".event-heldby", node).textContent = ev.heldBy;
-    $(".event-date", node).textContent = ev.date;
-    $(".event-time", node).textContent = `${ev.timeStart} – ${ev.timeEnd}`;
-    $(".event-room", node).textContent = ev.room;
+    const node = template.content.cloneNode(true);
+    node.querySelector(".event-title").textContent = ev.name || "Untitled Event";
+    node.querySelector(".event-heldby").textContent = ev.heldBy || "Unknown";
+    node.querySelector(".event-date").textContent = formatDate(ev.date);
+    node.querySelector(".event-time").textContent = formatTime(
+      ev.startTimeMinutes,
+      ev.endTimeMinutes
+    );
+    node.querySelector(".event-room").textContent = ev.room || "-";
 
-    const badge = $(".badge.status", node);
-    badge.textContent = ev.status;
-    badge.dataset.status = ev.status;
+    const badge = node.querySelector(".badge.status");
+    badge.textContent = status;
+    badge.dataset.status = status;
+    const btn = node.querySelector(".event-more");
+    btn.addEventListener("click", () => openModal(ev, status));
 
-    const btn = $(".event-more", node);
-    if (btn) {
-      btn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        modal.open(ev);
-      });
-    }
-
-    ui.list.appendChild(node);
+    eventsList.appendChild(node);
   }
+}
+
+function openModal(event, status) {
+  modalTitle.textContent = event.name;
+  modalPoster.src = event.posterUrl || "../../img/default-poster.png";
+  modalDesc.textContent = event.description || "No additional information available.";
+  modalBuilding.textContent = event.building;
+  modalRoom.textContent = event.room;
+  modalDate.textContent = formatDate(event.date);
+  modalTime.textContent = formatTime(event.startTimeMinutes, event.endTimeMinutes);
+  modalStatus.textContent = status;
+
+  modal.classList.add("is-open");
+  modal.setAttribute("aria-hidden", "false");
+}
+
+document.querySelectorAll("[data-close-modal]").forEach((el) =>
+  el.addEventListener("click", () => {
+    modal.classList.remove("is-open");
+    modal.setAttribute("aria-hidden", "true");
+  })
+);
+
+function normalizeDateInput(value) {
+  if (!value) return null;
+  const parts = value.split("-");
+  if (parts.length !== 3) return null;
+  const [year, month, day] = parts.map(Number);
+  const d = new Date(year, month - 1, day);
+  d.setHours(0, 0, 0, 0);
+  return d.getTime();
 }
 
 function applyFilters() {
-  const { building, status, from, to, query, events } = state;
+  const q = searchInput.value.toLowerCase();
+  const building = buildingValue.textContent;
+  const status = statusValue.textContent;
 
-  const filtered = events.filter((ev) => {
-    const byBuilding = building === "All" || ev.building === building;
-    const byStatus = status === "All" || ev.status === status;
-    const byDate = withinRange(ev.date, from, to);
-    const bySearch = matchesQuery(ev, query);
-    return byBuilding && byStatus && byDate && bySearch;
+  const fromDate = normalizeDateInput(fromDateInput.value);
+  const toDate = normalizeDateInput(toDateInput.value);
+
+  const filtered = allEvents.filter((ev) => {
+    const evStatus = getEventStatus(ev);
+    if (evStatus === "Past") return false;
+
+    const matchesSearch =
+      !q ||
+      ev.name?.toLowerCase().includes(q) ||
+      ev.room?.toLowerCase().includes(q) ||
+      ev.building?.toLowerCase().includes(q);
+
+    const matchesBuilding = building === "All" || ev.building === building;
+    const matchesStatus = status === "All" || evStatus === status;
+
+    const evDateMs = typeof ev.date === "number" ? ev.date : Number(ev.date);
+
+    const eventDay = new Date(evDateMs);
+    eventDay.setHours(0, 0, 0, 0);
+    const eventTimeMs = eventDay.getTime();
+
+    const matchesDate =
+      (!fromDate || eventTimeMs >= fromDate) &&
+      (!toDate || eventTimeMs <= toDate);
+
+    console.log({
+      fromDate,
+      toDate,
+      eventName: ev.name,
+      eventDate: new Date(ev.date).toISOString().split("T")[0],
+      result: matchesDate
+    });
+
+    return matchesSearch && matchesBuilding && matchesStatus && matchesDate;
   });
 
-  render(filtered);
+  renderEvents(filtered);
 }
 
-// Dropdowns
-function openMenu(btn, menu) {
-  closeAllMenus();
-  btn.setAttribute("aria-expanded", "true");
-  menu.style.display = "block";
-
-  const first =
-    menu.querySelector('[aria-selected="true"]') || menu.querySelector("li");
-  if (first && first.focus) first.focus();
-}
-
-function closeMenu(btn, menu) {
-  btn.setAttribute("aria-expanded", "false");
-  menu.style.display = "none";
-}
-
-function closeAllMenus() {
-  closeMenu(ui.buildingBtn, ui.buildingMenu);
-  closeMenu(ui.statusBtn, ui.statusMenu);
-}
-
-function setupDropdown(button, menu, onChoose) {
-  button.addEventListener("click", (e) => {
-    const expanded = button.getAttribute("aria-expanded") === "true";
-    expanded ? closeMenu(button, menu) : openMenu(button, menu);
-    e.stopPropagation();
+function setupDropdown(menu, valueEl) {
+  const button = menu.previousElementSibling;
+  button.addEventListener("click", () => {
+    menu.style.display = menu.style.display === "block" ? "none" : "block";
   });
-
-  menu.addEventListener("click", (e) => {
-    const li = e.target.closest("li[role='option']");
-    if (!li) return;
-
-    $$("#" + menu.id + " li").forEach((el) =>
-      el.setAttribute("aria-selected", "false")
-    );
-    li.setAttribute("aria-selected", "true");
-
-    onChoose(li.dataset.value, li);
-    closeMenu(button, menu);
-  });
-
-  menu.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-      closeMenu(button, menu);
-      button.focus();
+  menu.querySelectorAll("li").forEach((li) =>
+    li.addEventListener("click", () => {
+      menu.querySelectorAll("li").forEach((l) => l.removeAttribute("aria-selected"));
+      li.setAttribute("aria-selected", "true");
+      valueEl.textContent = li.dataset.value;
+      menu.style.display = "none";
+      applyFilters();
+    })
+  );
+  document.addEventListener("click", (e) => {
+    if (!menu.contains(e.target) && e.target !== button) {
+      menu.style.display = "none";
     }
   });
 }
 
-// Initial (pas di awal)
-async function init() {
-  const todayIso = new Date().toISOString().slice(0, 10);
-  ui.todayLabel.textContent = todayIso;
 
-  // initial pengguna bisa lihat all events, no filters
-  state.events = await fetchEventsMock();
+clearDatesBtn.addEventListener("click", () => {
+  fromDateInput.value = "";
+  toDateInput.value = "";
   applyFilters();
+});
 
-  // building sort dropdown
-  setupDropdown(ui.buildingBtn, ui.buildingMenu, (val) => {
-    state.building = val;
-    ui.buildingValue.textContent = val;
-    applyFilters();
-  });
 
-  // status sort dropdown
-  setupDropdown(ui.statusBtn, ui.statusMenu, (val) => {
-    state.status = val;
-    ui.statusValue.textContent = val;
-    applyFilters();
-  });
+searchInput.addEventListener("input", applyFilters);
+clearSearchBtn.addEventListener("click", () => {
+  searchInput.value = "";
+  applyFilters();
+});
 
-  // date range choice
-  ui.fromDate.addEventListener("change", () => {
-    state.from = ui.fromDate.value || null;
-    applyFilters();
-  });
 
-  ui.toDate.addEventListener("change", () => {
-    state.to = ui.toDate.value || null;
-    applyFilters();
-  });
-
-  $("#clearDates").addEventListener("click", () => {
-    ui.fromDate.value = "";
-    ui.toDate.value = "";
-    state.from = null;
-    state.to = null;
-    applyFilters();
-  });
-
-  // search
-  if (ui.searchForm) {
-    ui.searchForm.addEventListener("submit", (e) => e.preventDefault());
+async function loadEvents() {
+  try {
+    const res = await fetch(`${API_BASE}/events`);
+    if (!res.ok) throw new Error("Failed to fetch events");
+    const data = await res.json();
+    allEvents = Object.values(data);
+    renderEvents(allEvents);
+  } catch (err) {
+    console.error("Error loading events:", err);
   }
-
-  if (ui.searchInput) {
-    ui.searchInput.addEventListener("input", () => {
-      state.query = ui.searchInput.value;
-      applyFilters();
-    });
-
-    ui.searchInput.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") {
-        ui.searchInput.value = "";
-        state.query = "";
-        applyFilters();
-      }
-    });
-  }
-
-  if (ui.clearSearch) {
-    ui.clearSearch.addEventListener("click", () => {
-      ui.searchInput.value = "";
-      state.query = "";
-      applyFilters();
-      ui.searchInput.focus();
-    });
-  }
-
-  // close menus dengan outside click
-  document.addEventListener("click", closeAllMenus);
-
-  modal.bind();
 }
 
-// Notes untuk Firebase wiring nantinya:
-// Replace fetchEventsMock() dengan DB.readOnce("/events") atau DB.subscribe("/events", cb)
-// Expected event shape:
-// { id, title, heldBy, building, room, date:'YYYY-MM-DD', timeStart:'HH:mm', timeEnd:'HH:mm', status:'Ongoing|Upcoming|Coming Soon' }
-
-init();
+setupDropdown(buildingMenu, buildingValue);
+setupDropdown(statusMenu, statusValue);
+todayLabel.textContent = new Date().toLocaleDateString("en-US", {
+  weekday: "long",
+  month: "short",
+  day: "numeric",
+});
+loadEvents();

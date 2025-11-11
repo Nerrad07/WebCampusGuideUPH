@@ -272,6 +272,7 @@ main h3 {
 .container form .start,
 .container form .location,
 .container form .room,
+.container form .floor,
 .container form p {
   display: block;
   margin-bottom: 30px;
@@ -365,6 +366,17 @@ main h3 {
   margin-left: 10px;
 }
 
+.floor {
+  display: flex;
+  gap: 20px;
+  margin-left: 187px;
+  margin-top: 10px;
+}
+
+.floor select {
+  margin-left: 10px;
+}
+
 .poster {
   display: flex;
   justify-content: center;
@@ -375,7 +387,7 @@ main h3 {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 18vh;
+  height: 13vh;
 }
 
 .submit input {

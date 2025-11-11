@@ -250,7 +250,7 @@ nav button {
   display: flex;
   gap: 30px;
   font-size: 22px;
-  margin-bottom: 85px;
+  margin-bottom: 25px;
 }
 
 .O {
@@ -280,6 +280,27 @@ nav button {
   border-radius: 20px;
 }
 
+.amount{
+  display: flex;
+  gap: 30px;
+  font-size: 82px;
+}
+
+
+.amount {
+  font-size: 82px;
+  font-weight: bold;
+  color: white;
+  justify-content: center;
+  gap: 30px;
+  margin-top: 0;
+}
+
+.amount p {
+  width: 130px;          
+  text-align: center;
+}
+
 .buttons {
   display: flex;
   gap: 50px;
@@ -307,7 +328,38 @@ nav button {
   cursor: pointer;
 }
 
+
 .table table {
+  width: 700px;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-collapse: separate;
+  background-color: rgb(29, 33, 96);
+  color: white;
+  text-align: center;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 30px;
+}
+
+.table thead {
+  background-color: rgb(29, 33, 96);
+  color: white;
+}
+
+.table tbody tr {
+  background-color: rgb(236, 236, 236);
+  color: black;
+}
+
+.table tbody tr:hover {
+  background-color: rgb(207, 207, 207);
+}
+
+/* .table table {
   width: 700px;
   border-spacing: 10px;
   border-collapse: separate;
@@ -315,7 +367,7 @@ nav button {
   color: white;
   text-align: center;
   border-radius: 20px;
-}
+}*/
 
 .table td {
   padding: 10px;
