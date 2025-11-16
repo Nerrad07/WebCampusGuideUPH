@@ -280,12 +280,11 @@ nav button {
   border-radius: 20px;
 }
 
-.amount{
+.amount {
   display: flex;
   gap: 30px;
   font-size: 82px;
 }
-
 
 .amount {
   font-size: 82px;
@@ -297,7 +296,7 @@ nav button {
 }
 
 .amount p {
-  width: 130px;          
+  width: 130px;
   text-align: center;
 }
 
@@ -327,7 +326,6 @@ nav button {
   background-color: rgb(76, 86, 234);
   cursor: pointer;
 }
-
 
 .table table {
   width: 700px;
@@ -373,4 +371,9 @@ nav button {
   padding: 10px;
   font-weight: bold;
   font-size: 20px;
+}
+
+.table tbody tr.selected {
+  background-color: rgb(220, 225, 250);
+  outline: 3px solid rgb(29, 33, 96);
 }

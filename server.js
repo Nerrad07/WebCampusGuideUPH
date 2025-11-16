@@ -9,36 +9,40 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors({
-  origin: [
-    "https://web-campus-guide-uph.vercel.app", // deployed frontend
-    "http://localhost:5500", // local frontend
-    "http://127.0.0.1:5500",
-  ],
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  credentials: true 
-}));
+app.use(
+  cors({
+    origin: [
+      "https://web-campus-guide-uph.vercel.app", // deployed frontend
+      "http://localhost:5500", // local frontend
+      "http://127.0.0.1:5500",
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 
 // Initialize sessions
-app.use(session({
-  secret: process.env.SESSION_SECRET || "supersecretkey",
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: process.env.NODE_ENV === "production", 
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", 
-    maxAge: 1000 * 60 * 60 * 6 
-  }
-}));
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "supersecretkey",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      maxAge: 1000 * 60 * 60 * 6,
+    },
+  })
+);
 
-// Firebase Admin Initialization 
+// Firebase Admin Initialization
 const serviceAccount = JSON.parse(process.env.SERVICE_ACCOUNT);
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  databaseURL: process.env.DATABASE_URL
+  databaseURL: process.env.DATABASE_URL,
 });
 
 const db = admin.database();
@@ -88,7 +92,6 @@ app.post("/auth/login", async (req, res) => {
   }
 });
 
-
 //Middleware to protect admin-only routes
 function requireAdminSession(req, res, next) {
   if (req.session.user && req.session.user.role === "admin") {
@@ -104,7 +107,7 @@ app.post("/auth/logout", (req, res) => {
     res.clearCookie("connect.sid", {
       path: "/",
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      secure: process.env.NODE_ENV === "production"
+      secure: process.env.NODE_ENV === "production",
     });
     res.json({ message: "✅ Logged out successfully" });
   });
@@ -120,13 +123,18 @@ app.post("/events", requireAdminSession, async (req, res) => {
     await ref.set({
       ...event,
       createdAt: Date.now(),
-      updatedAt: Date.now()
+      updatedAt: Date.now(),
     });
 
-    const dateKey = new Date(event.date).toISOString().slice(0, 10).replace(/-/g, "");
+    const dateKey = new Date(event.date)
+      .toISOString()
+      .slice(0, 10)
+      .replace(/-/g, "");
     await db.ref(`eventsByDate/${dateKey}/${ref.key}`).set(true);
 
-    res.status(201).json({ id: ref.key, message: "Event created successfully" });
+    res
+      .status(201)
+      .json({ id: ref.key, message: "Event created successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -172,8 +180,14 @@ app.put("/events/:id", requireAdminSession, async (req, res) => {
     }
 
     const oldEvent = oldSnapshot.val();
-    const oldDateKey = new Date(oldEvent.date).toISOString().slice(0, 10).replace(/-/g, "");
-    const newDateKey = new Date(updates.date || oldEvent.date).toISOString().slice(0, 10).replace(/-/g, "");
+    const oldDateKey = new Date(oldEvent.date)
+      .toISOString()
+      .slice(0, 10)
+      .replace(/-/g, "");
+    const newDateKey = new Date(updates.date || oldEvent.date)
+      .toISOString()
+      .slice(0, 10)
+      .replace(/-/g, "");
 
     await eventRef.update(updates);
 
@@ -199,7 +213,10 @@ app.delete("/events/:id", requireAdminSession, async (req, res) => {
     }
 
     const event = snapshot.val();
-    const dateKey = new Date(event.date).toISOString().slice(0, 10).replace(/-/g, "");
+    const dateKey = new Date(event.date)
+      .toISOString()
+      .slice(0, 10)
+      .replace(/-/g, "");
 
     await db.ref(`events/${eventId}`).remove();
     await db.ref(`eventsByDate/${dateKey}/${eventId}`).remove();
@@ -213,4 +230,6 @@ app.delete("/events/:id", requireAdminSession, async (req, res) => {
 //
 //Local testing
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Event API running at http://localhost:${PORT}`));
+app.listen(PORT, () =>
+  console.log(`🚀 Event API running at http://localhost:${PORT}`)
+);
