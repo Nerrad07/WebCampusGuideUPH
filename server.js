@@ -7,8 +7,6 @@ import fetch from "node-fetch";
 import multer from "multer";
 import { getStorage } from "firebase-admin/storage";
 
-
-
 dotenv.config();
 
 const app = express();
@@ -22,6 +20,7 @@ const serviceAccount = JSON.parse(process.env.SERVICE_ACCOUNT);
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: process.env.DATABASE_URL,
+  storageBucket: process.env.STORAGE_BUCKET,
 });
 
 const db = admin.database();
@@ -51,7 +50,6 @@ app.use(
   })
 );
 
-app.options("*", cors());
 app.use(express.json());
 
 // ------------------------------
@@ -65,7 +63,7 @@ app.use(
     proxy: true,
     cookie: {
       httpOnly: true,
-      secure: isProd,        // cookie only sent via HTTPS in production
+      secure: isProd, // cookie only sent via HTTPS in production
       sameSite: isProd ? "none" : "lax", // REQUIRED for cross-site cookies
       maxAge: 1000 * 60 * 60 * 6, // 6 hours
     },
@@ -76,8 +74,6 @@ app.use(
 // Authentication Routes
 // ------------------------------
 app.post("/auth/login", async (req, res) => {
-  console.log("LOGIN REQUEST BODY:", req.body);
-
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -85,62 +81,67 @@ app.post("/auth/login", async (req, res) => {
   }
 
   try {
-    const usersRef = db.ref("users");
-    const snapshot = await usersRef.orderByChild("email").equalTo(email).once("value");
+    const userRecord = await admin.auth().getUserByEmail(email);
 
-    if (!snapshot.exists()) {
-      return res.status(401).json({ message: "User not found" });
-    }
+    const userId = userRecord.uid;
+    const snap = await db.ref("admins/" + userId).once("value");
 
-    const users = snapshot.val();
-    const userId = Object.keys(users)[0];
-    const user = users[userId];
-
-    if (user.password !== password) {
-      return res.status(401).json({ message: "Invalid password" });
-    }
-
-    if (!user.isAdmin) {
+    if (!snap.exists()) {
       return res.status(403).json({ message: "User is not an admin" });
     }
 
-    req.session.user = { id: userId, email: user.email, isAdmin: true };
+    // 3️⃣ Store session
+    req.session.user = {
+      id: userId,
+      email: userRecord.email,
+      isAdmin: true,
+    };
 
     return res.json({ success: true, user: req.session.user });
-
   } catch (err) {
     console.error("LOGIN ERROR:", err);
-    return res.status(500).json({ message: "Server error" });
+    return res.status(401).json({ message: "User not found or invalid login" });
   }
 });
 
-app.post("/uploadPoster/:eventId", upload.single("poster"), async (req, res) => {
-  try {
-    const { eventId } = req.params;
-    const file = req.file;
+// Upload poster for event
+app.post(
+  "/uploadPoster/:eventId",
+  upload.single("poster"),
+  async (req, res) => {
+    try {
+      const { eventId } = req.params;
 
-    if (!file) return res.status(400).json({ message: "No file uploaded" });
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
 
-    const ext = file.originalname.split('.').pop() || "jpg";
-    const filePath = `posters/${eventId}/poster.${ext}`;
+      const bucket = admin.storage().bucket();
+      const fileName = `posters/${eventId}/${Date.now()}_${
+        req.file.originalname
+      }`;
 
-    const bucket = getStorage().bucket();
-    const fileRef = bucket.file(filePath);
+      const file = bucket.file(fileName);
 
-    await fileRef.save(file.buffer, {
-      contentType: file.mimetype,
-      public: true
-    });
+      await file.save(req.file.buffer, {
+        contentType: req.file.mimetype,
+        public: true,
+      });
 
-    const publicUrl = `https://storage.googleapis.com/${bucket.name}/${filePath}`;
+      const fileUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
 
-    return res.json({ url: publicUrl });
+      // OPTIONAL: update Firestore
+      await admin.firestore().collection("events").doc(eventId).update({
+        posterUrl: fileUrl,
+      });
 
-  } catch (err) {
-    console.error("Upload error:", err);
-    res.status(500).json({ message: "Upload failed" });
+      res.json({ url: fileUrl });
+    } catch (error) {
+      console.error("Upload error:", error);
+      res.status(500).json({ message: "Upload failed" });
+    }
   }
-});
+);
 
 // Check current authenticated user
 app.get("/auth/me", (req, res) => {
@@ -186,7 +187,6 @@ app.get("/events/:id", async (req, res) => {
     res.status(500).json({ message: "Failed to fetch event" });
   }
 });
-
 
 // ------------------------------
 // CREATE OR UPDATE EVENT (AUTH REQUIRED)

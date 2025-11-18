@@ -5,6 +5,16 @@ const ongoingCountEl = document.querySelector(".OA");
 const upcomingCountEl = document.querySelector(".UA");
 const comingSoonCountEl = document.querySelector(".CSA");
 
+// NEW: DOM for delete flow
+const removeBtn = document.getElementById("remove-btn");
+const confirmModal = document.getElementById("confirm-delete-modal");
+const cancelDeleteBtn = document.getElementById("cancel-delete-btn");
+const confirmDeleteBtn = document.getElementById("confirm-delete-btn");
+
+// NEW: selection state
+let selectedEventId = null;
+let selectedRow = null;
+
 function formatDate(ms) {
   const d = new Date(ms);
   return d.toLocaleDateString("en-US", {
@@ -51,11 +61,20 @@ function getEventStatus(event) {
 
 async function loadEvents() {
   try {
+    // reset selection whenever we reload
+    selectedEventId = null;
+    selectedRow = null;
+    if (removeBtn) removeBtn.disabled = true;
+
     const res = await fetch(`${API_BASE}/events`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
 
-    const events = Object.values(data);
+    // IMPORTANT: keep IDs from the object keys
+    const events = Object.entries(data).map(([id, event]) => ({
+      id,
+      ...event,
+    }));
 
     tableBody.innerHTML = "";
 
@@ -80,6 +99,9 @@ async function loadEvents() {
     events.forEach((event, index) => {
       const tr = document.createElement("tr");
 
+      // attach ID to row for delete
+      tr.dataset.eventId = event.id;
+
       const tdNo = document.createElement("td");
       tdNo.textContent = index + 1;
 
@@ -100,6 +122,22 @@ async function loadEvents() {
 
       tr.append(tdNo, tdName, tdHeldBy, tdTime, tdDate);
       tableBody.appendChild(tr);
+
+      // --- NEW: click to select row ---
+      tr.addEventListener("click", () => {
+        selectedEventId = tr.dataset.eventId;
+
+        // remove selection from all rows
+        document
+          .querySelectorAll(".table tbody tr")
+          .forEach((row) => row.classList.remove("selected"));
+
+        // highlight current one
+        tr.classList.add("selected");
+        selectedRow = tr;
+
+        if (removeBtn) removeBtn.disabled = false;
+      });
 
       const status = getEventStatus(event);
       if (status === "Ongoing") ongoing++;
@@ -124,6 +162,53 @@ async function loadEvents() {
     upcomingCountEl.textContent = 0;
     comingSoonCountEl.textContent = 0;
   }
+}
+
+// ===== DELETE FLOW =====
+
+// open confirm modal when clicking "Remove"
+if (removeBtn) {
+  removeBtn.addEventListener("click", () => {
+    if (!selectedEventId) {
+      alert("Please select an event to delete first.");
+      return;
+    }
+    confirmModal.classList.add("show");
+  });
+}
+
+// close modal without deleting
+if (cancelDeleteBtn) {
+  cancelDeleteBtn.addEventListener("click", () => {
+    confirmModal.classList.remove("show");
+  });
+}
+
+// confirm delete -> call backend
+if (confirmDeleteBtn) {
+  confirmDeleteBtn.addEventListener("click", async () => {
+    if (!selectedEventId) return;
+
+    try {
+      const res = await fetch(`${API_BASE}/events/${selectedEventId}`, {
+        method: "DELETE",
+        credentials: "include", // keep session if backend uses express-session
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || `Failed to delete (HTTP ${res.status})`);
+      }
+
+      // Option A: reload all events (simplest)
+      await loadEvents();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to delete event: " + err.message);
+    } finally {
+      confirmModal.classList.remove("show");
+    }
+  });
 }
 
 window.addEventListener("DOMContentLoaded", loadEvents);

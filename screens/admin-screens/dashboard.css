@@ -2,7 +2,6 @@
   margin: 0;
   padding: 0;
 }
-
 .topbar nav {
   padding: 1rem;
   display: flex;
@@ -13,7 +12,6 @@
   width: 100%;
   z-index: 1000;
 }
-
 .topbar nav button {
   border: none;
   width: 40px;
@@ -24,12 +22,10 @@
   justify-content: center;
   background-color: transparent;
 }
-
 .topbar nav button img {
   width: 200px;
   height: 50px;
 }
-
 main {
   display: flex;
   flex-direction: column;
@@ -38,17 +34,14 @@ main {
   height: 100vh;
   padding-top: 40px;
 }
-
 body {
   padding-top: 72px;
 }
-
 .left {
   display: flex;
   align-items: center;
   gap: 1rem;
 }
-
 .right {
   display: flex;
   align-items: center;
@@ -57,45 +50,35 @@ body {
   padding-right: 70px;
   margin-bottom: 20px;
 }
-
 .logotop {
   height: 40px;
   width: auto;
   margin-left: 20px;
 }
-
 .topbar .buttons {
   height: 40px;
   width: auto;
 }
-
 .mapwhite button img {
   content: url(../../img/map-white.png);
   border-radius: 10px;
 }
-
 .mapwhite button:hover img {
   content: url(../../img/map-blue.png);
   background-color: white;
   border-radius: 10px;
 }
-
 nav button {
   cursor: pointer;
 }
-
 .eventwhite button img {
   content: url(../../img/event-white.png);
 }
-
 .eventwhite button:hover img {
   content: url(../../img/event-blue.png);
   background-color: white;
   border-radius: 10px;
-}
-
-/*Search Bar*/
-
+} /*Search Bar*/
 .topbar .middle {
   padding: 1rem;
   display: flex;
@@ -108,12 +91,10 @@ nav button {
   margin-left: 60px;
   color: gray;
 }
-
 .middle button {
   cursor: pointer;
   background-color: black;
 }
-
 .sidebar {
   position: fixed;
   top: 0;
@@ -128,7 +109,6 @@ nav button {
   padding: 12px 14px 16px;
   padding-top: 72px;
 }
-
 .sidebar-header {
   display: flex;
   align-items: center;
@@ -137,19 +117,16 @@ nav button {
   padding: 6px 2px 10px;
   border-bottom: 1px solid white;
 }
-
 .sidebar .logotop {
   height: 60px;
   width: auto;
   margin-left: 10px;
 }
-
 .sidebar-header-text {
   margin-top: 10px;
   text-align: center;
   font-size: 20px;
 }
-
 .menu {
   display: flex;
   flex-direction: column;
@@ -158,7 +135,6 @@ nav button {
   padding: 10px 2px 0;
   font-size: 15px;
 }
-
 .menu a {
   color: white;
   text-decoration: none;
@@ -168,26 +144,21 @@ nav button {
   align-items: center;
   justify-content: flex-start;
 }
-
 .menu a:hover {
   background: rgb(19, 22, 63);
 }
-
 .menu img {
   width: auto;
   height: 30px;
   margin-right: 10px;
 }
-
 .menu a img {
   width: 22px;
   height: 22px;
 }
-
 .menu a span {
   display: flex;
 }
-
 .overlay {
   position: fixed;
   inset: 0;
@@ -196,7 +167,6 @@ nav button {
   transition: opacity 0.2s ease;
   z-index: 999;
 }
-
 .hamburger {
   display: inline-flex;
   align-items: center;
@@ -206,33 +176,26 @@ nav button {
   background: transparent;
   padding: 0;
 }
-
 .hamburger img {
   height: 40px;
   width: auto;
 }
-
 #navchk:checked ~ .sidebar {
   transform: translateX(0);
 }
-
 #navchk:checked ~ .overlay {
   opacity: 1;
   pointer-events: auto;
-}
-
-/*Dashboard*/
-
+} /*Dashboard*/
 .container {
   display: flex;
   flex-direction: column;
   margin-bottom: 40px;
 }
-
 .info {
   background-color: rgb(29, 33, 96);
   height: 250px;
-  width: 500px;
+  width: 900px;
   color: white;
   display: flex;
   flex-direction: column;
@@ -241,18 +204,15 @@ nav button {
   border-radius: 20px;
   font-size: 30px;
 }
-
 .info h3 {
   margin-bottom: 30px;
 }
-
 .titles {
   display: flex;
-  gap: 30px;
+  gap: 100px;
   font-size: 22px;
   margin-bottom: 25px;
 }
-
 .O {
   background-color: rgb(144, 197, 247);
   color: black;
@@ -261,7 +221,6 @@ nav button {
   justify-content: center;
   border-radius: 20px;
 }
-
 .U {
   background-color: rgb(144, 247, 175);
   color: black;
@@ -270,7 +229,6 @@ nav button {
   justify-content: center;
   border-radius: 20px;
 }
-
 .CS {
   background-color: rgb(247, 230, 144);
   color: black;
@@ -279,33 +237,28 @@ nav button {
   justify-content: center;
   border-radius: 20px;
 }
-
 .amount {
   display: flex;
   gap: 30px;
   font-size: 82px;
 }
-
 .amount {
   font-size: 82px;
   font-weight: bold;
   color: white;
   justify-content: center;
-  gap: 30px;
+  gap: 100px;
   margin-top: 0;
 }
-
 .amount p {
   width: 130px;
   text-align: center;
 }
-
 .buttons {
   display: flex;
-  gap: 50px;
-  margin-top: 20px;
+  justify-content: space-evenly;
+  margin-top: 30px;
 }
-
 .buttons button {
   height: 35px;
   width: 130px;
@@ -315,20 +268,17 @@ nav button {
   font-weight: bold;
   border-radius: 20px;
 }
-
 .buttons button:hover {
   cursor: pointer;
   background-color: rgb(57, 65, 175);
   border: none;
 }
-
 .buttons button:active {
   background-color: rgb(76, 86, 234);
   cursor: pointer;
 }
-
 .table table {
-  width: 700px;
+  width: 900px;
   border-collapse: separate;
   border-spacing: 0;
   border-collapse: separate;
@@ -342,38 +292,83 @@ nav button {
   overflow: hidden;
   margin-bottom: 30px;
 }
-
 .table thead {
   background-color: rgb(29, 33, 96);
   color: white;
 }
-
 .table tbody tr {
   background-color: rgb(236, 236, 236);
   color: black;
+  cursor: pointer; /* make rows feel clickable */
 }
-
 .table tbody tr:hover {
   background-color: rgb(207, 207, 207);
 }
-
-/* .table table {
-  width: 700px;
-  border-spacing: 10px;
-  border-collapse: separate;
-  background-color: rgb(29, 33, 96);
-  color: white;
-  text-align: center;
-  border-radius: 20px;
-}*/
-
 .table td {
   padding: 10px;
   font-weight: bold;
   font-size: 20px;
 }
-
 .table tbody tr.selected {
   background-color: rgb(220, 225, 250);
   outline: 3px solid rgb(29, 33, 96);
+} /* =========================== Delete confirmation modal =========================== */
+.confirm-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 1100;
+}
+.confirm-modal.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+.confirm-dialog {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px 28px;
+  max-width: 420px;
+  width: 90%;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+.confirm-dialog h2 {
+  margin-bottom: 12px;
+  font-size: 22px;
+  color: rgb(29, 33, 96);
+}
+.confirm-dialog p {
+  font-size: 16px;
+  color: #333;
+}
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 22px;
+}
+.confirm-actions button {
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.confirm-actions #cancel-delete-btn {
+  background: #e0e0e0;
+  color: #333;
+}
+.confirm-actions .danger {
+  background: rgb(204, 46, 46);
+  color: #fff;
+}
+.confirm-actions .danger:hover {
+  background: rgb(179, 37, 37);
 }
