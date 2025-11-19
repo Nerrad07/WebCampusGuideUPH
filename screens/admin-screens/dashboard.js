@@ -10,6 +10,8 @@ const removeBtn = document.getElementById("remove-btn");
 const confirmModal = document.getElementById("confirm-delete-modal");
 const cancelDeleteBtn = document.getElementById("cancel-delete-btn");
 const confirmDeleteBtn = document.getElementById("confirm-delete-btn");
+const editBtn = document.querySelector(".edit button");
+document.getElementById("seedBtn").addEventListener("click", seedEvents);
 
 // NEW: selection state
 let selectedEventId = null;
@@ -177,6 +179,18 @@ if (removeBtn) {
   });
 }
 
+if (editBtn) {
+  editBtn.addEventListener("click", () => {
+    if (!selectedEventId) {
+      alert("Please select an event to edit first.");
+      return;
+    }
+
+    // Redirect to add.html with ?id=xxxx
+    window.location.href = `add.html?id=${selectedEventId}`;
+  });
+}
+
 // close modal without deleting
 if (cancelDeleteBtn) {
   cancelDeleteBtn.addEventListener("click", () => {
@@ -210,5 +224,42 @@ if (confirmDeleteBtn) {
     }
   });
 }
+
+// SEED EVENTS — uploads events_seed.json to your API
+async function seedEvents() {
+    if (!confirm("Seed 50 events into the database?")) return;
+
+    try {
+        // 1. Load the local JSON file
+        const response = await fetch("./events_seed.json");
+        const events = await response.json();
+
+        // Validate it is an array
+        if (!Array.isArray(events)) {
+            throw new Error("events_seed.json did not return an array");
+        }
+
+        // 2. Push each event to backend, backend will assign ID
+        for (const event of events) {
+            const res = await fetch(`${API_BASE}/events`, {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(event)
+            });
+
+            if (!res.ok) {
+                console.error("Failed to add event:", await res.text());
+            }
+        }
+
+        alert("All events seeded successfully!");
+
+    } catch (err) {
+        console.error("Seed error:", err);
+        alert("Error seeding events — see console");
+    }
+}
+
 
 window.addEventListener("DOMContentLoaded", loadEvents);

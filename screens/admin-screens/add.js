@@ -142,6 +142,21 @@ async function loadEventForEdit() {
 /* --------------------------
    SUBMIT HANDLER
 ---------------------------*/
+async function uploadPosterForEvent(eventId, file) {
+    const formData = new FormData();
+    formData.append("poster", file);
+
+    const resp = await fetch(`${API_BASE}/uploadPoster/${eventId}`, {
+        method: "POST",
+        credentials: "include",   // <-- IMPORTANT
+        body: formData
+    });
+
+    if (!resp.ok) throw new Error("Poster upload failed");
+
+    return await resp.json();
+}
+
 async function handleFormSubmit(e) {
   e.preventDefault();
 
@@ -149,6 +164,7 @@ async function handleFormSubmit(e) {
   const eventId = params.get("id");
 
   const name = document.getElementById("eventname").value.trim();
+  const heldBy = document.getElementById("held").value.trim();   // <-- NEW
   const date = document.getElementById("eventdate").value;
   const starttime = document.getElementById("starttime").value;
   const endtime = document.getElementById("endtime").value;
@@ -156,67 +172,78 @@ async function handleFormSubmit(e) {
   const floor = document.getElementById("floor").value;
   const room = document.getElementById("room").value;
 
-  if (!name || !date || !starttime || !endtime || !building || !room) {
+  if (!name || !heldBy || !date || !starttime || !endtime || !building || !room) {
     alert("Please fill all required fields.");
     return;
   }
 
-  const posterFile = document.getElementById("poster").files[0];
-  let posterUrl = "https://placehold.co/640x480?text=Event";
+  let finalEventId = eventId;
+  let posterFile = document.getElementById("poster").files[0];
 
-  if (posterFile) {
-    const formData = new FormData();
-    formData.append("poster", posterFile);
+  // Create event 
+  if (!finalEventId) {
+    const eventData = {
+      name,
+      heldBy,
+      building,
+      floor,
+      room,
+      date: toTimestamp(date),
+      startTimeMinutes: toMinutes(starttime),
+      endTimeMinutes: toMinutes(endtime),
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      published: true,
+      posterUrl: ""
+    };
 
-    const uploadRes = await fetch(`${API_BASE}/uploadPoster/${eventId || "temp"}`, {
+    const createRes = await fetch(`${API_BASE}/events`, {
       method: "POST",
       credentials: "include",
-      body: formData
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(eventData)
     });
 
-    if (!uploadRes.ok) throw new Error("Poster upload failed");
+    if (!createRes.ok) {
+      alert("Failed to create event.");
+      return;
+    }
 
-    const uploadData = await uploadRes.json();
-    posterUrl = uploadData.url;
+    const newData = await createRes.json();
+    finalEventId = newData.id;
   }
 
-  const eventData = {
-    name,
-    building,
-    floor,
-    room,
-    heldBy: "Admin",
-    date: toTimestamp(date),
-    startTimeMinutes: toMinutes(starttime),
-    endTimeMinutes: toMinutes(endtime),
-    updatedAt: Date.now(),
-    published: true,
-    posterUrl
-  };
-
-  if (!eventId) eventData.createdAt = Date.now();
-
-  try {
-    const res = await fetch(
-      `${API_BASE}/events${eventId ? `/${eventId}` : ""}`,   // <-- FIXED PATH
-      {
-        method: eventId ? "PUT" : "POST",
-        credentials: "include",  // REQUIRED SESSION COOKIE
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(eventData)
-      }
-    );
-
-    if (!res.ok) throw new Error("Failed to save event");
-
-    alert(eventId ? "Event updated successfully!" : "Event added successfully!");
-    window.location.href = "dashboard.html";
-
-  } catch (err) {
-    console.error("Error submitting form:", err);
-    alert("Error submitting event. Check console for details.");
+  // ------------------------
+  // STEP 2: Upload Poster
+  // ------------------------
+  let posterUrl = "";
+  if (posterFile) {
+    const uploadRes = await uploadPosterForEvent(finalEventId, posterFile);
+    posterUrl = uploadRes.url;
   }
+
+  // ------------------------
+  // STEP 3: Update event with poster + heldBy
+  // ------------------------
+  const updateRes = await fetch(`${API_BASE}/events/${finalEventId}`, {
+    method: "PUT",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      posterUrl,
+      heldBy   // <-- NEW
+    })
+  });
+
+  if (!updateRes.ok) {
+    alert("Failed to update event with poster.");
+    return;
+  }
+
+  alert("Event saved successfully!");
+  window.location.href = "dashboard.html";
 }
+
 
 /* --------------------------
    INIT

@@ -372,3 +372,24 @@ nav button {
 .confirm-actions .danger:hover {
   background: rgb(179, 37, 37);
 }
+
+.seed-Btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+
+  background-color: rgb(29, 33, 96);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+
+  z-index: 9999;
+}
+
+.seed-Btn:hover {
+  background-color: rgb(47, 53, 141);
+}
+

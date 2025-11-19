@@ -279,6 +279,7 @@ main h3 {
 }
 
 .container form .time,
+.container form .held,
 .container form .name {
   margin-bottom: 30px;
 }
@@ -293,6 +294,13 @@ main h3 {
 .container form select {
   height: 25px;
   width: 150px;
+  box-sizing: border-box;
+}
+
+.container form .held input{
+  height: 25px;
+  width: 150px;
+  margin-left: 34px;
   box-sizing: border-box;
 }
 

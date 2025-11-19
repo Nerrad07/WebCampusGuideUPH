@@ -3,40 +3,37 @@ import dotenv from "dotenv";
 import admin from "firebase-admin";
 import cors from "cors";
 import session from "express-session";
-import fetch from "node-fetch";
-import multer from "multer";
-import { getStorage } from "firebase-admin/storage";
+import multer from "multer"; // <-- REQUIRED for file uploads
 
 dotenv.config();
 
 const app = express();
 
-const upload = multer({ storage: multer.memoryStorage() });
-
 // ------------------------------
 // Firebase Admin Initialization
 // ------------------------------
 const serviceAccount = JSON.parse(process.env.SERVICE_ACCOUNT);
+
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: process.env.DATABASE_URL,
-  storageBucket: process.env.STORAGE_BUCKET,
+  storageBucket: process.env.STORAGE_BUCKET   // MUST be xxxx.appspot.com
 });
 
+// NOW storage and database can be accessed safely
 const db = admin.database();
+const bucket = admin.storage().bucket();
+
+// Multer (store in memory)
+const upload = multer({ storage: multer.memoryStorage() });
 
 // ------------------------------
 // Middleware
 // ------------------------------
 
-// IMPORTANT for Vercel — allow secure cookies
 app.set("trust proxy", 1);
-
 const isProd = process.env.NODE_ENV === "production";
 
-// ------------------------------
-// CORS (ALLOW COOKIE CROSS-SITE)
-// ------------------------------
 app.use(
   cors({
     origin: [
@@ -46,15 +43,12 @@ app.use(
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true, // REQUIRED for cookies
+    credentials: true,
   })
 );
 
 app.use(express.json());
 
-// ------------------------------
-// Sessions (Secure on Vercel)
-// ------------------------------
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "supersecretkey",
@@ -63,34 +57,31 @@ app.use(
     proxy: true,
     cookie: {
       httpOnly: true,
-      secure: isProd, // cookie only sent via HTTPS in production
-      sameSite: isProd ? "none" : "lax", // REQUIRED for cross-site cookies
-      maxAge: 1000 * 60 * 60 * 6, // 6 hours
+      secure: isProd,
+      sameSite: isProd ? "none" : "lax",
+      maxAge: 1000 * 60 * 60 * 6,
     },
   })
 );
 
 // ------------------------------
-// Authentication Routes
+// Authentication
 // ------------------------------
+
 app.post("/auth/login", async (req, res) => {
   const { email, password } = req.body;
 
-  if (!email || !password) {
+  if (!email || !password)
     return res.status(400).json({ message: "Missing email or password" });
-  }
 
   try {
     const userRecord = await admin.auth().getUserByEmail(email);
-
     const userId = userRecord.uid;
     const snap = await db.ref("admins/" + userId).once("value");
 
-    if (!snap.exists()) {
+    if (!snap.exists())
       return res.status(403).json({ message: "User is not an admin" });
-    }
 
-    // 3️⃣ Store session
     req.session.user = {
       id: userId,
       email: userRecord.email,
@@ -104,68 +95,63 @@ app.post("/auth/login", async (req, res) => {
   }
 });
 
-// Upload poster for event
-app.post(
-  "/uploadPoster/:eventId",
-  upload.single("poster"),
-  async (req, res) => {
-    try {
-      const { eventId } = req.params;
+// ------------------------------
+// POSTER UPLOAD
+// ------------------------------
 
-      if (!req.file) {
-        return res.status(400).json({ message: "No file uploaded" });
-      }
+app.post("/uploadPoster/:eventId", upload.single("poster"), async (req, res) => {
+  console.log("It got here")
+  try {
+    const eventId = req.params.eventId;
 
-      const bucket = admin.storage().bucket();
-      const fileName = `posters/${eventId}/${Date.now()}_${
-        req.file.originalname
-      }`;
-
-      const file = bucket.file(fileName);
-
-      await file.save(req.file.buffer, {
-        contentType: req.file.mimetype,
-        public: true,
-      });
-
-      const fileUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
-
-      // OPTIONAL: update Firestore
-      await admin.firestore().collection("events").doc(eventId).update({
-        posterUrl: fileUrl,
-      });
-
-      res.json({ url: fileUrl });
-    } catch (error) {
-      console.error("Upload error:", error);
-      res.status(500).json({ message: "Upload failed" });
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
     }
-  }
-);
 
-// Check current authenticated user
-app.get("/auth/me", (req, res) => {
-  if (!req.session.user) {
-    return res.status(401).json({ message: "Not authenticated" });
+    const ext = req.file.originalname.split('.').pop(); 
+    const fileName = `${eventId}.${ext}`;
+    const fileRef = bucket.file(`posters/${fileName}`);
+    console.log("It got here")
+
+    await fileRef.save(req.file.buffer, {
+      contentType: req.file.mimetype,
+      public: true,
+    });
+
+    const publicUrl = `https://storage.googleapis.com/b/${process.env.STORAGE_BUCKET}/o/posters/${fileName}`;
+
+    const snap = await db.ref(`events/${eventId}`).once("value");
+    if (!snap.exists()) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+
+    await db.ref(`events/${eventId}`).update({ posterUrl: publicUrl });
+
+    res.json({ url: publicUrl });
+  } catch (err) {
+    console.error("Upload error:", err);
+    res.status(500).json({ message: "Upload failed" });
   }
+});
+
+// ------------------------------
+// Event routes
+// ------------------------------
+
+app.get("/auth/me", (req, res) => {
+  if (!req.session.user)
+    return res.status(401).json({ message: "Not authenticated" });
   res.json(req.session.user);
 });
 
-// Logout
 app.post("/auth/logout", (req, res) => {
-  req.session.destroy(() => {
-    res.json({ success: true });
-  });
+  req.session.destroy(() => res.json({ success: true }));
 });
 
-// ------------------------------
-// PUBLIC GET EVENTS (NO AUTH)
-// ------------------------------
 app.get("/events", async (req, res) => {
   try {
     const snapshot = await db.ref("events").once("value");
-    const data = snapshot.val() || {};
-    res.json(data);
+    res.json(snapshot.val() || {});
   } catch (err) {
     console.error("Fetch events error:", err);
     res.status(500).json({ message: "Failed to fetch events" });
@@ -174,13 +160,9 @@ app.get("/events", async (req, res) => {
 
 app.get("/events/:id", async (req, res) => {
   try {
-    const id = req.params.id;
-    const snapshot = await db.ref("events/" + id).once("value");
-
-    if (!snapshot.exists()) {
+    const snapshot = await db.ref("events/" + req.params.id).once("value");
+    if (!snapshot.exists())
       return res.status(404).json({ message: "Event not found" });
-    }
-
     res.json(snapshot.val());
   } catch (err) {
     console.error("Error fetching event:", err);
@@ -188,18 +170,13 @@ app.get("/events/:id", async (req, res) => {
   }
 });
 
-// ------------------------------
-// CREATE OR UPDATE EVENT (AUTH REQUIRED)
-// ------------------------------
 app.post("/events", async (req, res) => {
-  if (!req.session.user) {
+  if (!req.session.user)
     return res.status(401).json({ message: "Unauthorized" });
-  }
 
   try {
     const newEventRef = db.ref("events").push();
     await newEventRef.set(req.body);
-
     res.json({ message: "Event created", id: newEventRef.key });
   } catch (err) {
     console.error("Create event error:", err);
@@ -208,9 +185,8 @@ app.post("/events", async (req, res) => {
 });
 
 app.put("/events/:id", async (req, res) => {
-  if (!req.session.user) {
+  if (!req.session.user)
     return res.status(401).json({ message: "Unauthorized" });
-  }
 
   try {
     await db.ref(`events/${req.params.id}`).update(req.body);
@@ -221,13 +197,9 @@ app.put("/events/:id", async (req, res) => {
   }
 });
 
-// ------------------------------
-// DELETE EVENT (AUTH REQUIRED)
-// ------------------------------
 app.delete("/events/:id", async (req, res) => {
-  if (!req.session.user) {
+  if (!req.session.user)
     return res.status(401).json({ message: "Unauthorized" });
-  }
 
   try {
     await db.ref(`events/${req.params.id}`).remove();
@@ -242,6 +214,4 @@ app.delete("/events/:id", async (req, res) => {
 // Start Server
 // ------------------------------
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server running on ${PORT}`);
-});
+app.listen(PORT, () => console.log(`Server running on ${PORT}`));

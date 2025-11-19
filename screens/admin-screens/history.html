@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Guide UPH</title>
+    <link rel="stylesheet" href="history.css">
+</head>
+<body>
+    
+    <header class="topbar">
+        <nav>
+            <div class="left">
+                <label for="navchk" class="hamburger">
+                    <img src="../../img/Hamburger.png" alt="">
+                </label>
+
+                    <img src="../../img/logo_white.png" alt="" class="logotop">
+            </div>
+
+            <div class="middle">
+                <button>
+                    Search
+                </button>
+            </div>
+
+             <div class="right">
+                <div class="mapwhite">
+                    <button>
+                        <a href="../user-screens/map-screen.html">
+                            <img src="../../img/map-white.png" alt="" class="buttons">
+                        </a>    
+                    </button>
+                </div>
+
+                    <div class="eventwhite">
+                    <a href="../user-screens/event-screen.html">
+                        <button>
+                            <img src="../../img/event-white.png" alt="" class="buttons">
+                        </button>
+                    </a>
+                </div>
+            </div>
+
+        </nav>
+    </header>
+    
+    <input type="checkbox" id="navchk" hidden>
+    <aside class="sidebar">
+
+        <div class="sidebar-header">
+           <img src="../../img/logo_white.png" alt="" class="logotop">
+        </div>
+
+        <div class="sidebar-header-text">
+            <p>Campus Guide UPH <br> Lippo Village</p>
+        </div>
+
+        <nav class="menu">
+            <a href="https://www.uph.edu/id/facility/map-kampus/">
+                <img src="../../img/location-logo.png" alt="">
+                <span>UPH Lippo Village Map</span>
+            </a>
+
+            <a href="https://www.uph.edu/id/">
+                <img src="../../img/web-logo.png" alt="">
+                <span>www.uph.edu/id</span>
+            </a>
+
+            <a href="https://www.instagram.com/uphimpactslives/">
+                <img src="../../img/instagram-logo.png" alt="">
+                <span>@uphimpactslives</span>
+            </a>
+
+            <a href="https://www.uph.edu/id/contact/">
+                <img src="../../img/phone-logo.png" alt="">
+                <span>Contact Us</span>
+            </a>
+
+            <a href="../admin-screens/login.html">
+                <img src="../../img/user-logo.png" alt="">
+                <span>Admin Login</span>
+            </a>
+        </nav>
+    </aside>
+
+    <label for="navchk" class="overlay" aria-hidden="true"></label>
+
+    <main>
+        <div class="table">
+            <table>
+                <thead>
+                    <tr>
+                        <td>No.</td>
+                        <td>Event Name</td>
+                        <td>Held By</td>
+                        <td>Time</td>
+                        <td>Date</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="inputs"></tr>
+                </tbody> 
+            </table>
+        </div>
+    </main>
+
+    <footer>
+
+    </footer>
+</body>
+<script src="history.js" type="module"></script>
+</html>
