@@ -1,9 +1,8 @@
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 
-// detect current building
-const mainEl = $("main.page");
-const BUILDING = (mainEl?.dataset.building || "B").toUpperCase();
+const pageName = location.pathname.split("/").pop() || "";
+const BUILDING = pageName.charAt(0).toUpperCase();
 
 const API_BASE =
   "https://web-campus-guide-uph.vercel.app" ||
@@ -147,6 +146,7 @@ async function fetchEvents() {
     return [];
   }
 }
+
 function renderEvents(events) {
   const list = $("#eventsList") || $("#bEventsList");
   const tmpl = $("#eventCardTmpl") || $("#bEventCardTmpl");
@@ -189,6 +189,7 @@ function renderEvents(events) {
     list.appendChild(node);
   }
 }
+
 const modal = {
   root: $("#facultyModal"),
   title: $("#modalTitle"),
@@ -243,15 +244,15 @@ function bindFacultyCards() {
     });
   });
 }
+
 (async function init() {
   modal.bind();
   bindFacultyCards();
 
   const allEvents = await fetchEvents();
+
   const filtered = allEvents.filter(
-    (e) =>
-      e.building?.toUpperCase() === BUILDING &&
-      e.published === true
+    (e) => e.building?.toUpperCase() === BUILDING
   );
 
   renderEvents(filtered);

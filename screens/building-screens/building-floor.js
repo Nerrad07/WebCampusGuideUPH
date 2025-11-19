@@ -15,7 +15,8 @@ const DATA = {
         3: ["C301 - Library Service","C302 - Study Room A","C303 - Study Room B","C304 - Seminar Room"],
         4: ["C401 - Rectorate","C402 - Meeting Room","C403","C404"],
         5: ["C501 - Administration","C502","C503","C504"],
-        6: ["C601 - Auditorium Control","C602 - AV Room","C603"]
+        6: ["C601 - Auditorium Control","C602 - AV Room","C603"],
+        7: ["C701 - Studio","C702","C703"]
     },
     D: {
         1: ["D101","D102","D103","D104 - Moot Court","D105"],
@@ -33,16 +34,63 @@ const DATA = {
 
 const $ = (s, r=document)=>r.querySelector(s);
 
+// --- AUTO-DETECT BUILDING & FLOOR FROM URL ---
 const qs = new URLSearchParams(location.search);
 const building = (qs.get("building") || "B").toUpperCase();
-const floor    = String(qs.get("floor") || "1");
+const floor = String(qs.get("floor") || "1");
 
+// Update title
 $("#floorTitle").textContent = `Building ${building} — Floor ${floor}`;
+
+// --- ROOM GRID LOADING ---
 const ul = $("#roomList");
 ul.innerHTML = "";
-
 (DATA[building]?.[floor] || ["No data"]).forEach(name => {
     const li = document.createElement("li");
     li.textContent = name;
     ul.appendChild(li);
 });
+
+// --- SHOW MAP IMAGE FOR THIS BUILDING & FLOOR ---
+const imageElement = document.createElement("img");
+imageElement.style.width = "100%";
+imageElement.style.borderRadius = "12px";
+imageElement.style.marginTop = "10px";
+
+// Firebase Storage bucket (correct)
+const BUCKET = "campus-guide-map-uph.firebasestorage.app";
+
+// prefix mapping
+const prefixMap = {
+    B: "bb",
+    C: "bc",
+    D: "bd",
+    F: "bf"
+};
+
+const prefix = prefixMap[building];
+
+// Only load if that floor truly exists in DATA
+if (prefix && DATA[building][floor]) {
+
+    // File name (example: bb_f1.jpg)
+    const fileName = `${prefix}_f${floor}.jpg`;
+
+    // Full Firebase path
+    const storagePath = `maps/${building}/${fileName}`;
+
+    // Encode it properly
+    const encodedPath = encodeURIComponent(storagePath);
+
+    // Final WORKING Firebase download URL
+    const imgURL =
+      `https://firebasestorage.googleapis.com/v0/b/${BUCKET}/o/${encodedPath}?alt=media`;
+
+    imageElement.src = imgURL;
+
+} else {
+    imageElement.src = "";
+}
+
+// Insert the image after the room panel
+document.querySelector(".panel").after(imageElement);
