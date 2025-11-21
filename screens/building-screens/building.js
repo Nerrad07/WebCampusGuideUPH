@@ -190,6 +190,57 @@ function renderEvents(events) {
   }
 }
 
+
+const BUCKET = "campus-guide-map-uph.firebasestorage.app";
+
+let facultyImages
+
+if (BUILDING == 'B'){
+  facultyImages = {
+    fit: "fit.jpg",
+    fai: "fai.jpg",
+    fom: "fm.jpeg",
+    fast: "fast.jpg"
+  };
+}
+else if(BUILDING == 'C'){
+  facultyImages = {
+    lib: "jo_library_l2.jpg",
+    chapel: "grand_chapel_l7.jpg",
+    registrar: "Registrar_Office.jpg",
+    rector: "rectorate_office.jpg"
+  };
+}
+else if(BUILDING == 'D'){
+  facultyImages = {
+    fht: "fhospar.jpg"
+  };
+}
+else if(BUILDING == 'F'){
+  facultyImages = {
+    law: "fh.jpg",
+    fisip: "fisip.jpeg"
+  };
+}
+
+document.querySelectorAll(".faculty-card").forEach(btn => {
+    const key = btn.dataset.faculty;
+    const img = btn.querySelector(".faculty-icon");
+
+    if (!facultyImages[key]) return;
+
+    const fileName = facultyImages[key];
+    let storagePath = `faculties/${fileName}`;
+    if (BUILDING == 'C'){
+      storagePath = `featured/${fileName}`
+    }
+    const encodedPath = encodeURIComponent(storagePath);
+
+    const url = `https://firebasestorage.googleapis.com/v0/b/${BUCKET}/o/${encodedPath}?alt=media`;
+
+    img.src = url;
+});
+
 const modal = {
   root: $("#facultyModal"),
   title: $("#modalTitle"),

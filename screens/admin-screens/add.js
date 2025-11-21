@@ -125,6 +125,8 @@ async function loadEventForEdit() {
     document.getElementById("eventname").value = event.name || "";
     if (event.date)
       document.getElementById("eventdate").value = formatDate(event.date);
+    if (event.heldBy)
+      document.getElementById("held").value = event.heldBy;
     if (event.startTimeMinutes)
       document.getElementById("starttime").value = toTimeString(event.startTimeMinutes);
     if (event.endTimeMinutes)
@@ -164,7 +166,7 @@ async function handleFormSubmit(e) {
   const eventId = params.get("id");
 
   const name = document.getElementById("eventname").value.trim();
-  const heldBy = document.getElementById("held").value.trim();   // <-- NEW
+  const heldBy = document.getElementById("held").value.trim();
   const date = document.getElementById("eventdate").value;
   const starttime = document.getElementById("starttime").value;
   const endtime = document.getElementById("endtime").value;

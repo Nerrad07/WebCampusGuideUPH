@@ -65,7 +65,7 @@ app.use(
 );
 
 // ------------------------------
-// Authentication
+// Authentication login and logout
 // ------------------------------
 
 app.post("/auth/login", async (req, res) => {
@@ -93,6 +93,12 @@ app.post("/auth/login", async (req, res) => {
     console.error("LOGIN ERROR:", err);
     return res.status(401).json({ message: "User not found or invalid login" });
   }
+});
+
+app.post("/auth/logout", (req, res) => {
+  req.session.destroy(() => {
+    res.json({ success: true });
+  });
 });
 
 // ------------------------------
