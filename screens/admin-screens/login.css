@@ -44,34 +44,45 @@ main{
     padding: 40px 30px;
 }
 
-.login input{
-    font-family:'Times New Roman', Times, serif;
-    font-size: 20px;
-}
-
 .title{
     display: flex;
     justify-content: center;
     margin-bottom: 40px;
 }
 
-.login form input{
-    margin-bottom: 40px;
-    height: 20px;
+.login form label {
+    display: block;
+    margin-bottom: 8px;
+}
+
+.login form input[type="email"],
+.login form input[type="password"] {
+    font-family:'Times New Roman', Times, serif;
+    font-size: 20px;
+    height: 32px;
     padding-left: 5px;
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 20px;
 }
 
-.email{
-    margin-left: 30px;
-    width: 230px;
+.onerow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    column-gap: 10px;
+    flex-wrap: wrap; 
+
 }
 
-.pass{
-    margin-left: 8px;
-    width: 230px;
+.forgot{
+    display: flex;
+    justify-content: flex-end;
+    margin-top: -10px;
+    margin-bottom: 20px;
 }
 
-.forgot a{
+.forgot a {
     text-decoration: none;
     color: white;
 }
@@ -80,25 +91,28 @@ main{
     text-decoration: underline;
 }
 
-.forgot{
+.remember {
     display: flex;
-    justify-content: flex-end;
-    margin-top: -30px;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 20px;
 }
 
-.remember{
-    display: flex;
-    gap: 8px;
-    margin-top: 40px;
-    margin-bottom: -30px;
+.remember input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    margin-bottom: 5px;
+    cursor: pointer;
+    accent-color: rgb(147, 152, 212); 
+}
+
+.remember label {
+    line-height: 1.2;
+    white-space: normal;
 }
 
 .remember input:hover{
     cursor: pointer;
-}
-
-.remember input[type="checkbox"]{
-    accent-color: rgb(147, 152, 212);
 }
 
 .submit button {
