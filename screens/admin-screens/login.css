@@ -58,7 +58,7 @@ main{
 .login form input[type="email"],
 .login form input[type="password"] {
     font-family:'Times New Roman', Times, serif;
-    font-size: 20px;
+    font-size: 14px;
     height: 32px;
     padding-left: 5px;
     width: 100%;

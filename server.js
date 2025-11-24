@@ -1,9 +1,12 @@
+// server.js — Express API with Firebase Admin + Email/Password Auth on backend
+
 import express from "express";
 import dotenv from "dotenv";
 import admin from "firebase-admin";
 import cors from "cors";
 import session from "express-session";
-import multer from "multer"; // <-- REQUIRED for file uploads
+import multer from "multer"; // for file uploads
+import fetch from "node-fetch"; // for Firebase Auth REST API
 
 dotenv.config();
 
@@ -17,20 +20,19 @@ const serviceAccount = JSON.parse(process.env.SERVICE_ACCOUNT);
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: process.env.DATABASE_URL,
-  storageBucket: process.env.STORAGE_BUCKET   // MUST be xxxx.appspot.com
+  storageBucket: process.env.STORAGE_BUCKET, // MUST be xxxx.appspot.com
 });
 
-// NOW storage and database can be accessed safely
+// Realtime DB + Storage
 const db = admin.database();
 const bucket = admin.storage().bucket();
 
-// Multer (store in memory)
+// Multer (store file in memory)
 const upload = multer({ storage: multer.memoryStorage() });
 
 // ------------------------------
 // Middleware
 // ------------------------------
-
 app.set("trust proxy", 1);
 const isProd = process.env.NODE_ENV === "production";
 
@@ -59,7 +61,7 @@ app.use(
       httpOnly: true,
       secure: isProd,
       sameSite: isProd ? "none" : "lax",
-      maxAge: 1000 * 60 * 60 * 6,
+      maxAge: 1000 * 60 * 60 * 6, // 6 hours
     },
   })
 );
@@ -68,30 +70,55 @@ app.use(
 // Authentication login and logout
 // ------------------------------
 
+// Backend-only auth: verify email+password via Firebase Auth REST
 app.post("/auth/login", async (req, res) => {
   const { email, password } = req.body;
 
-  if (!email || !password)
+  if (!email || !password) {
     return res.status(400).json({ message: "Missing email or password" });
+  }
 
   try {
-    const userRecord = await admin.auth().getUserByEmail(email);
-    const userId = userRecord.uid;
+    // 1) Validate credentials against Firebase Auth using REST API
+    const resp = await fetch(
+      `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${process.env.FIREBASE_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          password,
+          returnSecureToken: true,
+        }),
+      }
+    );
+
+    if (!resp.ok) {
+      const errData = await resp.json().catch(() => ({}));
+      console.error("Firebase password verify failed:", errData);
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
+
+    const data = await resp.json();
+    const userId = data.localId; // Firebase uid
+
+    // 2) Check admin role in Realtime Database: admins/<uid>
     const snap = await db.ref("admins/" + userId).once("value");
-
-    if (!snap.exists())
+    if (!snap.exists()) {
       return res.status(403).json({ message: "User is not an admin" });
+    }
 
+    // 3) Create session for this admin
     req.session.user = {
       id: userId,
-      email: userRecord.email,
+      email: data.email,
       isAdmin: true,
     };
 
     return res.json({ success: true, user: req.session.user });
   } catch (err) {
     console.error("LOGIN ERROR:", err);
-    return res.status(401).json({ message: "User not found or invalid login" });
+    return res.status(500).json({ message: "Internal server error" });
   }
 });
 
@@ -101,12 +128,19 @@ app.post("/auth/logout", (req, res) => {
   });
 });
 
+// Who am I? (Protected)
+app.get("/auth/me", (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ message: "Not authenticated" });
+  }
+  res.json(req.session.user);
+});
+
 // ------------------------------
 // POSTER UPLOAD
 // ------------------------------
-
 app.post("/uploadPoster/:eventId", upload.single("poster"), async (req, res) => {
-  console.log("It got here")
+  console.log("UploadPoster route hit");
   try {
     const eventId = req.params.eventId;
 
@@ -114,17 +148,17 @@ app.post("/uploadPoster/:eventId", upload.single("poster"), async (req, res) => 
       return res.status(400).json({ message: "No file uploaded" });
     }
 
-    const ext = req.file.originalname.split('.').pop(); 
+    const ext = req.file.originalname.split(".").pop();
     const fileName = `${eventId}.${ext}`;
     const fileRef = bucket.file(`posters/${fileName}`);
-    console.log("It got here")
+    console.log("Saving file to bucket as", fileName);
 
     await fileRef.save(req.file.buffer, {
       contentType: req.file.mimetype,
       public: true,
     });
 
-    const publicUrl = `https://storage.googleapis.com/b/${process.env.STORAGE_BUCKET}/o/posters/${fileName}`;
+    const publicUrl = `https://storage.googleapis.com/${process.env.STORAGE_BUCKET}/posters/${fileName}`;
 
     const snap = await db.ref(`events/${eventId}`).once("value");
     if (!snap.exists()) {
@@ -143,17 +177,6 @@ app.post("/uploadPoster/:eventId", upload.single("poster"), async (req, res) => 
 // ------------------------------
 // Event routes
 // ------------------------------
-
-app.get("/auth/me", (req, res) => {
-  if (!req.session.user)
-    return res.status(401).json({ message: "Not authenticated" });
-  res.json(req.session.user);
-});
-
-app.post("/auth/logout", (req, res) => {
-  req.session.destroy(() => res.json({ success: true }));
-});
-
 app.get("/events", async (req, res) => {
   try {
     const snapshot = await db.ref("events").once("value");
@@ -167,8 +190,9 @@ app.get("/events", async (req, res) => {
 app.get("/events/:id", async (req, res) => {
   try {
     const snapshot = await db.ref("events/" + req.params.id).once("value");
-    if (!snapshot.exists())
+    if (!snapshot.exists()) {
       return res.status(404).json({ message: "Event not found" });
+    }
     res.json(snapshot.val());
   } catch (err) {
     console.error("Error fetching event:", err);
@@ -177,8 +201,9 @@ app.get("/events/:id", async (req, res) => {
 });
 
 app.post("/events", async (req, res) => {
-  if (!req.session.user)
+  if (!req.session.user) {
     return res.status(401).json({ message: "Unauthorized" });
+  }
 
   try {
     const newEventRef = db.ref("events").push();
@@ -191,8 +216,9 @@ app.post("/events", async (req, res) => {
 });
 
 app.put("/events/:id", async (req, res) => {
-  if (!req.session.user)
+  if (!req.session.user) {
     return res.status(401).json({ message: "Unauthorized" });
+  }
 
   try {
     await db.ref(`events/${req.params.id}`).update(req.body);
@@ -204,8 +230,9 @@ app.put("/events/:id", async (req, res) => {
 });
 
 app.delete("/events/:id", async (req, res) => {
-  if (!req.session.user)
+  if (!req.session.user) {
     return res.status(401).json({ message: "Unauthorized" });
+  }
 
   try {
     await db.ref(`events/${req.params.id}`).remove();

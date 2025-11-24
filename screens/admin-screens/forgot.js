@@ -1,91 +1,71 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
 import {
   getAuth,
-  onAuthStateChanged,
-  updatePassword,
-  EmailAuthProvider,
-  reauthenticateWithCredential,
-  signOut,
+  sendPasswordResetEmail,
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 
-const app = initializeApp({
+const firebaseConfig = {
   apiKey: "AIzaSyDLFaOnFD4ICf3VJcIfNdeS1Pp5v0P7jLU",
   authDomain: "campus-guide-map-uph.firebaseapp.com",
   projectId: "campus-guide-map-uph",
-});
+  storageBucket: "campus-guide-map-uph.firebasestorage.app",
+  messagingSenderId: "685591421741",
+  appId: "1:685591421741:android:fa9a20d84e6949d2b3a9a4",
+};
+
+console.log("[forgot.js] Initializing app...");
+const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+console.log("[forgot.js] Auth initialized:", auth);
 
-const form = document.getElementById("changeForm");
-const curEl = document.getElementById("currentPass");
-const newEl = document.getElementById("newPass");
-const cfmEl = document.getElementById("confirmPass");
+const form = document.getElementById("resetForm");
+const emailEl = document.getElementById("email");
 const msgEl = document.getElementById("msg");
-const tCur = document.getElementById("toggleCurrent");
-const tNew = document.getElementById("toggleNew");
-const tCfm = document.getElementById("toggleConfirm");
+const submitBtn = form?.querySelector('button[type="submit"]');
 
-const bindToggle = (btn, input) =>
-  btn?.addEventListener("click", () => {
-    const show = input.type === "password";
-    input.type = show ? "text" : "password";
-    btn.textContent = show ? "Hide" : "Show";
-  });
-bindToggle(tCur, curEl);
-bindToggle(tNew, newEl);
-bindToggle(tCfm, cfmEl);
+console.log("[forgot.js] Form present?", !!form);
 
-onAuthStateChanged(auth, (user) => {
-  if (!user) location.replace("./login.html");
-});
+function showMsg(text, ok = false) {
+  if (!msgEl) return;
+  msgEl.style.color = ok ? "#10b981" : "#e11";
+  msgEl.textContent = text || "";
+}
 
-form.addEventListener("submit", async (e) => {
+form?.addEventListener("submit", async (e) => {
   e.preventDefault();
-  msgEl.style.color = "#e11";
-  msgEl.textContent = "";
+  showMsg("");
 
-  const current = curEl.value;
-  const next = newEl.value;
-  const confirm = cfmEl.value;
+  const email = emailEl?.value.trim();
+  console.log("[forgot.js] Submitted email:", email);
 
-  if (next !== confirm) {
-    msgEl.textContent = "Passwords do not match.";
-    return;
-  }
-  if (next.length < 8) {
-    msgEl.textContent = "New password must be at least 8 characters.";
-    return;
-  }
-  if (next === current) {
-    msgEl.textContent = "New password must be different.";
+  if (!email) {
+    showMsg("Please enter your email address.");
     return;
   }
 
-  const user = auth.currentUser;
-  if (!user) {
-    msgEl.textContent = "You are not signed in.";
-    return;
-  }
+  submitBtn && (submitBtn.disabled = true);
+  showMsg("Sending reset link...");
 
   try {
-    const cred = EmailAuthProvider.credential(user.email, current);
-    await reauthenticateWithCredential(user, cred);
+    await sendPasswordResetEmail(auth, email);
+    console.log("[forgot.js] sendPasswordResetEmail SUCCESS");
 
-    await updatePassword(user, next);
+    showMsg("Reset link sent. Please check your email.", true);
+  } catch (err) {
+    console.error("[forgot.js] sendPasswordResetEmail ERROR:", err);
+    const code = err.code || "";
+    let msg = "Could not send reset link.";
 
-    msgEl.style.color = "#10b981";
-    msgEl.textContent = "Password updated. Please sign in again.";
-    setTimeout(async () => {
-      await signOut(auth);
-      location.replace("./login.html");
-    }, 1000);
-  } catch (e2) {
-    const code = e2.code || e2.message || "";
-    let msg = "Could not change password.";
-    if (code.includes("wrong-password")) msg = "Current password is incorrect.";
-    else if (code.includes("requires-recent-login"))
-      msg = "Please sign out and sign in again, then retry.";
-    else if (code.includes("too-many-requests"))
+    if (code.includes("auth/user-not-found")) {
+      msg = "No account found with that email.";
+    } else if (code.includes("auth/invalid-email")) {
+      msg = "Please enter a valid email address.";
+    } else if (code.includes("too-many-requests")) {
       msg = "Too many attempts. Try again later.";
-    msgEl.textContent = msg;
+    }
+
+    showMsg(msg + ` (${code})`);
+  } finally {
+    submitBtn && (submitBtn.disabled = false);
   }
 });

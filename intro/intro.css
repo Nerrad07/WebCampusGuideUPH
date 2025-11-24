@@ -1,26 +1,25 @@
-html, body { height: 100%; }
-body {
+html, body{ height: 100%; }
+body{
     margin: 0;
     background: rgb(255, 255, 255);
     display: grid;
     place-items: center;
 }
 
-.logo {
+.logo{
     opacity: 0;
     animation:
         fadeIn 0.9s ease-out forwards,
         fadeOut 0.9s ease-in 1.6s forwards;
 }
 
-.logo img {
+.logo img{
     height: 500px; 
     width: auto;
     filter: drop-shadow(0 6px 12px rgba(255, 255, 255, 0.25));
 }
 
-/* keyframes */
-@keyframes fadeIn {
+@keyframes fadeIn{
     from{ 
         opacity: 0; 
         transform: scale(1.04); 
@@ -30,7 +29,7 @@ body {
         transform: scale(1); 
     }
 }
-@keyframes fadeOut {
+@keyframes fadeOut{
     from{ 
         opacity: 1; 
         transform: scale(1); }

@@ -1,13 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="building.css" />
-  </head>
-  <body>
-    <!-- NAVBAR & SIDE BAR -->
+    <link rel="stylesheet" href="building.css">
+</head>
+<body>
     <header class="topbar">
       <nav>
         <div class="left">
@@ -88,7 +87,6 @@
         </a>
       </div>
 
-      <!-- background utk title bar-->
       <div class="main">
         <img class="main_img" src="../../img/Map.png" alt="" />
         <button class="back-btn" onclick="history.back()" aria-label="Back">
@@ -97,7 +95,6 @@
         <h1 class="page_title">Building B</h1>
       </div>
 
-      <!-- faculties -->
       <section class="section" aria-labelledby="fac-title">
         <h2 id="fac-title" class="section_title">List of Faculties</h2>
 
@@ -132,12 +129,10 @@
         </p>
       </section>
 
-      <!-- floors -->
       <section class="section" aria-labelledby="floor-title">
         <h2 id="floor-title" class="section_title">Floor Navigation</h2>
 
         <div class="floors">
-          <!-- navigate to a dedicated page with ?floor= param -->
           <a class="floor" href="b-building-floor.html?floor=1">Floor 1</a>
           <a class="floor" href="b-building-floor.html?floor=2">Floor 2</a>
           <a class="floor" href="b-building-floor.html?floor=3">Floor 3</a>
@@ -147,7 +142,6 @@
         </div>
       </section>
 
-      <!-- events -->
       <section class="section" aria-labelledby="events-title">
         <h2 id="events-title" class="section_title">Events</h2>
         <section
@@ -192,7 +186,6 @@
       </section>
     </main>
 
-    <!-- faculty modal (unchanged) -->
     <div id="facultyModal" class="modal" aria-hidden="true">
       <div class="modal_backdrop" data-close-modal></div>
 
@@ -225,7 +218,6 @@
 
     <footer class="botbar" aria-hidden="true"></footer>
 
-    <!-- JS -->
     <script type="module" src="building.js"></script>
-  </body>
+</body>
 </html>
