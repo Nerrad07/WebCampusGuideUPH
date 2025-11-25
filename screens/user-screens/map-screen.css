@@ -1,8 +1,15 @@
-*{
+* {
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
 }
 
+body {
+    padding-top: 72px;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+/* Navbar */
 .topbar nav{
     padding: 1rem;
     display: flex;
@@ -15,7 +22,6 @@
 }
 
 .topbar nav button{
-
     border: none;
     width: 40px;
     height: 20px;
@@ -27,110 +33,17 @@
 }
 
 .topbar nav button img{
-
     width: 200px;
     height: 50px;
 }
 
-main{
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    position: relative;
-    padding-bottom: 46px;
-}
-
-body{
-
-    padding-top: 72px;
-}
-
-.map{
-
-    width: 100%;
-    height: auto;
-    display: block;
-}
-
-.buttons{
-
-    position: relative;
-    width: min(1100px, 92vw);
-    margin: 0 auto;
-    margin-left: 175px;
-    margin-bottom: 60px;
-}
-
-.buttons button{
-
-    position: absolute;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    cursor: pointer;
-    display: grid;
-    place-items: center;
-    font-weight: 600;
-    transform: translate(-50%, -50%);
-    z-index: 2;
-}
-
-.pin{
-
-    position: absolute;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: grid;
-    place-items: center;
-    transform: translate(-50%, -50%);
-    border: 0;
-    cursor: pointer;
-    z-index: 2;
-    border: 2px solid black;
-}
-
-.pin-b{
-
-    left: 26.3%;
-    top: 67%;
-    background: rgb(255, 223, 186);
-}
-.pin-c{
-
-    left: 22.8%;
-    top: 32.8%;
-    background: rgb(255, 189, 189);
-}
-.pin-d{
-
-    left: 53.4%;
-    top: 44.7%;
-    background: rgb(186, 255, 201);
-}
-.pin-f{
-
-    left: 62.8%;
-    top: 21.6%;
-    background: rgb(255, 255, 186);
-}
-
-.pin:hover{
-
-    transform: translate(-50%, -50%) scale(1.35);
-}
-
-.left{
-
+.left {
     display: flex;
     align-items: center;
     gap: 1rem;
 }
 
-.right{
-
+.right {
     display: flex;
     align-items: center;
     gap: 3rem;
@@ -138,44 +51,45 @@ body{
     padding-right: 50px;
 }
 
-.logotop{
-
+.logotop {
     height: 40px;
     width: auto;
     margin-left: 20px;
 }
 
-.topbar .buttons{
-
+.topbar .buttons {
     height: 40px;
     width: auto;
 }
 
-.mapblue img{
-
+.mapblue button img {
     background-color: white;
+    content: url(../../img/map-blue.png);
     border-radius: 10px;
 }
 
-nav button{
+.mapblue button:hover img {
+    background-color: white;
+    content: url(../../img/map-blue.png);
+    border-radius: 10px;
+}
 
+nav button {
     cursor: pointer;
 }
 
-.eventwhite button img{
-
+.eventwhite button img {
     content: url(../../img/event-white.png);
 }
 
-.eventwhite button:hover img{
-
+.eventwhite button:hover img {
     content: url(../../img/event-blue.png);
     background-color: white;
     border-radius: 10px;
 }
 
-/*Search Bar*/
 
+/*Side bar*/
 .sidebar{
 
     position: fixed;
@@ -296,4 +210,120 @@ nav button{
 
     opacity: 1;
     pointer-events: auto;
+}
+
+/* Map Style*/
+main{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    position: relative;
+    padding-bottom: 35px;
+    padding-left: 35px;
+    padding-top: 35px;
+    padding-right: 35px;
+}
+
+.map{
+    width: 90%;
+    height: auto;
+    display: block;
+}
+
+.buttons{
+
+    position: relative;
+    width: min(1100px, 92vw);
+    margin: 0 auto;
+    margin-left: 175px;
+    margin-bottom: 60px;
+}
+
+.buttons button{
+
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    font-weight: 600;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+}
+
+.pin{
+
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    transform: translate(-50%, -50%);
+    border: 0;
+    cursor: pointer;
+    z-index: 2;
+    border: 2px solid black;
+}
+
+.pin-b{
+
+    left: 26.3%;
+    top: 67%;
+    background: rgb(255, 223, 186);
+}
+.pin-c{
+
+    left: 22.8%;
+    top: 32.8%;
+    background: rgb(255, 189, 189);
+}
+.pin-d{
+
+    left: 53.4%;
+    top: 44.7%;
+    background: rgb(186, 255, 201);
+}
+.pin-f{
+
+    left: 62.8%;
+    top: 21.6%;
+    background: rgb(255, 255, 186);
+}
+
+.pin:hover{
+
+    transform: translate(-50%, -50%) scale(1.35);
+}
+
+.left{
+
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.right{
+
+    display: flex;
+    align-items: center;
+    gap: 3rem;
+    margin-left: auto;
+    padding-right: 50px;
+}
+
+.logotop{
+
+    height: 40px;
+    width: auto;
+    margin-left: 20px;
+}
+
+.topbar .buttons{
+
+    height: 40px;
+    width: auto;
 }
