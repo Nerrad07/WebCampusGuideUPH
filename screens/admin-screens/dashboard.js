@@ -5,7 +5,6 @@ const ongoingCountEl = document.querySelector(".OA");
 const upcomingCountEl = document.querySelector(".UA");
 const comingSoonCountEl = document.querySelector(".CSA");
 
-// NEW: DOM for delete flow
 const removeBtn = document.getElementById("remove-btn");
 const confirmModal = document.getElementById("confirm-delete-modal");
 const cancelDeleteBtn = document.getElementById("cancel-delete-btn");
@@ -13,9 +12,17 @@ const confirmDeleteBtn = document.getElementById("confirm-delete-btn");
 const editBtn = document.querySelector(".edit button");
 document.getElementById("seedBtn").addEventListener("click", seedEvents);
 
-// NEW: selection state
+const publishBtn = document.getElementById("publish-btn");
+
+const searchInput = document.getElementById("searchInput");
+const clearSearchBtn = document.getElementById("clearSearch");
+
 let selectedEventId = null;
 let selectedRow = null;
+
+let allEvents = [];
+
+/* --------------------------- HELPERS --------------------------------- */
 
 function formatDate(ms) {
   const d = new Date(ms);
@@ -28,9 +35,7 @@ function formatDate(ms) {
 
 function formatTime(start, end) {
   const toTime = (mins) => {
-    const h = Math.floor(mins / 60)
-      .toString()
-      .padStart(2, "0");
+    const h = Math.floor(mins / 60).toString().padStart(2, "0");
     const m = (mins % 60).toString().padStart(2, "0");
     return `${h}:${m}`;
   };
@@ -61,9 +66,10 @@ function getEventStatus(event) {
   return "Unknown";
 }
 
+/* --------------------------- LOAD EVENTS --------------------------------- */
+
 async function loadEvents() {
   try {
-    // reset selection whenever we reload
     selectedEventId = null;
     selectedRow = null;
     if (removeBtn) removeBtn.disabled = true;
@@ -72,13 +78,19 @@ async function loadEvents() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
 
-    // IMPORTANT: keep IDs from the object keys
     const events = Object.entries(data).map(([id, event]) => ({
       id,
       ...event,
     }));
 
+    allEvents = events;
+
     tableBody.innerHTML = "";
+
+    if (publishBtn) {
+      publishBtn.disabled = true;
+      publishBtn.textContent = "Publish";
+    }
 
     if (events.length === 0) {
       const tr = document.createElement("tr");
@@ -100,46 +112,43 @@ async function loadEvents() {
 
     events.forEach((event, index) => {
       const tr = document.createElement("tr");
-
-      // attach ID to row for delete
       tr.dataset.eventId = event.id;
 
-      const tdNo = document.createElement("td");
-      tdNo.textContent = index + 1;
+      tr.innerHTML = `
+        <td>${index + 1}</td>
+        <td>${event.name || "-"}</td>
+        <td>${event.heldBy || "Unknown"}</td>
+        <td>${formatTime(event.startTimeMinutes, event.endTimeMinutes)}</td>
+        <td>${formatDate(event.date)}</td>
+      `;
 
-      const tdName = document.createElement("td");
-      tdName.textContent = event.name || "-";
-
-      const tdHeldBy = document.createElement("td");
-      tdHeldBy.textContent = event.heldBy || "Unknown";
-
-      const tdTime = document.createElement("td");
-      tdTime.textContent = formatTime(
-        event.startTimeMinutes,
-        event.endTimeMinutes
-      );
-
-      const tdDate = document.createElement("td");
-      tdDate.textContent = formatDate(event.date);
-
-      tr.append(tdNo, tdName, tdHeldBy, tdTime, tdDate);
       tableBody.appendChild(tr);
 
-      // --- NEW: click to select row ---
+      /* ------------------ FIXED CLICK HANDLER ------------------ */
       tr.addEventListener("click", () => {
         selectedEventId = tr.dataset.eventId;
 
-        // remove selection from all rows
         document
           .querySelectorAll(".table tbody tr")
           .forEach((row) => row.classList.remove("selected"));
 
-        // highlight current one
         tr.classList.add("selected");
         selectedRow = tr;
 
-        if (removeBtn) removeBtn.disabled = false;
+        removeBtn.disabled = false;
+
+        const selectedEvent = allEvents.find((e) => e.id === selectedEventId);
+        if (selectedEvent) {
+          publishBtn.disabled = false;
+          publishBtn.textContent = selectedEvent.published
+            ? "Published"
+            : "Unpublished";
+        } else {
+          publishBtn.disabled = true;
+          publishBtn.textContent = "Publish";
+        }
       });
+      /* ---------------------------------------------------------- */
 
       const status = getEventStatus(event);
       if (status === "Ongoing") ongoing++;
@@ -166,9 +175,88 @@ async function loadEvents() {
   }
 }
 
-// ===== DELETE FLOW =====
+/* --------------------------- SEARCH --------------------------------- */
 
-// open confirm modal when clicking "Remove"
+function applySearchFilter() {
+  const query = searchInput.value.trim().toLowerCase();
+
+  if (query === "") {
+    renderFilteredEvents(allEvents);
+    return;
+  }
+
+  const filtered = allEvents.filter((ev) => {
+    const name = ev.name ? ev.name.toLowerCase() : "";
+    const held = ev.heldBy ? ev.heldBy.toLowerCase() : "";
+    return name.includes(query) || held.includes(query);
+  });
+
+  renderFilteredEvents(filtered);
+}
+
+function renderFilteredEvents(list) {
+  tableBody.innerHTML = "";
+
+  if (list.length === 0) {
+    const tr = document.createElement("tr");
+    const td = document.createElement("td");
+    td.colSpan = 5;
+    td.textContent = "No events found.";
+    td.style.textAlign = "center";
+    tr.appendChild(td);
+    tableBody.appendChild(tr);
+    return;
+  }
+
+  list.forEach((event, index) => {
+    const tr = document.createElement("tr");
+    tr.dataset.eventId = event.id;
+
+    tr.innerHTML = `
+      <td>${index + 1}</td>
+      <td>${event.name}</td>
+      <td>${event.heldBy}</td>
+      <td>${formatTime(event.startTimeMinutes, event.endTimeMinutes)}</td>
+      <td>${formatDate(event.date)}</td>
+    `;
+
+    /* ------------------ FIXED CLICK HANDLER IN SEARCH ------------------ */
+    tr.addEventListener("click", () => {
+      selectedEventId = tr.dataset.eventId;
+
+      document
+        .querySelectorAll(".table tbody tr")
+        .forEach((r) => r.classList.remove("selected"));
+
+      tr.classList.add("selected");
+      selectedRow = tr;
+      removeBtn.disabled = false;
+
+      const selectedEvent = allEvents.find((e) => e.id === selectedEventId);
+      if (selectedEvent) {
+        publishBtn.disabled = false;
+        publishBtn.textContent = selectedEvent.published
+          ? "Published"
+          : "Unpublished";
+      } else {
+        publishBtn.disabled = true;
+        publishBtn.textContent = "Publish";
+      }
+    });
+    /* -------------------------------------------------------------------- */
+
+    tableBody.appendChild(tr);
+  });
+}
+
+searchInput.addEventListener("input", applySearchFilter);
+clearSearchBtn.addEventListener("click", () => {
+  searchInput.value = "";
+  applySearchFilter();
+});
+
+/* --------------------------- DELETE FLOW --------------------------------- */
+
 if (removeBtn) {
   removeBtn.addEventListener("click", () => {
     if (!selectedEventId) {
@@ -185,20 +273,16 @@ if (editBtn) {
       alert("Please select an event to edit first.");
       return;
     }
-
-    // Redirect to add.html with ?id=xxxx
     window.location.href = `add.html?id=${selectedEventId}`;
   });
 }
 
-// close modal without deleting
 if (cancelDeleteBtn) {
   cancelDeleteBtn.addEventListener("click", () => {
     confirmModal.classList.remove("show");
   });
 }
 
-// confirm delete -> call backend
 if (confirmDeleteBtn) {
   confirmDeleteBtn.addEventListener("click", async () => {
     if (!selectedEventId) return;
@@ -206,7 +290,7 @@ if (confirmDeleteBtn) {
     try {
       const res = await fetch(`${API_BASE}/events/${selectedEventId}`, {
         method: "DELETE",
-        credentials: "include", // keep session if backend uses express-session
+        credentials: "include",
       });
 
       if (!res.ok) {
@@ -214,7 +298,6 @@ if (confirmDeleteBtn) {
         throw new Error(text || `Failed to delete (HTTP ${res.status})`);
       }
 
-      // Option A: reload all events (simplest)
       await loadEvents();
     } catch (err) {
       console.error(err);
@@ -223,43 +306,84 @@ if (confirmDeleteBtn) {
       confirmModal.classList.remove("show");
     }
   });
-}
+};
 
-// SEED EVENTS — uploads events_seed.json to your API
-async function seedEvents() {
-    if (!confirm("Seed 50 events into the database?")) return;
+/* --------------------------- PUBLISH / UNPUBLISH --------------------------------- */
+
+if (publishBtn) {
+  publishBtn.addEventListener("click", async () => {
+    if (!selectedEventId) {
+      alert("Please select an event first.");
+      return;
+    }
+
+    const currentEvent = allEvents.find((e) => e.id === selectedEventId);
+    if (!currentEvent) {
+      alert("Could not find selected event data.");
+      return;
+    }
+
+    const newPublished = !currentEvent.published;
 
     try {
-        // 1. Load the local JSON file
-        const response = await fetch("./events_seed.json");
-        const events = await response.json();
+      publishBtn.disabled = true;
 
-        // Validate it is an array
-        if (!Array.isArray(events)) {
-            throw new Error("events_seed.json did not return an array");
-        }
+      const res = await fetch(`${API_BASE}/events/${selectedEventId}`, {
+        method: "PUT",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...currentEvent,
+          published: newPublished,
+        }),
+      });
 
-        // 2. Push each event to backend, backend will assign ID
-        for (const event of events) {
-            const res = await fetch(`${API_BASE}/events`, {
-                method: "POST",
-                credentials: "include",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(event)
-            });
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || `Failed to update (HTTP ${res.status})`);
+      }
 
-            if (!res.ok) {
-                console.error("Failed to add event:", await res.text());
-            }
-        }
-
-        alert("All events seeded successfully!");
-
+      await loadEvents();
     } catch (err) {
-        console.error("Seed error:", err);
-        alert("Error seeding events — see console");
+      console.error(err);
+      alert("Failed to update publish status: " + err.message);
     }
+  });
 }
 
+/* --------------------------- SEED EVENTS --------------------------------- */
+
+async function seedEvents() {
+  if (!confirm("Seed 50 events into the database?")) return;
+
+  try {
+    const response = await fetch("./events_seed.json");
+    const events = await response.json();
+
+    if (!Array.isArray(events)) {
+      throw new Error("events_seed.json did not return an array");
+    }
+
+    for (const event of events) {
+      const res = await fetch(`${API_BASE}/events`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(event),
+      });
+
+      if (!res.ok) {
+        console.error("Failed to add event:", await res.text());
+      }
+    }
+
+    alert("All events seeded successfully!");
+  } catch (err) {
+    console.error("Seed error:", err);
+    alert("Error seeding events — see console");
+  }
+}
+
+/* --------------------------- INIT --------------------------------- */
 
 window.addEventListener("DOMContentLoaded", loadEvents);

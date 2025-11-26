@@ -26,15 +26,45 @@ function toTimestamp(dateStr) {
 }
 
 /* --------------------------
-   BUILDINGS + FLOORS
+   BUILDINGS + FLOORS (FIXED)
 ---------------------------*/
 const FLOORS_BY_BUILDING = {
   B: 6,
-  C: 7,
+  C: 6,
   D: 5,
-  F: 8,
-  G: 0,
-  H: 0
+  F: 3
+};
+
+// EXACT ROOM LISTS (FIXED)
+const ROOMS_BY_BUILDING = {
+  B: {
+    1: ["B101","B102","B103","B104","B105","B106","B107","B108","B109","B110"],
+    2: ["B201","B202","B203","B204","B205","B206","B207","B208","B209","B210"],
+    3: ["B301","B302","B303","B304","B341","B342","B343","B344","B345"],
+    4: ["B401","B402","B403","B404","B405","B406","B407","B408"],
+    5: ["B501","B502","B503","B504","B505","B506","B507","B508"],
+    6: ["B601","B602","B603","B604","B605","B606","B607","B608"]
+  },
+  C: {
+    1: ["C101","C102","C103","C104"],
+    2: ["C201","C202","C203","C204"],
+    3: ["C301","C302","C303","C304"],
+    4: ["C401","C402","C403","C404"],
+    5: ["C501","C502","C503","C504"],
+    6: ["C601","C602","C603"]
+  },
+  D: {
+    1: ["D101","D102","D103","D104","D105"],
+    2: ["D201","D202","D203","D204","D205"],
+    3: ["D301","D302","D303","D304","D305"],
+    4: ["D401","D402","D403","D404"],
+    5: ["D501","D502","D503","D504","D505"]
+  },
+  F: {
+    1: ["F101","F102","F103","F104"],
+    2: ["F201","F202","F203","F204"],
+    3: ["F301","F302","F303"]
+  }
 };
 
 /* --------------------------
@@ -47,13 +77,11 @@ function fixBuildingSelectValues() {
     <option value="C">Building C</option>
     <option value="D">Building D</option>
     <option value="F">Building F</option>
-    <option value="G">Building G</option>
-    <option value="H">Building H</option>
   `;
 }
 
 /* --------------------------
-   FLOOR DROPDOWN
+   FLOOR DROPDOWN  (FIXED)
 ---------------------------*/
 function loadFloorOptions(presetFloor) {
   const building = document.getElementById("building").value;
@@ -76,35 +104,25 @@ function loadFloorOptions(presetFloor) {
 }
 
 /* --------------------------
-   ROOM DROPDOWN
+   ROOM DROPDOWN (FIXED)
 ---------------------------*/
 function loadRoomOptions(presetRoom) {
   const building = document.getElementById("building").value;
-  const floor = document.getElementById("floor").value;
+  const floor = Number(document.getElementById("floor").value);
   const roomSelect = document.getElementById("room");
 
   roomSelect.innerHTML = `<option value="">Select a Room</option>`;
 
   if (!building || !floor) return;
 
-  const rooms = [];
-  for (let i = 1; i <= 6; i++) {
-    const roomNum = `${floor}${String(i).padStart(2, "0")}`;
-    const fullRoom = `${building}${roomNum}`;
-    rooms.push(fullRoom);
+  const roomList = ROOMS_BY_BUILDING[building][floor] || [];
 
+  roomList.forEach(room => {
     const opt = document.createElement("option");
-    opt.value = fullRoom;
-    opt.textContent = fullRoom;
+    opt.value = room;
+    opt.textContent = room;
     roomSelect.appendChild(opt);
-  }
-
-  if (presetRoom && !rooms.includes(presetRoom)) {
-    const extra = document.createElement("option");
-    extra.value = presetRoom;
-    extra.textContent = presetRoom;
-    roomSelect.appendChild(extra);
-  }
+  });
 
   if (presetRoom) roomSelect.value = presetRoom;
 }
@@ -150,7 +168,7 @@ async function uploadPosterForEvent(eventId, file) {
 
     const resp = await fetch(`${API_BASE}/uploadPoster/${eventId}`, {
         method: "POST",
-        credentials: "include",   // <-- IMPORTANT
+        credentials: "include",
         body: formData
     });
 
@@ -215,25 +233,19 @@ async function handleFormSubmit(e) {
     finalEventId = newData.id;
   }
 
-  // ------------------------
-  // STEP 2: Upload Poster
-  // ------------------------
   let posterUrl = "";
   if (posterFile) {
     const uploadRes = await uploadPosterForEvent(finalEventId, posterFile);
     posterUrl = uploadRes.url;
   }
 
-  // ------------------------
-  // STEP 3: Update event with poster + heldBy
-  // ------------------------
   const updateRes = await fetch(`${API_BASE}/events/${finalEventId}`, {
     method: "PUT",
     credentials: "include",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       posterUrl,
-      heldBy   // <-- NEW
+      heldBy
     })
   });
 

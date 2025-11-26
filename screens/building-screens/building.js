@@ -161,6 +161,7 @@ function renderEvents(events) {
   empty.hidden = true;
 
   for (const ev of events) {
+    const Publish = ev.published
     const node = tmpl.content.cloneNode(true);
     $(".event-title", node).textContent = ev.name || "Unnamed Event";
     $(".event-heldby", node).textContent = ev.heldBy || "—";
@@ -185,6 +186,8 @@ function renderEvents(events) {
       badge.textContent = status;
       badge.dataset.status = status;
     }
+
+    if (!Publish) continue;
 
     list.appendChild(node);
   }

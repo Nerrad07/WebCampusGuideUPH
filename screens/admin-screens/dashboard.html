@@ -18,7 +18,20 @@
         </div>
 
         <div class="middle">
-          <button>Search</button>
+          <form
+            id="searchForm"
+            role="search"
+            class="searchbar"
+            autocomplete="off"
+          >
+            <input
+              id="searchInput"
+              type="search"
+              placeholder="Search events, event handlers…"
+              aria-label="Search events"
+            />
+            <button id="clearSearch" type="button" aria-label="Clear">×</button>
+          </form>
         </div>
 
         <div class="right">
@@ -114,6 +127,11 @@
           <div class="remove">
             <button id="remove-btn" disabled>Remove</button>
           </div>
+          
+          <div class="publish">
+            <button id="publish-btn"disabled>Publish</button>
+          </div>
+
           <div class="history">
             <a href="history.html">
               <button>History</button>

@@ -70,8 +70,11 @@ function renderEvents(events) {
   emptyState.hidden = true;
 
   for (const ev of events) {
+    const Publish = ev.published
+    console.log("Event publishing status: ",Publish)
     const status = getEventStatus(ev);
     if (status === "Past") continue;
+    else if (!Publish) continue;
 
     const node = template.content.cloneNode(true);
     node.querySelector(".event-title").textContent = ev.name || "Untitled Event";
