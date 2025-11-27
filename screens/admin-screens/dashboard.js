@@ -1,4 +1,42 @@
 const API_BASE = "https://web-campus-guide-uph.vercel.app";
+
+// Secure session check using a harmless POST request
+(async function secureSessionCheck() {
+  try {
+    const res = await fetch(`${API_BASE}/events`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ invalid: true }) // <-- intentionally invalid
+    });
+
+    if (res.status === 401) {
+      alert("Unauthorized access. Redirecting...");
+      window.location.href = "../user-screens/map-screen.html";
+      return;
+    }
+
+    // If it's 400 → VALID ADMIN SESSION (bad request because body is wrong)
+    if (res.status === 400) {
+      console.log("Admin session verified (400 Bad Request is expected).");
+      return;
+    }
+
+    // Any other unexpected error also means unauthorized
+    if (!res.ok) {
+      alert("Unauthorized access. Redirecting...");
+      window.location.href = "../user-screens/map-screen.html";
+      return;
+    }
+
+  } catch (err) {
+    console.error("Session check error:", err);
+    window.location.href = "../user-screens/map-screen.html";
+  }
+})();
+
 const tableBody = document.querySelector("tbody");
 
 const ongoingCountEl = document.querySelector(".OA");
@@ -287,6 +325,9 @@ function renderFilteredEvents(list) {
     tableBody.appendChild(tr);
   });
 }
+
+// I am trying to check the session of the dashboard using this code above
+// but why is it that it kept on showing there is a session but when i tried to change anything it shows me 404 unauthorized
 
 searchInput.addEventListener("input", applySearchFilter);
 clearSearchBtn.addEventListener("click", () => {

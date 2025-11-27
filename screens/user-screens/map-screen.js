@@ -1,3 +1,6 @@
+const API_BASE = "https://web-campus-guide-uph.vercel.app";
+
+
 async function checkSession() {
     try {
         const res = await fetch(`${API_BASE}/auth/me`, {

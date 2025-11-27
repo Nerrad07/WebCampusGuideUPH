@@ -28,6 +28,9 @@ const modalTime = document.getElementById("eventTime");
 const modalStatus = document.getElementById("eventStatus");
 
 let allEvents = [];
+let currentPage = 1;
+const itemsPerPage = 20;
+let filteredEventsForPagination = [];
 
 function formatDate(ms) {
   const d = new Date(ms);
@@ -62,19 +65,26 @@ function getEventStatus(event) {
 }
 
 function renderEvents(events) {
-  eventsList.innerHTML = "";
-  if (!events.length) {
-    emptyState.hidden = false;
-    return;
-  }
-  emptyState.hidden = true;
 
-  for (const ev of events) {
-    const Publish = ev.published
-    console.log("Event publishing status: ",Publish)
+  // ⭐ FIX START — Filter BEFORE pagination
+  filteredEventsForPagination = events.filter((ev) => {
     const status = getEventStatus(ev);
-    if (status === "Past") continue;
-    else if (!Publish) continue;
+    return status !== "Past" && ev.published;
+  });
+  // ⭐ FIX END
+
+  const totalPages = Math.ceil(filteredEventsForPagination.length / itemsPerPage);
+  if (currentPage > totalPages) currentPage = totalPages || 1;
+
+  const start = (currentPage - 1) * itemsPerPage;
+  const end = start + itemsPerPage;
+  const paginated = filteredEventsForPagination.slice(start, end);
+
+  eventsList.innerHTML = "";
+  emptyState.hidden = filteredEventsForPagination.length > 0;
+
+  for (const ev of paginated) {
+    const status = getEventStatus(ev);
 
     const node = template.content.cloneNode(true);
     node.querySelector(".event-title").textContent = ev.name || "Untitled Event";
@@ -89,11 +99,19 @@ function renderEvents(events) {
     const badge = node.querySelector(".badge.status");
     badge.textContent = status;
     badge.dataset.status = status;
-    const btn = node.querySelector(".event-more");
-    btn.addEventListener("click", () => openModal(ev, status));
+
+    node.querySelector(".event-more").addEventListener("click", () =>
+      openModal(ev, status)
+    );
 
     eventsList.appendChild(node);
   }
+
+  document.getElementById("pageIndicator").textContent =
+    `Page ${currentPage} of ${totalPages || 1}`;
+
+  document.getElementById("prevPage").disabled = currentPage === 1;
+  document.getElementById("nextPage").disabled = currentPage === totalPages;
 }
 
 function openModal(event, status) {
@@ -158,17 +176,10 @@ function applyFilters() {
       (!fromDate || eventTimeMs >= fromDate) &&
       (!toDate || eventTimeMs <= toDate);
 
-    console.log({
-      fromDate,
-      toDate,
-      eventName: ev.name,
-      eventDate: new Date(ev.date).toISOString().split("T")[0],
-      result: matchesDate
-    });
-
     return matchesSearch && matchesBuilding && matchesStatus && matchesDate;
   });
 
+  currentPage = 1;
   renderEvents(filtered);
 }
 
@@ -193,13 +204,23 @@ function setupDropdown(menu, valueEl) {
   });
 }
 
+document.getElementById("prevPage").addEventListener("click", () => {
+  if (currentPage > 1) {
+    currentPage--;
+    renderEvents(filteredEventsForPagination);
+  }
+});
+
+document.getElementById("nextPage").addEventListener("click", () => {
+  currentPage++;
+  renderEvents(filteredEventsForPagination);
+});
 
 clearDatesBtn.addEventListener("click", () => {
   fromDateInput.value = "";
   toDateInput.value = "";
   applyFilters();
 });
-
 
 searchInput.addEventListener("input", applyFilters);
 clearSearchBtn.addEventListener("click", () => {
@@ -208,44 +229,42 @@ clearSearchBtn.addEventListener("click", () => {
 });
 
 async function checkSession() {
-    try {
-        const res = await fetch(`${API_BASE}/auth/me`, {
-            method: "GET",
-            credentials: "include"
-        });
+  try {
+    const res = await fetch(`${API_BASE}/auth/me`, {
+      method: "GET",
+      credentials: "include"
+    });
 
-        if (!res.ok) {
-            console.warn("Not authenticated");
-            return false;
-        }
-        const user = await res.json();
-        console.log(user.email, " logging out");
-        return true
-
-    } catch (err) {
-        console.error("Session check error:", err);
-        return false
+    if (!res.ok) {
+      console.warn("Not authenticated");
+      return false;
     }
+    const user = await res.json();
+    console.log(user.email, " logging out");
+    return true;
+  } catch (err) {
+    console.error("Session check error:", err);
+    return false;
+  }
 }
 
 async function logout() {
-    try {
-        const res = await fetch(`${API_BASE}/auth/logout`, {
-            method: "POST",
-            credentials: "include"
-        });
+  try {
+    const res = await fetch(`${API_BASE}/auth/logout`, {
+      method: "POST",
+      credentials: "include"
+    });
 
-        if (!res.ok) {
-            alert("Failed to log out.");
-            return;
-        }
-        else{
-          console.log("successfully logged out")
-        }
-    } catch (err) {
-        console.error("Logout error:", err);
-        alert("Logout failed — check console.");
+    if (!res.ok) {
+      alert("Failed to log out.");
+      return;
+    } else {
+      console.log("successfully logged out");
     }
+  } catch (err) {
+    console.error("Logout error:", err);
+    alert("Logout failed — check console.");
+  }
 }
 
 async function loadEvents() {
@@ -260,11 +279,10 @@ async function loadEvents() {
   }
 }
 
-if (checkSession()){
-  logout()
-}
-else{
-  console.log("no session")
+if (checkSession()) {
+  logout();
+} else {
+  console.log("no session");
 }
 
 setupDropdown(buildingMenu, buildingValue);

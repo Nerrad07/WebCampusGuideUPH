@@ -677,3 +677,30 @@ img.hamburger {
     display: grid;
     gap: 4px;
 }
+
+.pagination-controls {
+  margin: 20px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+}
+
+.pagination-controls button {
+  padding: 8px 16px;
+  background-color: #0e2246;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.pagination-controls button[disabled] {
+  background-color: #9aa5b1;
+  cursor: not-allowed;
+}
+
+#pageIndicator {
+  font-size: 16px;
+  font-weight: bold;
+}
