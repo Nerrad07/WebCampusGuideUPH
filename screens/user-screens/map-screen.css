@@ -234,9 +234,9 @@ main{
 .buttons{
 
     position: relative;
-    width: min(1100px, 92vw);
+    width: min(90%, 92vw);
     margin: 0 auto;
-    margin-left: 175px;
+    margin-left: 10%;
     margin-bottom: 60px;
 }
 
@@ -275,18 +275,21 @@ main{
     top: 67%;
     background: rgb(255, 223, 186);
 }
+
 .pin-c{
 
     left: 20.8%;
     top: 32.8%;
     background: rgb(255, 189, 189);
 }
+
 .pin-d{
 
     left: 48.4%;
     top: 44.7%;
     background: rgb(186, 255, 201);
 }
+
 .pin-f{
 
     left: 56.8%;

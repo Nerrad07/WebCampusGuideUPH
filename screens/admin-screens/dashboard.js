@@ -39,7 +39,7 @@ function formatTime(start, end) {
     const m = (mins % 60).toString().padStart(2, "0");
     return `${h}:${m}`;
   };
-  return `${toTime(start)}–${toTime(end)}`;
+  return `${toTime(start)}-${toTime(end)}`;
 }
 
 function getEventStatus(event) {
@@ -73,6 +73,7 @@ async function loadEvents() {
     selectedEventId = null;
     selectedRow = null;
     if (removeBtn) removeBtn.disabled = true;
+    if (publishBtn) publishBtn.disabled = true;
 
     const res = await fetch(`${API_BASE}/events`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -84,7 +85,6 @@ async function loadEvents() {
     }));
 
     allEvents = events;
-
     tableBody.innerHTML = "";
 
     if (publishBtn) {
@@ -95,7 +95,7 @@ async function loadEvents() {
     if (events.length === 0) {
       const tr = document.createElement("tr");
       const td = document.createElement("td");
-      td.colSpan = 5;
+      td.colSpan = 7; // 7 columns now (Select, No, Name, Held By, Time, Date, Status)
       td.textContent = "No events found.";
       td.style.textAlign = "center";
       tr.appendChild(td);
@@ -112,43 +112,81 @@ async function loadEvents() {
 
     events.forEach((event, index) => {
       const tr = document.createElement("tr");
+
+      // attach ID to row for delete/publish
       tr.dataset.eventId = event.id;
 
-      tr.innerHTML = `
-        <td>${index + 1}</td>
-        <td>${event.name || "-"}</td>
-        <td>${event.heldBy || "Unknown"}</td>
-        <td>${formatTime(event.startTimeMinutes, event.endTimeMinutes)}</td>
-        <td>${formatDate(event.date)}</td>
-      `;
+      // ========== kolom SELECT (checkbox) ==========
+      const tdSelect = document.createElement("td");
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.classList.add("row-select");
+      tdSelect.appendChild(checkbox);
 
+      // ========== kolom-kolom lama ==========
+      const tdNo = document.createElement("td");
+      tdNo.textContent = index + 1;
+
+      const tdName = document.createElement("td");
+      tdName.textContent = event.name || "-";
+
+      const tdHeldBy = document.createElement("td");
+      tdHeldBy.textContent = event.heldBy || "Unknown";
+
+      const tdTime = document.createElement("td");
+      tdTime.textContent = formatTime(
+        event.startTimeMinutes,
+        event.endTimeMinutes
+      );
+
+      const tdDate = document.createElement("td");
+      tdDate.textContent = formatDate(event.date);
+
+      // ========== kolom STATUS ==========
+      const tdStatus = document.createElement("td");
+      tdStatus.textContent = event.published ? "Published" : "Unpublished";
+
+      tr.append(tdSelect, tdNo, tdName, tdHeldBy, tdTime, tdDate, tdStatus);
       tableBody.appendChild(tr);
 
-      /* ------------------ FIXED CLICK HANDLER ------------------ */
-      tr.addEventListener("click", () => {
+      // helper: pilih row
+      const selectRow = () => {
         selectedEventId = tr.dataset.eventId;
 
         document
           .querySelectorAll(".table tbody tr")
           .forEach((row) => row.classList.remove("selected"));
+        document
+          .querySelectorAll(".row-select")
+          .forEach((cb) => (cb.checked = false));
 
         tr.classList.add("selected");
+        checkbox.checked = true;
         selectedRow = tr;
 
-        removeBtn.disabled = false;
+        if (removeBtn) removeBtn.disabled = false;
+        if (publishBtn) publishBtn.disabled = false;
+      };
 
-        const selectedEvent = allEvents.find((e) => e.id === selectedEventId);
-        if (selectedEvent) {
-          publishBtn.disabled = false;
-          publishBtn.textContent = selectedEvent.published
-            ? "Published"
-            : "Unpublished";
-        } else {
-          publishBtn.disabled = true;
-          publishBtn.textContent = "Publish";
+      tr.addEventListener("click", (e) => {
+        if (e.target instanceof HTMLInputElement && e.target.type === "checkbox") {
+          return;
         }
+        selectRow();
       });
-      /* ---------------------------------------------------------- */
+
+      checkbox.addEventListener("change", (e) => {
+        if (checkbox.checked) {
+          selectRow();
+        } else {
+          tr.classList.remove("selected");
+          selectedEventId = null;
+          selectedRow = null;
+          if (removeBtn) removeBtn.disabled = true;
+          if (publishBtn) publishBtn.disabled = true;
+        }
+        e.stopPropagation();
+      });
 
       const status = getEventStatus(event);
       if (status === "Ongoing") ongoing++;
@@ -156,6 +194,7 @@ async function loadEvents() {
       else if (status === "Coming Soon") comingSoon++;
     });
 
+    // update counter cards
     ongoingCountEl.textContent = ongoing;
     upcomingCountEl.textContent = upcoming;
     comingSoonCountEl.textContent = comingSoon;
@@ -163,7 +202,7 @@ async function loadEvents() {
     console.error("Error loading events:", err);
     const tr = document.createElement("tr");
     const td = document.createElement("td");
-    td.colSpan = 5;
+    td.colSpan = 7;
     td.textContent = "Failed to load events.";
     td.style.textAlign = "center";
     tr.appendChild(td);

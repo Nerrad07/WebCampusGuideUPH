@@ -428,6 +428,20 @@ nav button{
     background-color: rgb(220, 225, 250);
     outline: 3px solid rgb(29, 33, 96);
 }
+
+.table td:first-child{
+    width: 60px;
+}
+
+.table td:last-child{
+    width: 140px;
+}
+
+.row-select{
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
  
 .confirm-modal{
     position: fixed;
