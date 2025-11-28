@@ -1,43 +1,6 @@
 // add.js
 const API_BASE = "https://web-campus-guide-uph.vercel.app";
 
-// Secure session check using a harmless POST request
-(async function secureSessionCheck() {
-  try {
-    const res = await fetch(`${API_BASE}/events`, {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ invalid: true }) // <-- intentionally invalid
-    });
-
-    if (res.status === 401) {
-      alert("Unauthorized access. Redirecting...");
-      window.location.href = "../user-screens/map-screen.html";
-      return;
-    }
-
-    // If it's 400 → VALID ADMIN SESSION (bad request because body is wrong)
-    if (res.status === 400) {
-      console.log("Admin session verified (400 Bad Request is expected).");
-      return;
-    }
-
-    // Any other unexpected error also means unauthorized
-    if (!res.ok) {
-      alert("Unauthorized access. Redirecting...");
-      window.location.href = "../user-screens/map-screen.html";
-      return;
-    }
-
-  } catch (err) {
-    console.error("Session check error:", err);
-    window.location.href = "../user-screens/map-screen.html";
-  }
-})();
-
 /* --------------------------
    TIME / DATE HELPERS
 ---------------------------*/
@@ -197,23 +160,26 @@ async function loadEventForEdit() {
 }
 
 /* --------------------------
-   SUBMIT HANDLER
+   POSTER UPLOAD
 ---------------------------*/
 async function uploadPosterForEvent(eventId, file) {
-    const formData = new FormData();
-    formData.append("poster", file);
+  const formData = new FormData();
+  formData.append("poster", file);
 
-    const resp = await fetch(`${API_BASE}/uploadPoster/${eventId}`, {
-        method: "POST",
-        credentials: "include",
-        body: formData
-    });
+  const resp = await fetch(`${API_BASE}/uploadPoster/${eventId}`, {
+    method: "POST",
+    credentials: "include",
+    body: formData
+  });
 
-    if (!resp.ok) throw new Error("Poster upload failed");
+  if (!resp.ok) throw new Error("Poster upload failed");
 
-    return await resp.json();
+  return await resp.json();
 }
 
+/* --------------------------
+   FORM SUBMIT HANDLER
+---------------------------*/
 async function handleFormSubmit(e) {
   e.preventDefault();
 
@@ -237,7 +203,6 @@ async function handleFormSubmit(e) {
   let finalEventId = eventId;
   let posterFile = document.getElementById("poster").files[0];
 
-  // Create event 
   if (!finalEventId) {
     const eventData = {
       name,
@@ -295,12 +260,46 @@ async function handleFormSubmit(e) {
   window.location.href = "dashboard.html";
 }
 
+/* --------------------------
+   ADMIN AUTH CHECK
+---------------------------*/
+async function checkAdminSession() {
+  try {
+    const res = await fetch(`${API_BASE}/admins`, {
+      method: "GET",
+      credentials: "include"
+    });
+
+    if (res.status === 401) return false;
+    if (res.status === 403) return false;
+    if (!res.ok) return false;
+
+    const admin = await res.json();
+    console.log("Add Event: Admin authenticated:", admin.email);
+    return true;
+
+  } catch (err) {
+    console.error("AddEvent checkAdminSession error:", err);
+    return false;
+  }
+}
 
 /* --------------------------
    INIT
 ---------------------------*/
-fixBuildingSelectValues();
-document.getElementById("building").addEventListener("change", () => loadFloorOptions());
-document.getElementById("floor").addEventListener("change", () => loadRoomOptions());
-document.querySelector("form").addEventListener("submit", handleFormSubmit);
-window.addEventListener("DOMContentLoaded", loadEventForEdit);
+window.addEventListener("DOMContentLoaded", async () => {
+  const isAdmin = await checkAdminSession();
+
+  if (!isAdmin) {
+    alert("Unauthorized access. Redirecting...");
+    window.location.href = "../user-screens/map-screen.html";
+    return;
+  }
+
+  fixBuildingSelectValues();
+  document.getElementById("building").addEventListener("change", () => loadFloorOptions());
+  document.getElementById("floor").addEventListener("change", () => loadRoomOptions());
+  document.querySelector("form").addEventListener("submit", handleFormSubmit);
+
+  await loadEventForEdit();
+});

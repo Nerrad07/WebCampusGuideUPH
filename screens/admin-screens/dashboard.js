@@ -1,42 +1,5 @@
 const API_BASE = "https://web-campus-guide-uph.vercel.app";
 
-// Secure session check using a harmless POST request
-(async function secureSessionCheck() {
-  try {
-    const res = await fetch(`${API_BASE}/events`, {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ invalid: true }) // <-- intentionally invalid
-    });
-
-    if (res.status === 401) {
-      alert("Unauthorized access. Redirecting...");
-      window.location.href = "../user-screens/map-screen.html";
-      return;
-    }
-
-    // If it's 400 → VALID ADMIN SESSION (bad request because body is wrong)
-    if (res.status === 400) {
-      console.log("Admin session verified (400 Bad Request is expected).");
-      return;
-    }
-
-    // Any other unexpected error also means unauthorized
-    if (!res.ok) {
-      alert("Unauthorized access. Redirecting...");
-      window.location.href = "../user-screens/map-screen.html";
-      return;
-    }
-
-  } catch (err) {
-    console.error("Session check error:", err);
-    window.location.href = "../user-screens/map-screen.html";
-  }
-})();
-
 const tableBody = document.querySelector("tbody");
 
 const ongoingCountEl = document.querySelector(".OA");
@@ -105,6 +68,33 @@ function getEventStatus(event) {
 }
 
 /* --------------------------- LOAD EVENTS --------------------------------- */
+
+async function checkSession() {
+  try {
+    const res = await fetch(`${API_BASE}/admins`, {
+      method: "GET",
+      credentials: "include"
+    });
+
+    // 401 → no cookie = not logged in
+    if (res.status === 401) return false;
+
+    // 403 → has cookie but NOT an admin
+    if (res.status === 403) return false;
+
+    if (!res.ok) return false;
+
+    // valid admin session
+    const admin = await res.json();
+    console.log("Dashboard: Admin authenticated:", admin.email);
+    return true;
+
+  } catch (err) {
+    console.error("Dashboard checkSession error:", err);
+    return false;
+  }
+}
+
 
 async function loadEvents() {
   try {
@@ -466,4 +456,16 @@ async function seedEvents() {
 
 /* --------------------------- INIT --------------------------------- */
 
-window.addEventListener("DOMContentLoaded", loadEvents);
+window.addEventListener("DOMContentLoaded", async () => {
+  //  STRICT ADMIN VALIDATION USING /admins
+  const isAdmin = await checkSession();
+
+  if (!isAdmin) {
+    alert("Unauthorized access. Redirecting...");
+    window.location.href = "../user-screens/map-screen.html";
+    return;
+  }
+
+  //  SESSION CONFIRMED → NOW SAFE TO LOAD DASHBOARD
+  await loadEvents();
+});

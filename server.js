@@ -128,12 +128,68 @@ app.post("/auth/logout", (req, res) => {
   });
 });
 
-// Who am I? (Protected)
-app.get("/auth/me", (req, res) => {
+// Who am I?
+app.get("/auth/me", async (req, res) => {
+  try {
+    // 1. Reject if no session found
+    if (!req.session.user) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    const { id, email } = req.session.user;
+
+    // 2. Check if user exists in /admins
+    const snap = await db.ref("admins/" + id).once("value");
+
+    if (!snap.exists()) {
+      return res.status(403).json({ message: "User no longer an admin" });
+    }
+
+    const isAdmin = snap.child("isAdmin").val();
+
+    if (!isAdmin) {
+      return res.status(403).json({ message: "User is not an admin" });
+    }
+
+    // 3. Return full user object
+    return res.json({
+      id,
+      email,
+      isAdmin: true
+    });
+
+  } catch (err) {
+    console.error("auth/me error:", err);
+    return res.status(500).json({ message: "Server error" });
+  }
+});
+
+// GET /admins — check if current session user is an admin
+app.get("/admins", async (req, res) => {
   if (!req.session.user) {
     return res.status(401).json({ message: "Not authenticated" });
   }
-  res.json(req.session.user);
+
+  const uid = req.session.user.id; // FIXED
+
+  try {
+    const ref = db.ref(`admins/${uid}`);
+    const snapshot = await ref.get();
+
+    if (!snapshot.exists()) {
+      return res.status(403).json({ message: "Not an admin" });
+    }
+
+    return res.json({
+      uid,
+      email: req.session.user.email,
+      isAdmin: true
+    });
+
+  } catch (err) {
+    console.error("Error in /admins:", err);
+    return res.status(500).json({ message: "Server error" });
+  }
 });
 
 // ------------------------------
