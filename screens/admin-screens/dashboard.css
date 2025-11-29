@@ -58,7 +58,7 @@ body{
     margin-bottom: 20px;
 }
 
-.topbar .middle {
+.topbar .middle{
     padding: 0.5rem;
     display: flex;
     justify-content: center;
@@ -72,7 +72,7 @@ body{
 }
 
 /* Search bar */
-.searchbar {
+.searchbar{
     display: flex;
     align-items: center;
     gap: 8px;
@@ -81,7 +81,7 @@ body{
     height: 40px;
 }
 
-#searchInput {
+#searchInput{
     flex: 1;
     height: 100%;
     border: 0;
@@ -93,19 +93,19 @@ body{
     font-size: 18.5px;
 }
 
-#searchInput::-webkit-search-cancel-button {
+#searchInput::-webkit-search-cancel-button{
     -webkit-appearance: none;
     appearance: none;
     display: none;
 }
 
-#searchInput::-ms-clear {
+#searchInput::-ms-clear{
     display: none;
     width: 0;
     height: 0;
 }
 
-#clearSearch {
+#clearSearch{
     flex: 0 0 auto;
     width: 36px;
     height: 36px;
@@ -117,7 +117,7 @@ body{
     color: #142f5e;
 }
 
-#clearSearch:hover {
+#clearSearch:hover{
     background: #dfe6f7;
 }
 /*End of seach bar*/

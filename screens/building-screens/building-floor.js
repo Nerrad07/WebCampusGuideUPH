@@ -34,15 +34,12 @@ const DATA = {
 
 const $ = (s, r=document)=>r.querySelector(s);
 
-// --- AUTO-DETECT BUILDING & FLOOR FROM URL ---
 const qs = new URLSearchParams(location.search);
 const building = (qs.get("building") || "B").toUpperCase();
 const floor = String(qs.get("floor") || "1");
 
-// Update title
 $("#floorTitle").textContent = `Building ${building} — Floor ${floor}`;
 
-// --- ROOM GRID LOADING ---
 const ul = $("#roomList");
 ul.innerHTML = "";
 (DATA[building]?.[floor] || ["No data"]).forEach(name => {
@@ -51,16 +48,13 @@ ul.innerHTML = "";
     ul.appendChild(li);
 });
 
-// --- SHOW MAP IMAGE FOR THIS BUILDING & FLOOR ---
 const imageElement = document.createElement("img");
 imageElement.style.width = "100%";
 imageElement.style.borderRadius = "12px";
 imageElement.style.marginTop = "10px";
 
-// Firebase Storage bucket (correct)
 const BUCKET = "campus-guide-map-uph.firebasestorage.app";
 
-// prefix mapping
 const prefixMap = {
     B: "bb",
     C: "bc",
@@ -70,19 +64,10 @@ const prefixMap = {
 
 const prefix = prefixMap[building];
 
-// Only load if that floor truly exists in DATA
 if (prefix && DATA[building][floor]) {
-
-    // File name (example: bb_f1.jpg)
     const fileName = `${prefix}_f${floor}.jpg`;
-
-    // Full Firebase path
     const storagePath = `maps/${building}/${fileName}`;
-
-    // Encode it properly
     const encodedPath = encodeURIComponent(storagePath);
-
-    // Final WORKING Firebase download URL
     const imgURL =
       `https://firebasestorage.googleapis.com/v0/b/${BUCKET}/o/${encodedPath}?alt=media`;
 
@@ -92,5 +77,4 @@ if (prefix && DATA[building][floor]) {
     imageElement.src = "";
 }
 
-// Insert the image after the room panel
 document.querySelector(".panel").after(imageElement);

@@ -18,9 +18,9 @@ const app = express();
 const serviceAccount = JSON.parse(process.env.SERVICE_ACCOUNT);
 
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: process.env.DATABASE_URL,
-  storageBucket: process.env.STORAGE_BUCKET, // MUST be xxxx.appspot.com
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: process.env.DATABASE_URL,
+    storageBucket: process.env.STORAGE_BUCKET, // MUST be xxxx.appspot.com
 });
 
 // Realtime DB + Storage
@@ -37,33 +37,33 @@ app.set("trust proxy", 1);
 const isProd = process.env.NODE_ENV === "production";
 
 app.use(
-  cors({
-    origin: [
-      "https://web-campus-guide-uph.vercel.app",
-      "http://localhost:5500",
-      "http://127.0.0.1:5500",
-    ],
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-  })
+    cors({
+        origin: [
+        "https://web-campus-guide-uph.vercel.app",
+        "http://localhost:5500",
+        "http://127.0.0.1:5500",
+        ],
+        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allowedHeaders: ["Content-Type", "Authorization"],
+        credentials: true,
+    })
 );
 
 app.use(express.json());
 
 app.use(
-  session({
-    secret: process.env.SESSION_SECRET || "supersecretkey",
-    resave: false,
-    saveUninitialized: false,
-    proxy: true,
-    cookie: {
-      httpOnly: true,
-      secure: isProd,
-      sameSite: isProd ? "none" : "lax",
-      maxAge: 1000 * 60 * 60 * 6, // 6 hours
-    },
-  })
+    session({
+        secret: process.env.SESSION_SECRET || "supersecretkey",
+        resave: false,
+        saveUninitialized: false,
+        proxy: true,
+        cookie: {
+        httpOnly: true,
+        secure: isProd,
+        sameSite: isProd ? "none" : "lax",
+        maxAge: 1000 * 60 * 60 * 6, // 6 hours
+        },
+    })
 );
 
 // ------------------------------
@@ -72,231 +72,231 @@ app.use(
 
 // Backend-only auth: verify email+password via Firebase Auth REST
 app.post("/auth/login", async (req, res) => {
-  const { email, password } = req.body;
+    const { email, password } = req.body;
 
-  if (!email || !password) {
-    return res.status(400).json({ message: "Missing email or password" });
-  }
-
-  try {
-    // 1) Validate credentials against Firebase Auth using REST API
-    const resp = await fetch(
-      `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${process.env.FIREBASE_API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          password,
-          returnSecureToken: true,
-        }),
-      }
-    );
-
-    if (!resp.ok) {
-      const errData = await resp.json().catch(() => ({}));
-      console.error("Firebase password verify failed:", errData);
-      return res.status(401).json({ message: "Invalid email or password" });
+    if (!email || !password) {
+        return res.status(400).json({ message: "Missing email or password" });
     }
 
-    const data = await resp.json();
-    const userId = data.localId; // Firebase uid
+    try {
+        // 1) Validate credentials against Firebase Auth using REST API
+        const resp = await fetch(
+        `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${process.env.FIREBASE_API_KEY}`,
+        {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+            email,
+            password,
+            returnSecureToken: true,
+            }),
+        }
+        );
 
-    // 2) Check admin role in Realtime Database: admins/<uid>
-    const snap = await db.ref("admins/" + userId).once("value");
-    if (!snap.exists()) {
-      return res.status(403).json({ message: "User is not an admin" });
+        if (!resp.ok) {
+        const errData = await resp.json().catch(() => ({}));
+        console.error("Firebase password verify failed:", errData);
+        return res.status(401).json({ message: "Invalid email or password" });
+        }
+
+        const data = await resp.json();
+        const userId = data.localId; // Firebase uid
+
+        // 2) Check admin role in Realtime Database: admins/<uid>
+        const snap = await db.ref("admins/" + userId).once("value");
+        if (!snap.exists()) {
+        return res.status(403).json({ message: "User is not an admin" });
+        }
+
+        // 3) Create session for this admin
+        req.session.user = {
+        id: userId,
+        email: data.email,
+        isAdmin: true,
+        };
+
+        return res.json({ success: true, user: req.session.user });
+    } catch (err) {
+        console.error("LOGIN ERROR:", err);
+        return res.status(500).json({ message: "Internal server error" });
     }
-
-    // 3) Create session for this admin
-    req.session.user = {
-      id: userId,
-      email: data.email,
-      isAdmin: true,
-    };
-
-    return res.json({ success: true, user: req.session.user });
-  } catch (err) {
-    console.error("LOGIN ERROR:", err);
-    return res.status(500).json({ message: "Internal server error" });
-  }
 });
 
 app.post("/auth/logout", (req, res) => {
-  req.session.destroy(() => {
-    res.json({ success: true });
-  });
+    req.session.destroy(() => {
+        res.json({ success: true });
+    });
 });
 
 // Who am I?
 app.get("/auth/me", async (req, res) => {
-  try {
-    // 1. Reject if no session found
-    if (!req.session.user) {
-      return res.status(401).json({ message: "Not authenticated" });
+    try {
+        // 1. Reject if no session found
+        if (!req.session.user) {
+        return res.status(401).json({ message: "Not authenticated" });
+        }
+
+        const { id, email } = req.session.user;
+
+        // 2. Check if user exists in /admins
+        const snap = await db.ref("admins/" + id).once("value");
+
+        if (!snap.exists()) {
+        return res.status(403).json({ message: "User no longer an admin" });
+        }
+
+        const isAdmin = snap.child("isAdmin").val();
+
+        if (!isAdmin) {
+        return res.status(403).json({ message: "User is not an admin" });
+        }
+
+        // 3. Return full user object
+        return res.json({
+        id,
+        email,
+        isAdmin: true
+        });
+
+    } catch (err) {
+        console.error("auth/me error:", err);
+        return res.status(500).json({ message: "Server error" });
     }
-
-    const { id, email } = req.session.user;
-
-    // 2. Check if user exists in /admins
-    const snap = await db.ref("admins/" + id).once("value");
-
-    if (!snap.exists()) {
-      return res.status(403).json({ message: "User no longer an admin" });
-    }
-
-    const isAdmin = snap.child("isAdmin").val();
-
-    if (!isAdmin) {
-      return res.status(403).json({ message: "User is not an admin" });
-    }
-
-    // 3. Return full user object
-    return res.json({
-      id,
-      email,
-      isAdmin: true
-    });
-
-  } catch (err) {
-    console.error("auth/me error:", err);
-    return res.status(500).json({ message: "Server error" });
-  }
 });
 
 // GET /admins — check if current session user is an admin
 app.get("/admins", async (req, res) => {
-  if (!req.session.user) {
-    return res.status(401).json({ message: "Not authenticated" });
-  }
-
-  const uid = req.session.user.id; // FIXED
-
-  try {
-    const ref = db.ref(`admins/${uid}`);
-    const snapshot = await ref.get();
-
-    if (!snapshot.exists()) {
-      return res.status(403).json({ message: "Not an admin" });
+    if (!req.session.user) {
+        return res.status(401).json({ message: "Not authenticated" });
     }
 
-    return res.json({
-      uid,
-      email: req.session.user.email,
-      isAdmin: true
-    });
+    const uid = req.session.user.id; // FIXED
 
-  } catch (err) {
-    console.error("Error in /admins:", err);
-    return res.status(500).json({ message: "Server error" });
-  }
+    try {
+        const ref = db.ref(`admins/${uid}`);
+        const snapshot = await ref.get();
+
+        if (!snapshot.exists()) {
+        return res.status(403).json({ message: "Not an admin" });
+        }
+
+        return res.json({
+        uid,
+        email: req.session.user.email,
+        isAdmin: true
+        });
+
+    } catch (err) {
+        console.error("Error in /admins:", err);
+        return res.status(500).json({ message: "Server error" });
+    }
 });
 
 // ------------------------------
 // POSTER UPLOAD
 // ------------------------------
 app.post("/uploadPoster/:eventId", upload.single("poster"), async (req, res) => {
-  console.log("UploadPoster route hit");
-  try {
-    const eventId = req.params.eventId;
+    console.log("UploadPoster route hit");
+    try {
+        const eventId = req.params.eventId;
 
-    if (!req.file) {
-      return res.status(400).json({ message: "No file uploaded" });
+        if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+        }
+
+        const ext = req.file.originalname.split(".").pop();
+        const fileName = `${eventId}.${ext}`;
+        const fileRef = bucket.file(`posters/${fileName}`);
+        console.log("Saving file to bucket as", fileName);
+
+        await fileRef.save(req.file.buffer, {
+        contentType: req.file.mimetype,
+        public: true,
+        });
+
+        const publicUrl = `https://storage.googleapis.com/${process.env.STORAGE_BUCKET}/posters/${fileName}`;
+
+        const snap = await db.ref(`events/${eventId}`).once("value");
+        if (!snap.exists()) {
+        return res.status(404).json({ message: "Event not found" });
+        }
+
+        await db.ref(`events/${eventId}`).update({ posterUrl: publicUrl });
+
+        res.json({ url: publicUrl });
+    } catch (err) {
+        console.error("Upload error:", err);
+        res.status(500).json({ message: "Upload failed" });
     }
-
-    const ext = req.file.originalname.split(".").pop();
-    const fileName = `${eventId}.${ext}`;
-    const fileRef = bucket.file(`posters/${fileName}`);
-    console.log("Saving file to bucket as", fileName);
-
-    await fileRef.save(req.file.buffer, {
-      contentType: req.file.mimetype,
-      public: true,
-    });
-
-    const publicUrl = `https://storage.googleapis.com/${process.env.STORAGE_BUCKET}/posters/${fileName}`;
-
-    const snap = await db.ref(`events/${eventId}`).once("value");
-    if (!snap.exists()) {
-      return res.status(404).json({ message: "Event not found" });
-    }
-
-    await db.ref(`events/${eventId}`).update({ posterUrl: publicUrl });
-
-    res.json({ url: publicUrl });
-  } catch (err) {
-    console.error("Upload error:", err);
-    res.status(500).json({ message: "Upload failed" });
-  }
 });
 
 // ------------------------------
 // Event routes
 // ------------------------------
 app.get("/events", async (req, res) => {
-  try {
-    const snapshot = await db.ref("events").once("value");
-    res.json(snapshot.val() || {});
-  } catch (err) {
-    console.error("Fetch events error:", err);
-    res.status(500).json({ message: "Failed to fetch events" });
-  }
+    try {
+        const snapshot = await db.ref("events").once("value");
+        res.json(snapshot.val() || {});
+    } catch (err) {
+        console.error("Fetch events error:", err);
+        res.status(500).json({ message: "Failed to fetch events" });
+    }
 });
 
 app.get("/events/:id", async (req, res) => {
-  try {
-    const snapshot = await db.ref("events/" + req.params.id).once("value");
-    if (!snapshot.exists()) {
-      return res.status(404).json({ message: "Event not found" });
+    try {
+        const snapshot = await db.ref("events/" + req.params.id).once("value");
+        if (!snapshot.exists()) {
+        return res.status(404).json({ message: "Event not found" });
+        }
+        res.json(snapshot.val());
+    } catch (err) {
+        console.error("Error fetching event:", err);
+        res.status(500).json({ message: "Failed to fetch event" });
     }
-    res.json(snapshot.val());
-  } catch (err) {
-    console.error("Error fetching event:", err);
-    res.status(500).json({ message: "Failed to fetch event" });
-  }
 });
 
 app.post("/events", async (req, res) => {
-  if (!req.session.user) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
+    if (!req.session.user) {
+        return res.status(401).json({ message: "Unauthorized" });
+    }
 
-  try {
-    const newEventRef = db.ref("events").push();
-    await newEventRef.set(req.body);
-    res.json({ message: "Event created", id: newEventRef.key });
-  } catch (err) {
-    console.error("Create event error:", err);
-    res.status(500).json({ message: "Failed to create event" });
-  }
+    try {
+        const newEventRef = db.ref("events").push();
+        await newEventRef.set(req.body);
+        res.json({ message: "Event created", id: newEventRef.key });
+    } catch (err) {
+        console.error("Create event error:", err);
+        res.status(500).json({ message: "Failed to create event" });
+    }
 });
 
 app.put("/events/:id", async (req, res) => {
-  if (!req.session.user) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
+    if (!req.session.user) {
+        return res.status(401).json({ message: "Unauthorized" });
+    }
 
-  try {
-    await db.ref(`events/${req.params.id}`).update(req.body);
-    res.json({ message: "Event updated" });
-  } catch (err) {
-    console.error("Update event error:", err);
-    res.status(500).json({ message: "Failed to update event" });
-  }
+    try {
+        await db.ref(`events/${req.params.id}`).update(req.body);
+        res.json({ message: "Event updated" });
+    } catch (err) {
+        console.error("Update event error:", err);
+        res.status(500).json({ message: "Failed to update event" });
+    }
 });
 
 app.delete("/events/:id", async (req, res) => {
-  if (!req.session.user) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
+    if (!req.session.user) {
+        return res.status(401).json({ message: "Unauthorized" });
+    }
 
-  try {
-    await db.ref(`events/${req.params.id}`).remove();
-    res.json({ message: "Event deleted" });
-  } catch (err) {
-    console.error("Delete event error:", err);
-    res.status(500).json({ message: "Failed to delete event" });
-  }
+    try {
+        await db.ref(`events/${req.params.id}`).remove();
+        res.json({ message: "Event deleted" });
+    } catch (err) {
+        console.error("Delete event error:", err);
+        res.status(500).json({ message: "Failed to delete event" });
+    }
 });
 
 // ------------------------------
