@@ -1,29 +1,11 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-import {
-    getAuth,
-    sendPasswordResetEmail,
-} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+// forgot.js — calls backend API instead of Firebase client SDK
 
-const firebaseConfig = {
-    apiKey: "AIzaSyDLFaOnFD4ICf3VJcIfNdeS1Pp5v0P7jLU",
-    authDomain: "campus-guide-map-uph.firebaseapp.com",
-    projectId: "campus-guide-map-uph",
-    storageBucket: "campus-guide-map-uph.firebasestorage.app",
-    messagingSenderId: "685591421741",
-    appId: "1:685591421741:android:fa9a20d84e6949d2b3a9a4",
-};
-
-console.log("[forgot.js] Initializing app...");
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-console.log("[forgot.js] Auth initialized:", auth);
+const API_BASE = "https://web-campus-guide-uph.vercel.app";
 
 const form = document.getElementById("resetForm");
 const emailEl = document.getElementById("email");
 const msgEl = document.getElementById("msg");
 const submitBtn = form?.querySelector('button[type="submit"]');
-
-console.log("[forgot.js] Form present?", !!form);
 
 function showMsg(text, ok = false) {
     if (!msgEl) return;
@@ -43,29 +25,51 @@ form?.addEventListener("submit", async (e) => {
         return;
     }
 
-    submitBtn && (submitBtn.disabled = true);
+    if (submitBtn) submitBtn.disabled = true;
     showMsg("Sending reset link...");
 
     try {
-        await sendPasswordResetEmail(auth, email);
-        console.log("[forgot.js] sendPasswordResetEmail SUCCESS");
+        const res = await fetch(`${API_BASE}/auth/forgot-password`, {
+            method: "POST",
+            credentials: "include", // not strictly required but fine
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email }),
+        });
 
+        let data = {};
+        try {
+            data = await res.json();
+        } catch (_) {
+            // ignore JSON parse errors for safety
+        }
+
+        if (!res.ok) {
+            const code = data.code || res.status;
+            console.error("[forgot.js] API error:", res.status, data);
+
+            let msg = "Could not send reset link.";
+
+            if (res.status === 404 || code === "user-not-found") {
+                msg = "No account found with that email.";
+            } else if (res.status === 400 || code === "invalid-email" || code === "missing-email") {
+                msg = "Please enter a valid email address.";
+            } else if (res.status === 429 || code === "too-many-requests") {
+                msg = "Too many attempts. Try again later.";
+            }
+
+            showMsg(msg);
+            return;
+        }
+
+        // Success
         showMsg("Reset link sent. Please check your email.", true);
+        console.log("[forgot.js] Reset link sent OK");
     } catch (err) {
-        console.error("[forgot.js] sendPasswordResetEmail ERROR:", err);
-        const code = err.code || "";
-        let msg = "Could not send reset link.";
-
-    if (code.includes("auth/user-not-found")) {
-        msg = "No account found with that email.";
-    } else if (code.includes("auth/invalid-email")) {
-        msg = "Please enter a valid email address.";
-    } else if (code.includes("too-many-requests")) {
-        msg = "Too many attempts. Try again later.";
-    }
-
-        showMsg(msg + ` (${code})`);
+        console.error("[forgot.js] NETWORK / UNKNOWN ERROR:", err);
+        showMsg("Could not send reset link. Please try again later.");
     } finally {
-        submitBtn && (submitBtn.disabled = false);
+        if (submitBtn) submitBtn.disabled = false;
     }
 });
