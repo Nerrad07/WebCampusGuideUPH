@@ -316,11 +316,12 @@ main{
     z-index:20;
     background: rgba(255,255,255,.95);
     backdrop-filter: saturate(140%) blur(6px);
-    box-shadow: 0 10px 28px rgba(2,6,23,.15);
+    box-shadow: 0 10px 28px rgba(2, 6, 23, 0.45);
     background:
         linear-gradient(#fff,#fff) padding-box,
         linear-gradient(145deg,#dfe8ff,#eaf7ff 40%,#fff1d9 70%,#dfe8ff) border-box;
     border: 1px solid transparent;
+    
 }
 
 .map-dir-head {
