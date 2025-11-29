@@ -187,16 +187,16 @@ nav button {
     padding: 0;
 }
 
-.hamburger img{
+.hamburger img {
     height: 40px;
     width: auto;
 }
 
-#navchk:checked ~ .sidebar{
+#navchk:checked ~ .sidebar {
     transform: translateX(0);
 }
 
-#navchk:checked ~ .overlay{
+#navchk:checked ~ .overlay {
     opacity: 1;
     pointer-events: auto;
 }
@@ -330,7 +330,7 @@ main{
     justify-content:space-between;
     padding:10px 12px;
     border-radius:16px 16px 0 0;
-    background: linear-gradient(135deg,#150f3d 0%, #2a1794 100%);
+    background: linear-gradient(135deg,#150f3d 0%, #1f279c 100%);
     color:#fff;
 }
 
@@ -355,8 +355,10 @@ main{
     border:1px solid rgba(255,255,255,.9);
     background:transparent; 
     color:#fff;
-    display:grid; 
-    place-items:center; 
+    display: inline-flex;             
+    align-items: center;
+    justify-content: center;
+    text-align: center;
     cursor:pointer;
 }
 
@@ -364,7 +366,7 @@ main{
     content:"−"; 
     font-weight:900; 
     font-size:16px; 
-    line-height:1; 
+    line-height:1;
 }
 
 .dir-toggle:hover{ 
@@ -400,11 +402,13 @@ main{
 
 /* letter buttons */
 .tag {
-    width:26px; 
-    height:26px; 
-    border-radius:999px; 
-    display:grid;
-    place-items:center;
+    width: 26px; 
+    height: 26px; 
+    border-radius: 999px; 
+    display: inline-flex;             
+    align-items: center;
+    justify-content: center;
+    text-align: center;
     font-weight:800; 
     font-size:.85rem; 
     border:2px solid rgba(0,0,0,.65);
@@ -422,7 +426,7 @@ main{
 
 /* utk collapsed / minimiazed  */
 .map-dir.is-collapsed { 
-    width:190px; 
+    width: 190px; 
 } 
 .map-dir.is-collapsed .map-dir-body { 
     display:none; 
