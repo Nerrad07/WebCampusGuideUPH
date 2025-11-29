@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Guide UPH</title>
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+<header class="topbar">
+        <nav>
+            <div class="left">
+            <label for="navchk" class="hamburger">
+                <img src="../../img/Hamburger.png" alt="" />
+            </label>
+
+            <img src="../../img/logo_white.png" alt="" class="logotop" />
+            </div>
+
+            <div class="middle">
+            <form
+                id="searchForm"
+                role="search"
+                class="searchbar"
+                autocomplete="off"
+            >
+                <input
+                id="searchInput"
+                type="search"
+                placeholder="Search events, event handlers…"
+                aria-label="Search events"
+                />
+                <button id="clearSearch" type="button" aria-label="Clear">×</button>
+            </form>
+            </div>
+
+            <div class="right">
+            <div class="mapwhite">
+                <button>
+                <a href="../user-screens/map-screen.html">
+                    <img src="../../img/map-white.png" alt="" class="buttons" />
+                </a>
+                </button>
+            </div>
+
+            <div class="eventwhite">
+                <a href="../user-screens/event-screen.html">
+                <button>
+                    <img src="../../img/event-white.png" alt="" class="buttons" />
+                </button>
+                </a>
+            </div>
+            </div>
+        </nav>
+    </header>
+
+    <input type="checkbox" id="navchk" hidden />
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <img src="../../img/logo_white.png" alt="" class="logotop" />
+        </div>
+
+        <div class="sidebar-header-text">
+            <p>
+            Campus Guide UPH <br />
+            Lippo Village
+            </p>
+        </div>
+
+        <nav class="menu">
+            <a href="https://www.uph.edu/id/facility/map-kampus/" target="_blank">
+                <img src="../../img/location-logo.png" alt="" />
+                <span>UPH Lippo Village Map</span>
+            </a>
+
+            <a href="https://www.uph.edu/id/" target="_blank">
+                <img src="../../img/web-logo.png" alt="" />
+                <span>www.uph.edu/id</span>
+            </a>
+
+            <a href="https://www.instagram.com/uphimpactslives/" target="_blank">
+                <img src="../../img/instagram-logo.png" alt="" />
+                <span>@uphimpactslives</span>
+            </a>
+
+            <a href="https://www.uph.edu/id/contact/" target="_blank">
+                <img src="../../img/phone-logo.png" alt="" />
+                <span>Contact Us</span>
+            </a>
+
+            <a href="../admin-screens/login.html">
+                <img src="../../img/user-logo.png" alt="" />
+                <span>Admin Login</span>
+            </a>
+        </nav>
+    </aside>
+
+    <label for="navchk" class="overlay" aria-hidden="true"></label>
+
+    <main>
+        <div class="container">
+            <div class="info">
+            <h3>Active Events</h3>
+            <div class="titles">
+                <p class="O">Ongoing</p>
+                <p class="U">Upcoming</p>
+                <p class="CS">Coming Soon</p>
+            </div>
+            <div class="amount">
+                <p class="OA">0</p>
+                <p class="UA">0</p>
+                <p class="CSA">0</p>
+            </div>
+            </div>
+
+            <div class="buttons">
+            <div class="add">
+                <button id="add-btn" type="button">Add</button>
+                </a>
+            </div>
+
+            <div class="edit">
+                <button>Edit</button>
+            </div>
+
+            <div class="remove">
+                <button id="remove-btn" disabled>Remove</button>
+            </div>
+            
+            <div class="publish">
+                <button id="publish-btn"disabled>Publish</button>
+            </div>
+
+            <div class="history">
+                <a href="history.html">
+                <button>History</button>
+                </a>
+            </div>
+            </div>
+        </div>
+
+        <div class="table">
+            <table>
+            <thead>
+                <tr>
+                <td>Select</td>
+                <td>No.</td>
+                <td>Event Name</td>
+                <td>Held By</td>
+                <td>Time</td>
+                <td>Date</td>
+                <td>Status</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="inputs"></tr>
+            </tbody>
+            </table>
+        </div>
+    </main>
+
+    <footer>
+        <button class="seed-Btn" id="seedBtn">Seed Events</button>
+    <div id="confirm-delete-modal" class="confirm-modal" aria-hidden="true">
+        <div class="confirm-dialog">
+        <h2>Delete Event</h2>
+        <p>
+            Are you sure you want to delete this event? This action cannot be
+            undone.
+        </p>
+        <div class="confirm-actions">
+            <button id="cancel-delete-btn" type="button">Cancel</button>
+            <button id="confirm-delete-btn" type="button" class="danger">
+            Delete
+            </button>
+        </div>
+        </div>
+    </div>
+  </footer>
+
+  <script src="dashboard.js" type="module"></script>
+</html>

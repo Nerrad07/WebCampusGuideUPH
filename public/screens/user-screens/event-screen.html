@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Guide UPH</title>
+    <link rel="stylesheet" href="event-screen.css">
+</head>
+<body>
+<!-- Navbar -->
+    <header class="topbar">
+        <nav>
+            <div class="left">
+                <label for="navchk" class="hamburger">
+                <img src="../../img/Hamburger.png" alt="" />
+            </label>
+
+            <img src="../../img/logo_white.png" alt="" class="logotop" />
+            </div>
+
+            <!-- Search bar -->
+            <div class="middle">
+            <form
+                id="searchForm"
+                role="search"
+                class="searchbar"
+                autocomplete="off"
+            >
+                <input
+                id="searchInput"
+                type="search"
+                placeholder="Search events, buildings, rooms…"
+                aria-label="Search events"
+                />
+                <button id="clearSearch" type="button" aria-label="Clear">×</button>
+            </form>
+            </div>
+
+            <div class="right">
+            <div class="mapblue">
+                <a href="../user-screens/map-screen.html">
+                <button>
+                    <img src="../../img/map-blue.png" alt="" class="buttons" />
+                </button>
+                </a>
+            </div>
+
+            <div class="eventwhite">
+                <a href="../user-screens/event-screen.html">
+                <button>
+                    <img src="../../img/event-white.png" alt="" class="buttons" />
+                </button>
+                </a>
+            </div>
+            </div>
+        </nav>
+    </header>
+
+    <input type="checkbox" id="navchk" hidden />
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <img src="../../img/logo_white.png" alt="" class="logotop" />
+        </div>
+
+        <div class="sidebar-header-text">
+            <p>
+            Campus Guide UPH <br />
+            Lippo Village
+            </p>
+        </div>
+
+        <nav class="menu">
+            <a href="https://www.uph.edu/id/facility/map-kampus/" target="_blank">
+                <img src="../../img/location-logo.png" alt="" />
+                <span>UPH Lippo Village Map</span>
+            </a>
+
+            <a href="https://www.uph.edu/id/" target="_blank">
+                <img src="../../img/web-logo.png" alt="" />
+                <span>www.uph.edu/id</span>
+            </a>
+
+            <a href="https://www.instagram.com/uphimpactslives/" target="_blank">
+                <img src="../../img/instagram-logo.png" alt="" />
+                <span>@uphimpactslives</span>
+            </a>
+
+            <a href="https://www.uph.edu/id/contact/" target="_blank">
+                <img src="../../img/phone-logo.png" alt="" />
+                <span>Contact Us</span>
+            </a>
+
+            <a href="../admin-screens/login.html">
+                <img src="../../img/user-logo.png" alt="" />
+                <span>Admin Login</span>
+            </a>
+        </nav>
+    </aside>
+
+    <label for="navchk" class="overlay" aria-hidden="true"></label>
+
+    <main id="main" class="page" role="main">
+        <section class="events-header">
+            <h2 class="events-title">Events — <time id="todayLabel"></time></h2>
+
+            <div class="filters" aria-label="Event Filters">
+            <!-- BUILDING FILTER -->
+            <div class="dropdown" data-filter="building">
+                <button
+                id="buildingBtn"
+                class="dropdown_button"
+                aria-haspopup="listbox"
+                aria-expanded="false"
+                >
+                <span class="dropdown_label">Building</span>
+                <span id="buildingValue" class="dropdown_value">All</span>
+                <span class="dropdown_chevron" aria-hidden="true">▾</span>
+                </button>
+
+                <ul
+                id="buildingMenu"
+                class="dropdown_menu"
+                role="listbox"
+                aria-labelledby="buildingBtn"
+                >
+                <li role="option" data-value="All" aria-selected="true">All</li>
+                <li role="option" data-value="B">B</li>
+                <li role="option" data-value="C">C</li>
+                <li role="option" data-value="D">D</li>
+                <li role="option" data-value="F">F</li>
+                </ul>
+            </div>
+
+            <!-- STATUS FILTER -->
+            <div class="dropdown" data-filter="status">
+                <button
+                id="statusBtn"
+                class="dropdown_button"
+                aria-haspopup="listbox"
+                aria-expanded="false"
+                >
+                <span class="dropdown_label">Status</span>
+                <span id="statusValue" class="dropdown_value">All</span>
+                <span class="dropdown_chevron" aria-hidden="true">▾</span>
+                </button>
+
+                <ul
+                id="statusMenu"
+                class="dropdown_menu"
+                role="listbox"
+                aria-labelledby="statusBtn"
+                >
+                <li role="option" data-value="All" aria-selected="true">All</li>
+                <li role="option" data-value="Ongoing">Ongoing</li>
+                <li role="option" data-value="Upcoming">Upcoming</li>
+                <li role="option" data-value="Coming Soon">Coming Soon</li>
+                </ul>
+            </div>
+
+            <!-- DATE RANGE -->
+            <div class="date-range">
+                <label class="date-chip">
+                <span>From:</span>
+                <input id="fromDate" type="date" aria-label="From date" />
+                </label>
+
+                <label class="date-chip">
+                <span>To:</span>
+                <input id="toDate" type="date" aria-label="To date" />
+                </label>
+
+                <button id="clearDates" class="btn-outline" type="button">
+                Clear
+                </button>
+            </div>
+            </div>
+        </section>
+
+        <section
+            id="eventsList"
+            class="events-list"
+            aria-live="polite"
+            aria-busy="false"
+        >
+            <!-- nanti cardsnya akan dirender disini -->
+        </section>
+
+        <template id="eventCardTmpl">
+            <article class="event-card">
+            <div class="event-card_left">
+                <h3 class="event-title"></h3>
+
+                <dl class="event-inside">
+                <div>
+                    <dt>Held By:</dt>
+                    <dd class="event-heldby"></dd>
+                </div>
+                <div>
+                    <dt>Date:</dt>
+                    <dd class="event-date"></dd>
+                </div>
+                <div>
+                    <dt>Time:</dt>
+                    <dd class="event-time"></dd>
+                </div>
+                <div>
+                    <dt>Room:</dt>
+                    <dd class="event-room"></dd>
+                </div>
+                </dl>
+            </div>
+
+            <div class="event-card_right">
+                <span class="badge status"></span>
+                <button class="btn-primary event-more" type="button">
+                View Details
+                </button>
+            </div>
+            </article>
+        </template>
+
+        <div id="paginationControls" class="pagination-controls">
+            <button id="prevPage" disabled>← Previous</button>
+            <span id="pageIndicator">Page 1</span>
+            <button id="nextPage">Next →</button>
+        </div>
+
+
+        <section id="emptyState" class="empty" hidden>
+            <p>No events match the current filters.</p>
+        </section>
+        </main>
+
+        <div id="eventModal" class="modal" aria-hidden="true">
+        <div class="modal_backdrop" data-close-modal></div>
+
+        <section
+            class="modal_dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="eventModalTitle"
+        >
+            <header class="modal_header">
+            <h3 id="eventModalTitle" class="modal_title"></h3>
+            <button
+                class="modal_close"
+                type="button"
+                aria-label="Close"
+                data-close-modal
+            >
+                ×
+            </button>
+            </header>
+
+            <div class="modal_body modal_body--event">
+            <figure class="event_poster">
+                <img id="eventPoster" class="event-modal_poster" alt="" />
+                <figcaption id="eventPosterCaption" class="sr-only"></figcaption>
+            </figure>
+
+            <div class="event_details">
+                <p id="eventDesc" class="modal_desc"></p>
+                <ul class="event_meta">
+                <li>
+                    <strong>Building:</strong> <span id="eventBuilding"></span>
+                </li>
+                <li><strong>Room:</strong> <span id="eventRoom"></span></li>
+                <li><strong>Date:</strong> <span id="eventDate"></span></li>
+                <li><strong>Time:</strong> <span id="eventTime"></span></li>
+                <li><strong>Status:</strong> <span id="eventStatus"></span></li>
+                </ul>
+            </div>
+            </div>
+        </section>
+    </div>
+
+    <script type="module" src="./event-screen.js"></script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UPH — Intro</title>
+
+    <!-- Redirect after 3.5s -->
+    <!-- If this file is at /intro/intro.html and map-screen is at /screens/user-screens/map-screen.html -->
+    <meta http-equiv="refresh" content="3.5;url=../screens/user-screens/map-screen.html" />
+
+    <!-- Inline CSS -->
+    <style>
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            background: rgb(255, 255, 255);
+            display: grid;
+            place-items: center;
+        }
+
+        .logo {
+            opacity: 0;
+            animation:
+                fadeIn 0.9s ease-out forwards,
+                fadeOut 0.9s ease-in 1.6s forwards;
+        }
+
+        .logo img {
+            height: 500px;
+            width: auto;
+            filter: drop-shadow(0 6px 12px rgba(255, 255, 255, 0.25));
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(1.04);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+                transform: scale(1);
+            }
+            to {
+                opacity: 0;
+                transform: scale(0.97);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="logo">
+        <img src="../img/app-logo.png" alt="LOGO">
+    </div>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Guide Map UPH</title>
+    <link rel="stylesheet" href="login.css">
+</head>
+<body>
+    <header>
+        <div class="img">
+            <img src="../../img/main-logo.png" alt="UPH Logo"/>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="login">
+                <form id="loginForm" method="javascript:void(0)" novalidate>
+                    <h2 class="title">Admin Login</h2>
+
+                    <label for="email">Email</label>
+                    <input id="email" class="email" name="email" type="email" required minlength="8" autocomplete="username" inputmode="email" spellcheck="false" pattern="^[^\s@]+@[^\s@]+\.[^\s@]{2,}$" nitle="Use a valid email like name@domain.com"/>
+
+                    <br>
+
+                    <label for="password">Password</label>
+                    <input id="password" class="pass" name="password" type="password" required minlength="8" autocomplete="current-password"/>
+
+                    <div class="onerow">
+                        <div class="forgot">
+                            <a href="forgot.html">Forgot?</a>
+                        </div>
+
+                        <div class="remember">
+                            <input id="remember" name="remember" type="checkbox" />
+                            <label for="remember">Remember Me</label>
+                        </div>
+                    </div>
+
+                    <div class="submit">
+                        <button type="submit"><b>Login</b></button>
+                    </div>
+
+                    <p id="err" class="error" aria-live="polite"></p>
+
+                </form>
+            </div>
+        </div>
+    </main>
+    
+</body>
+<script type="module" src="login.js"></script>
+</html>

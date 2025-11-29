@@ -1,0 +1,149 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+
+body{
+    height: 100vh;
+    background-image: url("../../img/uph-bg.png");
+    background-size: cover;
+    background-position: center;
+    background-color: rgba(0, 0, 0, 0.35);
+}
+
+.img img{
+    width: auto;
+    height: 80px;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.img{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 24px 0;
+}
+
+main{
+    display: grid;
+    place-items: center;
+    margin-top: 20px;
+}
+
+.login{
+    background-color: rgb(29, 33, 96);
+    color: white;
+    height: auto;
+    width: 320px;
+    display: flex;
+    align-items: stretch;
+    justify-content: space-evenly;
+    border-radius: 10px;
+    flex-direction: column;
+    padding: 40px 30px;
+}
+
+.title{
+    display: flex;
+    justify-content: center;
+    margin-bottom: 40px;
+}
+
+.login form label{
+    display: block;
+    margin-bottom: 8px;
+}
+
+.login form input[type="email"],
+.login form input[type="password"]{
+    font-family:'Times New Roman', Times, serif;
+    font-size: 14px;
+    height: 32px;
+    padding-left: 5px;
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 20px;
+}
+
+.onerow{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    column-gap: 10px;
+    flex-wrap: wrap; 
+
+}
+
+.forgot{
+    display: flex;
+    justify-content: flex-end;
+    margin-top: -10px;
+    margin-bottom: 20px;
+}
+
+.forgot a{
+    text-decoration: none;
+    color: white;
+}
+
+.forgot a:hover{
+    text-decoration: underline;
+}
+
+.remember{
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 20px;
+}
+
+.remember input[type="checkbox"]{
+    width: 20px;
+    height: 20px;
+    margin-bottom: 5px;
+    cursor: pointer;
+    accent-color: rgb(147, 152, 212); 
+}
+
+.remember label{
+    line-height: 1.2;
+    white-space: normal;
+}
+
+.remember input:hover{
+    cursor: pointer;
+}
+
+.submit button{
+    width: 100%;
+    height: 40px;
+    font-size: 20px;
+    border-radius: 10px;
+    border: none;
+    background-color: white;
+    color: rgb(29, 33, 96);
+    cursor: pointer;
+    font-family: 'Times New Roman', Times, serif;
+}
+
+.submit button:hover{
+    background-color: rgb(189, 189, 189);
+    color:white;
+}
+
+.account{
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.account a{
+    color: white;
+    text-decoration: none;
+}
+
+.account a:hover{
+    text-decoration: underline;
+}
