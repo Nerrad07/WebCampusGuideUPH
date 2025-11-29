@@ -192,6 +192,77 @@ app.get("/admins", async (req, res) => {
     }
 });
 
+app.post("/auth/forgot-password", async (req, res) => {
+    const { email } = req.body;
+
+    if (!email) {
+        return res.status(400).json({
+            message: "Missing email",
+            code: "missing-email",
+        });
+    }
+
+    try {
+        // Firebase Auth REST: send password reset email
+        const resp = await fetch(
+            `https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${process.env.FIREBASE_API_KEY}`,
+            {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    requestType: "PASSWORD_RESET",
+                    email,
+                }),
+            }
+        );
+
+        const data = await resp.json().catch(() => ({}));
+
+        if (!resp.ok) {
+            const msg = data?.error?.message || "";
+            console.error("Forgot-password error from Firebase:", msg);
+
+            if (msg === "EMAIL_NOT_FOUND") {
+                return res.status(404).json({
+                    message: "No user found with that email",
+                    code: "user-not-found",
+                });
+            }
+
+            if (msg === "INVALID_EMAIL") {
+                return res.status(400).json({
+                    message: "Invalid email address",
+                    code: "invalid-email",
+                });
+            }
+
+            if (msg === "TOO_MANY_ATTEMPTS_TRY_LATER") {
+                return res.status(429).json({
+                    message: "Too many attempts. Try again later.",
+                    code: "too-many-requests",
+                });
+            }
+
+            return res.status(500).json({
+                message: "Failed to send reset email",
+                code: "firebase-error",
+            });
+        }
+
+        // Success — Firebase has sent the email
+        return res.json({
+            success: true,
+            message: "Reset link sent",
+        });
+    } catch (err) {
+        console.error("Forgot-password server error:", err);
+        return res.status(500).json({
+            message: "Internal server error",
+            code: "server-error",
+        });
+    }
+});
+
 // ------------------------------
 // POSTER UPLOAD
 // ------------------------------
