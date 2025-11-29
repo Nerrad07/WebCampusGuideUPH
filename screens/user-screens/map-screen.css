@@ -324,7 +324,7 @@ main{
     justify-content:space-between;
     padding:10px 12px;
     border-radius:16px 16px 0 0;
-    background: linear-gradient(135deg,#0f1d4e 0%, #224487 100%);
+    background: linear-gradient(135deg,#150f3d 0%, #2a1794 100%);
     color:#fff;
 }
 
@@ -352,7 +352,6 @@ main{
     display:grid; 
     place-items:center; 
     cursor:pointer;
-    transition:transform .15s ease, background .15s ease, box-shadow .15s ease;
 }
 
 .dir-toggle::after{ 
