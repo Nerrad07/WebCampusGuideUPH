@@ -321,12 +321,12 @@ img.hamburger{
     gap: 12px;
     align-items: start;
 }
-
+/* 
 @media (max-width: 760px){
     .filters{
         grid-template-columns: 1fr;
     }
-}
+} */
 
 /*Dropdown */
 .dropdown{
@@ -641,11 +641,11 @@ img.hamburger{
     grid-template-columns: 280px 1fr;
     gap: 16px;
 }
-@media (max-width: 780px){
+/* @media (max-width: 780px){
     .modal_body--event{
         grid-template-columns: 1fr;
     }
-}
+} */
 
 .event_poster{
     margin: 0;
