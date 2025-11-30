@@ -282,3 +282,43 @@ nav button{
     font-weight: bold;
     font-size: 20px;
 }
+
+.pagination-controls {
+    margin-top: 20px;
+    margin-bottom: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+}
+
+.pagination-controls button {
+    height: 35px;
+    width: 130px;
+    font-size: 20px;
+    background-color: rgb(29, 33, 110);
+    color: white;
+    font-weight: bold;
+    border-radius: 20px;
+    border: none;
+    cursor: pointer;
+}
+
+.pagination-controls button:hover:not(:disabled) {
+    background-color: rgb(57, 65, 175);
+}
+
+.pagination-controls button:active:not(:disabled) {
+    background-color: rgb(76, 86, 234);
+}
+
+.pagination-controls button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+#pageIndicator {
+    font-size: 20px;
+    font-weight: bold;
+    color: rgb(29, 33, 96);
+}

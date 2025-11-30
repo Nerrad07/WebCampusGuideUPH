@@ -39,7 +39,9 @@ const isProd = process.env.NODE_ENV === "production";
 app.use(
     cors({
         origin: [
+        "https://frontendcampusguidemap.vercel.app",
         "https://web-campus-guide-uph.vercel.app",
+        "http://localhost:3000",
         "http://localhost:5500",
         "http://127.0.0.1:5500",
         ],
