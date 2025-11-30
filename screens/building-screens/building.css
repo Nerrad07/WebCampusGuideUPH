@@ -728,3 +728,74 @@ img.hamburger{
 .main{
     position: relative !important;
 }
+
+/* ===========================
+   MOBILE – BUILDING DETAIL
+   =========================== */
+@media (max-width: 768px) {
+    /* Navbar */
+    .topbar nav{    padding: 1rem;
+        display: flex;
+        background-color: rgb(29, 33, 96);
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1000;
+    }
+
+    .topbar nav button{    
+        border: none;
+        width: 10px;
+        height: 20px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: transparent;
+    }
+
+    .topbar nav button img{ 
+        margin-left: 20px;   
+        width: 45px;
+        height: 40px;
+    }
+
+    .left {    
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .right {    
+        display: flex;
+        align-items: center;
+        gap: 3rem;
+        margin-left: auto;
+        padding-right: 50px;
+    }
+
+    .logotop {    
+        height: 40px;
+        width: auto;
+        margin-left: 20px;
+    }
+
+    .topbar .buttons {    
+        height: 40px;
+        width: auto;
+    }
+
+    .mapblue button img {    
+        background-color: white;
+        content: url(../../img/map-blue.png);
+        border-radius: 10px;
+    }
+
+    .mapblue button:hover img {    
+        background-color: white;
+        content: url(../../img/map-blue.png);
+        border-radius: 10px;
+    }
+}
+

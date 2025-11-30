@@ -179,10 +179,9 @@ async function loadEvents() {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
 
-        const events = Object.entries(data).map(([id, event]) => ({
-            id,
-            ...event
-        }));
+        const events = Object.entries(data)
+        .map(([id, event]) => ({ id, ...event }))
+        .filter(ev => getEventStatus(ev) !== "Past");
 
         allEvents = events;
         allEvents.sort((a, b) => a.date - b.date);
