@@ -178,9 +178,25 @@ function renderEvents(events) {
 			const eventEnd =
 				new Date(Number(ev.date)).getTime() + ev.endTimeMinutes * 60000;
 
+			const eventDay = new Date(Number(ev.date));
+			eventDay.setHours(0, 0, 0, 0);
+
+			const today = new Date();
+			today.setHours(0, 0, 0, 0);
+
+			const diffDays = Math.floor((eventDay - today) / (1000 * 60 * 60 * 24));
+
 			let status = "Upcoming";
-			if (now >= eventStart && now <= eventEnd) status = "Ongoing";
-			else if (now > eventEnd) continue;
+
+			if (now >= eventStart && now <= eventEnd) {
+				status = "Ongoing";
+			} else if (diffDays >= 0 && diffDays <= 7) {
+				status = "Upcoming";
+			} else if (diffDays >= 8) {
+				status = "Coming Soon";
+			} else {
+				continue;
+			}
 
 			badge.textContent = status;
 			badge.dataset.status = status;
@@ -303,5 +319,15 @@ function bindFacultyCards() {
 	const filtered = allEvents.filter(
 		(e) => e.building?.toUpperCase() === BUILDING
 	);
+	
+	filtered.sort((a, b) => {
+        const dateA = Number(a.date);
+        const dateB = Number(b.date);
+
+        if (dateA !== dateB) return dateA - dateB;
+
+        return a.startTimeMinutes - b.startTimeMinutes;
+    });
+
 	renderEvents(filtered);
 })();

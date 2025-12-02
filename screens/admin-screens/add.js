@@ -1,6 +1,8 @@
 // add.js
 const API_BASE = "https://web-campus-guide-uph.vercel.app";
 
+let CURRENT_ADMIN_UID = "unkown-admin"
+
 /* --------------------------
    TIME / DATE HELPERS
 ---------------------------*/
@@ -177,6 +179,57 @@ async function uploadPosterForEvent(eventId, file) {
     return await resp.json();
 }
 
+async function checkRoomConflict(dateTimestamp, room, startMins, endMins) {
+    try {
+        const url = `${API_BASE}/checkRoomConflict?date=${dateTimestamp}&room=${encodeURIComponent(room)}`;
+        console.log(url)
+        const res = await fetch(url, {
+            method: "GET",
+            credentials: "include"
+        });
+
+        if (!res.ok) {
+            console.warn("Room conflict check failed");
+            return true;
+        }
+
+        const events = await res.json();
+
+        console.log("Events returned by /checkRoomConflict:", events);
+
+        if (!Array.isArray(events) || events.length === 0) {
+            return true;
+        }
+
+        for (const ev of events) {
+            const evStart = ev.startTimeMinutes;
+            const evEnd = ev.endTimeMinutes;
+
+            const overlap = startMins < evEnd && evStart < endMins;
+
+            if (overlap) {
+                const startStr = toTimeString(evStart);
+                const endStr = toTimeString(evEnd);
+
+                alert(
+                    `Room Conflict:\n\n` +
+                    `"${ev.name}" is already using this room.\n` +
+                    `Occupied from ${startStr} to ${endStr}.`
+                );
+
+                return false;
+            }
+        }
+
+        return true;
+
+    } catch (err) {
+        console.error("Error checking room conflict:", err);
+        return true; 
+    }
+}
+
+
 /* --------------------------
    FORM SUBMIT HANDLER
 ---------------------------*/
@@ -194,6 +247,32 @@ async function handleFormSubmit(e) {
     const building = document.getElementById("building").value;
     const floor = document.getElementById("floor").value;
     const room = document.getElementById("room").value;
+    const startMins = toMinutes(starttime);
+    const endMins = toMinutes(endtime);
+    const eventDateMs = toTimestamp(date);
+    const todayMs = new Date();
+    todayMs.setHours(0, 0, 0, 0);
+
+    const dateTimestamp = new Date(date).getTime();
+
+    const conflictFree = await checkRoomConflict(
+        dateTimestamp,
+        room,
+        startMins,
+        endMins
+    );
+
+    if (!conflictFree) return;
+
+    if (eventDateMs < todayMs.getTime()) {
+      alert("Event date cannot be in the past.");
+      return;
+    }
+
+    if (startMins >= endMins) {
+      alert("Start time must be earlier than end time.");
+      return;
+    }
 
     if (!name || !heldBy || !date || !starttime || !endtime || !building || !room) {
         alert("Please fill all required fields.");
@@ -231,35 +310,58 @@ async function handleFormSubmit(e) {
 
     if (!finalEventId) {
         const eventData = {
-        name,
-        heldBy,
-        building,
-        floor,
-        room,
-        date: toTimestamp(date),
-        startTimeMinutes: toMinutes(starttime),
-        endTimeMinutes: toMinutes(endtime),
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        published: true,
-        posterUrl: ""
+            name,
+            heldBy,
+            building,
+            floor,
+            room,
+            date: toTimestamp(date),
+            startTimeMinutes: toMinutes(starttime),
+            endTimeMinutes: toMinutes(endtime),
+            createdAt: Date.now(),
+            createdBy: CURRENT_ADMIN_UID,
+            updatedAt: Date.now(),
+            published: true,
+            posterUrl: ""
         };
 
         const createRes = await fetch(`${API_BASE}/events`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(eventData)
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(eventData)
         });
 
         if (!createRes.ok) {
-        alert("Failed to create event.");
-        return;
+            alert("Failed to create event.");
+            return;
         }
 
         const newData = await createRes.json();
         finalEventId = newData.id;
+
+        try {
+            const dateTimestamp = toTimestamp(date);
+
+            const addDateRes = await fetch(`${API_BASE}/eventsByDate`, {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    eventId: finalEventId,
+                    dateTimestamp
+                })
+            });
+
+            if (!addDateRes.ok) {
+                console.error("Failed to add event to eventsByDate");
+                alert("Event was created, but failed to update the date index.");
+            }
+        } catch (err) {
+            console.error("Error calling /eventsByDate:", err);
+        }
     }
+
 
     let posterUrl = "";
     if (posterFile) {
@@ -302,6 +404,7 @@ async function checkAdminSession() {
 
         const admin = await res.json();
         console.log("Add Event: Admin authenticated:", admin.email);
+        CURRENT_ADMIN_UID = admin.uid;
         return true;
 
     } catch (err) {
@@ -357,5 +460,5 @@ window.addEventListener("DOMContentLoaded", async () => {
     document.querySelector("form").addEventListener("submit", handleFormSubmit);
 
     await loadEventForEdit();
-    attachLeaveAdminConfirm();   // ✅ add this line
+    attachLeaveAdminConfirm();
 });

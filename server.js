@@ -12,27 +12,20 @@ dotenv.config();
 
 const app = express();
 
-// ------------------------------
-// Firebase Admin Initialization
-// ------------------------------
 const serviceAccount = JSON.parse(process.env.SERVICE_ACCOUNT);
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
     databaseURL: process.env.DATABASE_URL,
-    storageBucket: process.env.STORAGE_BUCKET, // MUST be xxxx.appspot.com
+    storageBucket: process.env.STORAGE_BUCKET,
 });
 
-// Realtime DB + Storage
 const db = admin.database();
 const bucket = admin.storage().bucket();
 
-// Multer (store file in memory)
 const upload = multer({ storage: multer.memoryStorage() });
 
-// ------------------------------
 // Middleware
-// ------------------------------
 app.set("trust proxy", 1);
 const isProd = process.env.NODE_ENV === "production";
 
@@ -63,16 +56,12 @@ app.use(
         httpOnly: true,
         secure: isProd,
         sameSite: isProd ? "none" : "lax",
-        maxAge: 1000 * 60 * 60 * 6, // 6 hours
+        maxAge: 1000 * 60 * 60 * 6,
         },
     })
 );
 
-// ------------------------------
 // Authentication login and logout
-// ------------------------------
-
-// Backend-only auth: verify email+password via Firebase Auth REST
 app.post("/auth/login", async (req, res) => {
     const { email, password } = req.body;
 
@@ -81,7 +70,6 @@ app.post("/auth/login", async (req, res) => {
     }
 
     try {
-        // 1) Validate credentials against Firebase Auth using REST API
         const resp = await fetch(
         `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${process.env.FIREBASE_API_KEY}`,
         {
@@ -102,15 +90,13 @@ app.post("/auth/login", async (req, res) => {
         }
 
         const data = await resp.json();
-        const userId = data.localId; // Firebase uid
+        const userId = data.localId;
 
-        // 2) Check admin role in Realtime Database: admins/<uid>
         const snap = await db.ref("admins/" + userId).once("value");
         if (!snap.exists()) {
         return res.status(403).json({ message: "User is not an admin" });
         }
 
-        // 3) Create session for this admin
         req.session.user = {
         id: userId,
         email: data.email,
@@ -130,17 +116,14 @@ app.post("/auth/logout", (req, res) => {
     });
 });
 
-// Who am I?
 app.get("/auth/me", async (req, res) => {
     try {
-        // 1. Reject if no session found
         if (!req.session.user) {
         return res.status(401).json({ message: "Not authenticated" });
         }
 
         const { id, email } = req.session.user;
 
-        // 2. Check if user exists in /admins
         const snap = await db.ref("admins/" + id).once("value");
 
         if (!snap.exists()) {
@@ -166,13 +149,12 @@ app.get("/auth/me", async (req, res) => {
     }
 });
 
-// GET /admins — check if current session user is an admin
 app.get("/admins", async (req, res) => {
     if (!req.session.user) {
         return res.status(401).json({ message: "Not authenticated" });
     }
 
-    const uid = req.session.user.id; // FIXED
+    const uid = req.session.user.id;
 
     try {
         const ref = db.ref(`admins/${uid}`);
@@ -205,7 +187,6 @@ app.post("/auth/forgot-password", async (req, res) => {
     }
 
     try {
-        // Firebase Auth REST: send password reset email
         const resp = await fetch(
             `https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${process.env.FIREBASE_API_KEY}`,
             {
@@ -251,7 +232,6 @@ app.post("/auth/forgot-password", async (req, res) => {
             });
         }
 
-        // Success — Firebase has sent the email
         return res.json({
             success: true,
             message: "Reset link sent",
@@ -265,9 +245,6 @@ app.post("/auth/forgot-password", async (req, res) => {
     }
 });
 
-// ------------------------------
-// POSTER UPLOAD
-// ------------------------------
 app.post("/uploadPoster/:eventId", upload.single("poster"), async (req, res) => {
     console.log("UploadPoster route hit");
     try {
@@ -303,9 +280,102 @@ app.post("/uploadPoster/:eventId", upload.single("poster"), async (req, res) => 
     }
 });
 
-// ------------------------------
-// Event routes
-// ------------------------------
+app.get("/checkRoomConflict", async (req, res) => {
+    if (!req.session.user) {
+        return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    try {
+        const timestamp = Number(req.query.date);
+        const room = req.query.room;
+
+        if (!timestamp || !room) {
+            return res.status(400).json({ message: "Missing date or room parameter" });
+        }
+
+        const d = new Date(timestamp);
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, "0");
+        const dd = String(d.getDate()).padStart(2, "0");
+        const dateKey = `${yyyy}${mm}${dd}`;
+
+        console.log("[ConflictAPI] timestamp:", timestamp, "→ dateKey:", dateKey);
+
+        const dateSnap = await db.ref(`eventsByDate/${dateKey}`).once("value");
+
+        if (!dateSnap.exists()) {
+            console.warn("[ConflictAPI] No eventsByDate entry found for:", dateKey);
+            return res.json([]);
+        }
+
+        const eventIds = Object.keys(dateSnap.val());
+        console.log("[ConflictAPI] Event IDs found:", eventIds);
+
+        const results = [];
+
+        for (const id of eventIds) {
+            const evSnap = await db.ref(`events/${id}`).once("value");
+            if (!evSnap.exists()) {
+                console.warn("[ConflictAPI] Missing event details for ID:", id);
+                continue;
+            }
+
+            const ev = evSnap.val();
+
+            if (ev.room !== room) continue;
+
+            results.push({
+                name: ev.name || "",
+                startTimeMinutes: ev.startTimeMinutes,
+                endTimeMinutes: ev.endTimeMinutes
+            });
+        }
+
+        console.log("[ConflictAPI] Final filtered results:", results);
+
+        return res.json(results);
+
+    } catch (err) {
+        console.error("Error in /checkRoomConflict:", err);
+        return res.status(500).json({ message: "Server error" });
+    }
+});
+
+
+app.post("/eventsByDate", async (req, res) => {
+    if (!req.session.user) {
+        return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    try {
+        const { eventId, dateTimestamp } = req.body;
+
+        if (!eventId || !dateTimestamp) {
+            return res.status(400).json({ message: "eventId and dateTimestamp are required" });
+        }
+
+        const d = new Date(Number(dateTimestamp));
+        const yyyy = d.getUTCFullYear().toString();
+        const mm = String(d.getUTCMonth() + 1).padStart(2, "0");
+        const dd = String(d.getUTCDate()).padStart(2, "0");
+
+        const dateKey = `${yyyy}${mm}${dd}`;
+
+        await db.ref(`eventsByDate/${dateKey}/${eventId}`).set(true);
+
+        return res.json({
+            message: "Event successfully added to eventsByDate",
+            dateKey,
+            path: `eventsByDate/${dateKey}/${eventId}`
+        });
+
+    } catch (err) {
+        console.error("Error updating eventsByDate:", err);
+        return res.status(500).json({ message: "Server error" });
+    }
+});
+
+
 app.get("/events", async (req, res) => {
     try {
         const snapshot = await db.ref("events").once("value");

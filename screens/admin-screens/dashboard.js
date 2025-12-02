@@ -59,8 +59,8 @@ function getEventStatus(event) {
         now.getHours() * 60 + now.getMinutes() <= endTime
     ) return "Ongoing";
 
-    if (diffDays > 0 && diffDays < 30) return "Upcoming";
-    if (diffDays >= 30) return "Coming Soon";
+    if (diffDays > 0 && diffDays < 8) return "Upcoming";
+    if (diffDays >= 8) return "Coming Soon";
     if (diffDays < 0) return "Past";
     return "Unknown";
 }
@@ -215,7 +215,13 @@ async function loadEvents() {
         .filter(ev => getEventStatus(ev) !== "Past");
 
         allEvents = events;
-        allEvents.sort((a, b) => a.date - b.date);
+        allEvents.sort((a, b) => {
+            const dateA = Number(a.date);
+            const dateB = Number(b.date);
+
+            if (dateA !== dateB) return dateA - dateB;
+            return a.startTimeMinutes - b.startTimeMinutes;
+        });
 
         let ongoing = 0;
         let upcoming = 0;

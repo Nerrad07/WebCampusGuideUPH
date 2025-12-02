@@ -294,6 +294,15 @@ async function loadEvents() {
         if (!res.ok) throw new Error("Failed to fetch events");
         const data = await res.json();
         allEvents = Object.values(data);
+
+        allEvents.sort((a, b) => {
+            const dateA = Number(a.date);
+            const dateB = Number(b.date);
+
+            if (dateA !== dateB) return dateA - dateB;
+            return a.startTimeMinutes - b.startTimeMinutes;
+        });
+
         applyFilters();
     } catch (err) {
         console.error("Error loading events:", err);
