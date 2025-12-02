@@ -30,14 +30,34 @@
     height: 50px;
 }
 
+main::before { 
+    content:"";
+    position:absolute;
+    inset:0;
+    z-index:-1;              
+    pointer-events:none;
+
+    /* bikin grid aesthetic */
+    background:
+        /* vertical grid lines */
+        linear-gradient(to right, rgba(2, 6, 23, 0.079) 1px, transparent 1px) 0 0 / 24px 24px,
+        /* horizontal grid lines */
+        linear-gradient(to bottom, rgba(2, 6, 23, 0.079) 1px, transparent 1px) 0 0 / 24px 24px,
+        /* vignette washes for depth */
+        radial-gradient(1200px 420px at 65% -10%, rgba(15, 23, 42, .08), transparent 55%),
+        radial-gradient(1000px 360px at -10% 100%, rgba(2, 6, 23, .06), transparent 55%);
+}
+
 main{
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
     padding-top: 40px;
+    position: relative;
 }
+
 
 body{
     padding-top: 72px;
@@ -125,24 +145,6 @@ nav button{
 .back-button button:hover{
     background-color: gray;
     color: white;
-}
-
-.topbar .middle{
-    padding: 1rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: lightgray;
-    width: 62%;
-    border-radius: 10px;
-    height: 10px;
-    margin-left: 60px;
-    color: gray;
-}
-
-.middle button{
-    cursor: pointer;
-    background-color: black;
 }
 
 .sidebar{
@@ -296,7 +298,7 @@ main h3{
 .container form .held input{
     height: 25px;
     width: 150px;
-    margin-left: 34px;
+    margin-left: 35px;
     box-sizing: border-box;
 }
 
@@ -325,6 +327,10 @@ main h3{
 }
 
 .start .name input{
+    padding-left: 5px;
+}
+
+.start .held input{
     padding-left: 5px;
 }
 
@@ -410,4 +416,185 @@ main h3{
     cursor: pointer;
     background-color: rgb(207, 207, 207);
     color: black;
+}
+
+/* ===========================
+   MOBILE – ADD / CONFIGURE EVENT
+   =========================== */
+@media (max-width: 768px) {
+
+    .container{
+        background-color: rgb(29, 33, 96);
+        height: 35rem;
+        color: white;
+        border-radius: 20px;
+        padding: 10px;
+        padding-left: 40px;
+        margin-left: 20px;
+        width: 310px;
+        margin-right: 20px;
+        font-size: 15px;
+        padding-top: 30px;
+    }
+
+    .container form .time input{
+        width: 83px;
+        height: 25px;
+    }
+
+    .container form .location input{
+        width: 0px;
+        height: 25px;
+    }
+
+    .container form .start,
+    .container form .location,
+    .container form .room,
+    .container form .floor,
+    .container form p{
+        display: block;
+        margin-bottom: 30px;
+    }
+
+    .container form .time,
+    .container form .held,
+    .container form .name{
+        margin-bottom: 30px;
+    }
+
+    .container form{
+        margin-bottom: 30px;
+    }
+
+    .container form .start input,
+    .container form .date input,
+    .container form select{
+        height: 25px;
+        width: 100px;
+        box-sizing: border-box;
+    }
+
+    .container form .held input{
+        height: 25px;
+        width: 150px;
+        margin-left: 36px;
+        box-sizing: border-box;
+    }
+
+    .container form .start input,
+    .container form .date input{
+        width: 200px;
+    }
+    
+    .container form .date input{
+        margin-left: 17px;
+        text-align: center;
+    }
+
+    .start{
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 10px;
+    }
+
+    .start .name label{
+        margin-right: 10px;
+    }
+
+    .start .name input{
+        padding-left: 5px;
+    }
+
+    .time{
+        display: flex;
+    }
+
+    .time input{
+        text-align: center;
+    }
+
+    .time .tm{
+        margin-right: 10px;
+    }
+
+    .time .tm input{
+        margin-left: 14px;
+    }
+
+    .time .to label{
+        margin-right: 5px;
+    }
+
+    .loc{
+        display: flex;
+    }
+
+    .loc p{
+        margin-right: 30px;
+    }
+
+    .loc select{
+        margin-left: 10px;
+    }
+
+    .room{
+        display: flex;
+        gap: 20px;
+        margin-left: 132px;
+    }
+
+    .room select{
+        margin-left: 10px;
+    }
+
+    .floor{
+        display: flex;
+        gap: 20px;
+        margin-left: 137px;
+        margin-top: 10px;
+    }
+
+    .floor select{
+        margin-left: 10px;
+    }
+
+    .poster{
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    .submit{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 13vh;
+    }
+
+    .submit input{
+        height: 40px;
+        width: 200px;
+        border-radius: 20px;
+    }
+
+    .submit input:hover{
+        cursor: pointer;
+        background-color: grey;
+        color: white;
+    }
+
+    .submit input:active{
+        cursor: pointer;
+        background-color: rgb(207, 207, 207);
+        color: black;
+    }
+
+    .topbar .right {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-left: auto;
+        padding-right: 0;
+        margin-right: 40px;
+    }
 }

@@ -7,10 +7,10 @@
     <link rel="stylesheet" href="dashboard.css">
 </head>
 <body>
-<header class="topbar">
+    <header class="topbar">
         <nav>
             <div class="left">
-            <label for="navchk" class="hamburger">
+                <label for="navchk" class="hamburger">
                 <img src="../../img/Hamburger.png" alt="" />
             </label>
 
@@ -18,29 +18,29 @@
             </div>
 
             <div class="middle">
-            <form
-                id="searchForm"
-                role="search"
-                class="searchbar"
-                autocomplete="off"
-            >
-                <input
-                id="searchInput"
-                type="search"
-                placeholder="Search events, event handlers…"
-                aria-label="Search events"
-                />
-                <button id="clearSearch" type="button" aria-label="Clear">×</button>
-            </form>
+                <form
+                    id="searchForm"
+                    role="search"
+                    class="searchbar"
+                    autocomplete="off"
+                >
+                    <input
+                    id="searchInput"
+                    type="search"
+                    placeholder="Search events, event handlers…"
+                    aria-label="Search events"
+                    />
+                    <button id="clearSearch" type="button" aria-label="Clear">×</button>
+                </form>
             </div>
 
             <div class="right">
             <div class="mapwhite">
-                <button>
                 <a href="../user-screens/map-screen.html">
+                <button>
                     <img src="../../img/map-white.png" alt="" class="buttons" />
-                </a>
                 </button>
+                </a>
             </div>
 
             <div class="eventwhite">
@@ -156,11 +156,15 @@
                 <tr class="inputs"></tr>
             </tbody>
             </table>
+            <div id="paginationControls" class="pagination-controls">
+                <button id="prevPage" disabled>Previous</button>
+                <span id="pageIndicator">Page 1</span>
+                <button id="nextPage" disabled>Next</button>
+            </div>
         </div>
     </main>
 
     <footer>
-        <button class="seed-Btn" id="seedBtn">Seed Events</button>
     <div id="confirm-delete-modal" class="confirm-modal" aria-hidden="true">
         <div class="confirm-dialog">
         <h2>Delete Event</h2>

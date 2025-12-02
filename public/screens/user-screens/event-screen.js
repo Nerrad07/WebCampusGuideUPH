@@ -14,8 +14,8 @@ const fromDateInput = document.getElementById("fromDate");
 const toDateInput = document.getElementById("toDate");
 const clearDatesBtn = document.getElementById("clearDates");
 
-fromDateInput.addEventListener("input", applyFilters);
-toDateInput.addEventListener("input", applyFilters);
+fromDateInput.addEventListener("input", applyFiltersDebounced);
+toDateInput.addEventListener("input", applyFiltersDebounced);
 
 const modal = document.getElementById("eventModal");
 const modalTitle = document.getElementById("eventModalTitle");
@@ -31,6 +31,8 @@ let allEvents = [];
 let currentPage = 1;
 const itemsPerPage = 20;
 let filteredEventsForPagination = [];
+
+let filterTimeout = null;
 
 function formatDate(ms) {
     const d = new Date(ms);
@@ -58,17 +60,14 @@ function getEventStatus(event) {
         return "Ongoing";
     }
 
-    if (daysDiff >= 0 && daysDiff < 21) return "Upcoming";
-    if (daysDiff >= 21) return "Coming Soon";
+    if (daysDiff >= 0 && daysDiff < 8) return "Upcoming";
+    if (daysDiff >= 8) return "Coming Soon";
 
     return "Past";
 }
 
 function renderEvents(events) {
-    filteredEventsForPagination = events.filter((ev) => {
-        const status = getEventStatus(ev);
-        return status !== "Past" && ev.published;
-    });
+    filteredEventsForPagination = events;
 
     const totalPages = Math.ceil(filteredEventsForPagination.length / itemsPerPage);
     if (currentPage > totalPages) currentPage = totalPages || 1;
@@ -81,15 +80,15 @@ function renderEvents(events) {
     emptyState.hidden = filteredEventsForPagination.length > 0;
 
     for (const ev of paginated) {
-        const status = getEventStatus(ev);
+        const status = getEventStatus(ev); // compute once per visible event
 
         const node = template.content.cloneNode(true);
         node.querySelector(".event-title").textContent = ev.name || "Untitled Event";
         node.querySelector(".event-heldby").textContent = ev.heldBy || "Unknown";
         node.querySelector(".event-date").textContent = formatDate(ev.date);
         node.querySelector(".event-time").textContent = formatTime(
-        ev.startTimeMinutes,
-        ev.endTimeMinutes
+            ev.startTimeMinutes,
+            ev.endTimeMinutes
         );
         node.querySelector(".event-room").textContent = ev.room || "-";
 
@@ -98,7 +97,7 @@ function renderEvents(events) {
         badge.dataset.status = status;
 
         node.querySelector(".event-more").addEventListener("click", () =>
-        openModal(ev, status)
+            openModal(ev, status)
         );
 
         eventsList.appendChild(node);
@@ -142,6 +141,11 @@ function normalizeDateInput(value) {
     return d.getTime();
 }
 
+function applyFiltersDebounced() {
+    clearTimeout(filterTimeout);
+    filterTimeout = setTimeout(applyFilters, 120);
+}
+
 function applyFilters() {
     const q = searchInput.value.toLowerCase();
     const building = buildingValue.textContent;
@@ -152,26 +156,27 @@ function applyFilters() {
 
     const filtered = allEvents.filter((ev) => {
         const evStatus = getEventStatus(ev);
+
         if (evStatus === "Past") return false;
+        if (!ev.published) return false;
 
         const matchesSearch =
-        !q ||
-        ev.name?.toLowerCase().includes(q) ||
-        ev.room?.toLowerCase().includes(q) ||
-        ev.building?.toLowerCase().includes(q);
+            !q ||
+            ev.name?.toLowerCase().includes(q) ||
+            ev.room?.toLowerCase().includes(q) ||
+            ev.building?.toLowerCase().includes(q);
 
         const matchesBuilding = building === "All" || ev.building === building;
         const matchesStatus = status === "All" || evStatus === status;
 
         const evDateMs = typeof ev.date === "number" ? ev.date : Number(ev.date);
-
         const eventDay = new Date(evDateMs);
         eventDay.setHours(0, 0, 0, 0);
         const eventTimeMs = eventDay.getTime();
 
         const matchesDate =
-        (!fromDate || eventTimeMs >= fromDate) &&
-        (!toDate || eventTimeMs <= toDate);
+            (!fromDate || eventTimeMs >= fromDate) &&
+            (!toDate || eventTimeMs <= toDate);
 
         return matchesSearch && matchesBuilding && matchesStatus && matchesDate;
     });
@@ -182,21 +187,27 @@ function applyFilters() {
 
 function setupDropdown(menu, valueEl) {
     const button = menu.previousElementSibling;
+
     button.addEventListener("click", () => {
         menu.style.display = menu.style.display === "block" ? "none" : "block";
     });
+
     menu.querySelectorAll("li").forEach((li) =>
         li.addEventListener("click", () => {
-        menu.querySelectorAll("li").forEach((l) => l.removeAttribute("aria-selected"));
-        li.setAttribute("aria-selected", "true");
-        valueEl.textContent = li.dataset.value;
-        menu.style.display = "none";
-        applyFilters();
+            menu.querySelectorAll("li").forEach((l) => l.removeAttribute("aria-selected"));
+            li.setAttribute("aria-selected", "true");
+            valueEl.textContent = li.dataset.value;
+            menu.style.display = "none";
+            applyFiltersDebounced();
         })
     );
+
     document.addEventListener("click", (e) => {
-        if (!menu.contains(e.target) && e.target !== button) {
-        menu.style.display = "none";
+        const clickInsideButton = button.contains(e.target);
+        const clickInsideMenu = menu.contains(e.target);
+        
+        if (!clickInsideButton && !clickInsideMenu) {
+            menu.style.display = "none";
         }
     });
 }
@@ -205,7 +216,7 @@ document.getElementById("prevPage").addEventListener("click", () => {
     if (currentPage > 1) {
         currentPage--;
         renderEvents(filteredEventsForPagination);
-  }
+    }
 });
 
 document.getElementById("nextPage").addEventListener("click", () => {
@@ -216,41 +227,38 @@ document.getElementById("nextPage").addEventListener("click", () => {
 clearDatesBtn.addEventListener("click", () => {
     fromDateInput.value = "";
     toDateInput.value = "";
-    applyFilters();
+    applyFiltersDebounced();
 });
 
-searchInput.addEventListener("input", applyFilters);
+searchInput.addEventListener("input", applyFiltersDebounced);
+
 clearSearchBtn.addEventListener("click", () => {
     searchInput.value = "";
-    applyFilters();
+    applyFiltersDebounced();
 });
 
 async function checkSession() {
     try {
         const res = await fetch(`${API_BASE}/auth/me`, {
-        method: "GET",
-        credentials: "include"
+            method: "GET",
+            credentials: "include"
         });
 
-        // Not authenticated (no session cookie)
         if (res.status === 401) {
-        console.warn("Not authenticated (401)");
-        return false;
+            console.warn("Not authenticated (401)");
+            return false;
         }
 
-        // Logged in but not an admin
         if (res.status === 403) {
-        console.warn("Not an admin (403)");
-        return false;
+            console.warn("Not an admin (403)");
+            return false;
         }
 
-        // Any unexpected server problem
         if (!res.ok) {
-        console.warn("Session error");
-        return false;
+            console.warn("Session error");
+            return false;
         }
 
-        // Valid admin session
         const user = await res.json();
         console.log("Authenticated admin:", user.email);
         return true;
@@ -261,19 +269,18 @@ async function checkSession() {
     }
 }
 
-
 async function logout() {
     try {
         const res = await fetch(`${API_BASE}/auth/logout`, {
-        method: "POST",
-        credentials: "include"
+            method: "POST",
+            credentials: "include"
         });
 
         if (!res.ok) {
-        alert("Failed to log out.");
-        return;
+            alert("Failed to log out.");
+            return;
         } else {
-        console.log("successfully logged out");
+            console.log("successfully logged out");
         }
     } catch (err) {
         console.error("Logout error:", err);
@@ -287,23 +294,34 @@ async function loadEvents() {
         if (!res.ok) throw new Error("Failed to fetch events");
         const data = await res.json();
         allEvents = Object.values(data);
-        renderEvents(allEvents);
+
+        allEvents.sort((a, b) => {
+            const dateA = Number(a.date);
+            const dateB = Number(b.date);
+
+            if (dateA !== dateB) return dateA - dateB;
+            return a.startTimeMinutes - b.startTimeMinutes;
+        });
+
+        applyFilters();
     } catch (err) {
         console.error("Error loading events:", err);
     }
-    }
+}
 
-    if (await checkSession()) {
+if (await checkSession()) {
     logout();
-    } else {
+} else {
     console.log("no session");
-    }
+}
 
-    setupDropdown(buildingMenu, buildingValue);
-    setupDropdown(statusMenu, statusValue);
-    todayLabel.textContent = new Date().toLocaleDateString("en-US", {
+setupDropdown(buildingMenu, buildingValue);
+setupDropdown(statusMenu, statusValue);
+
+todayLabel.textContent = new Date().toLocaleDateString("en-US", {
     weekday: "long",
     month: "short",
     day: "numeric",
 });
+
 loadEvents();

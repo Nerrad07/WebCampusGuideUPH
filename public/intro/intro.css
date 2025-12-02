@@ -1,40 +1,48 @@
-html, body{ height: 100%; }
-body{
+html,
+body {
+    height: 100%;
+}
+body {
     margin: 0;
     background: rgb(255, 255, 255);
     display: grid;
     place-items: center;
 }
-
-.logo{
+.logo {
     opacity: 0;
-    animation:
-        fadeIn 0.9s ease-out forwards,
-        fadeOut 0.9s ease-in 1.6s forwards;
+    animation: fadeIn 0.9s ease-out forwards, fadeOut 0.9s ease-in 1.6s forwards;
 }
-
-.logo img{
-    height: 500px; 
+.logo img {
+    height: 500px;
     width: auto;
     filter: drop-shadow(0 6px 12px rgba(255, 255, 255, 0.25));
 }
-
-@keyframes fadeIn{
-    from{ 
-        opacity: 0; 
-        transform: scale(1.04); 
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(1.04);
     }
-    to{ 
-        opacity: 1; 
-        transform: scale(1); 
+    to {
+        opacity: 1;
+        transform: scale(1);
     }
 }
-@keyframes fadeOut{
-    from{ 
-        opacity: 1; 
-        transform: scale(1); }
-    to{ 
-        opacity: 0; 
-        transform: scale(0.97); 
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.97);
+    }
+}
+
+@media (max-width: 768px) {
+    .logo img{
+        display: flex;
+        justify-content: center;
+        height: 300px;
+        width: auto;
     }
 }

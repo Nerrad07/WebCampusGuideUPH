@@ -79,24 +79,52 @@
     <label for="navchk" class="overlay" aria-hidden="true"></label>
 
     <main>
-      <div class="buttons">
-        <img class="map" src="../../img/Map.png" alt="" />
-        <a href="../building-screens/b-building.html">
-            <button class="pin pin-b">B</button>
-        </a>
+        <!-- Left Directory (bs diminimize) -->
+        <aside class="map-dir map-dir--left" aria-label="Campus Directory">
+            <header class="map-dir-head">
+                <h3 class="map-dir-title"><span>Campus</span><span>Directory</span></h3>
+                <button class="dir-toggle" type="button" aria-expanded="true"></button>
+            </header>
 
-        <a href="../building-screens/c-building.html">
-            <button class="pin pin-c">C</button>
-        </a>
+            <div class="map-dir-body">
+                <a class="map-dir-row" href="../building-screens/b-building.html">
+                    <span class="tag tag-b">B</span>
+                    <span class="map-dir-label">B-Building</span>
+                </a>
+                <a class="map-dir-row" href="../building-screens/c-building.html">
+                    <span class="tag tag-c">C</span>
+                    <span class="map-dir-label">C-Building</span>
+                </a>
+                <a class="map-dir-row" href="../building-screens/d-building.html">
+                    <span class="tag tag-d">D</span>
+                    <span class="map-dir-label">D-Building</span>
+                </a>
+                <a class="map-dir-row" href="../building-screens/f-building.html">
+                    <span class="tag tag-f">F</span>
+                    <span class="map-dir-label">F-Building</span>
+                </a>
+            </div>
+        </aside>
 
-        <a href="../building-screens/d-building.html">
-            <button class="pin pin-d">D</button>
-        </a>
+        <!-- Map -->
+        <div class="buttons">
+            <img class="map" src="../../img/Map.png" alt="" />
+            <a href="../building-screens/b-building.html">
+                <button class="pin pin-b">B</button>
+            </a>
 
-        <a href="../building-screens/f-building.html">
-            <button class="pin pin-f">F</button>
-        </a>
-      </div>
+            <a href="../building-screens/c-building.html">
+                <button class="pin pin-c">C</button>
+            </a>
+
+            <a href="../building-screens/d-building.html">
+                <button class="pin pin-d">D</button>
+            </a>
+
+            <a href="../building-screens/f-building.html">
+                <button class="pin pin-f">F</button>
+            </a>
+        </div>
     </main>
     <footer></footer>
 </body>

@@ -59,6 +59,20 @@ async function logout() {
 
 if (await checkSession()) {
     logout();
-} else {
+} 
+else {
     console.log("no session");
 }
+
+(function() {
+    document.querySelectorAll('.map-dir').forEach(dir => {
+        const btn  = dir.querySelector('.dir-toggle');            
+        const body = dir.querySelector('.map-dir-body');
+        if(!btn || !body) return;
+
+        btn.addEventListener('click', () => {
+            const collapsed = dir.classList.toggle('is-collapsed');
+            btn.setAttribute('aria-expanded', String(!collapsed));
+        });
+    });
+})();

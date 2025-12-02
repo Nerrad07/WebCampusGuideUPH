@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Campus Guide UPH</title>
     <link rel="stylesheet" href="event-screen.css">
+
 </head>
 <body>
 <!-- Navbar -->
@@ -104,75 +105,75 @@
             <h2 class="events-title">Events — <time id="todayLabel"></time></h2>
 
             <div class="filters" aria-label="Event Filters">
-            <!-- BUILDING FILTER -->
-            <div class="dropdown" data-filter="building">
-                <button
-                id="buildingBtn"
-                class="dropdown_button"
-                aria-haspopup="listbox"
-                aria-expanded="false"
-                >
-                <span class="dropdown_label">Building</span>
-                <span id="buildingValue" class="dropdown_value">All</span>
-                <span class="dropdown_chevron" aria-hidden="true">▾</span>
-                </button>
+                <!-- BUILDING FILTER -->
+                <div class="dropdown" data-filter="building">
+                    <button
+                    id="buildingBtn"
+                    class="dropdown_button"
+                    aria-haspopup="listbox"
+                    aria-expanded="false"
+                    >
+                    <span class="dropdown_label">Building</span>
+                    <span id="buildingValue" class="dropdown_value">All</span>
+                    <span class="dropdown_chevron" aria-hidden="true">▾</span>
+                    </button>
 
-                <ul
-                id="buildingMenu"
-                class="dropdown_menu"
-                role="listbox"
-                aria-labelledby="buildingBtn"
-                >
-                <li role="option" data-value="All" aria-selected="true">All</li>
-                <li role="option" data-value="B">B</li>
-                <li role="option" data-value="C">C</li>
-                <li role="option" data-value="D">D</li>
-                <li role="option" data-value="F">F</li>
-                </ul>
-            </div>
+                    <ul
+                    id="buildingMenu"
+                    class="dropdown_menu"
+                    role="listbox"
+                    aria-labelledby="buildingBtn"
+                    >
+                    <li role="option" data-value="All" aria-selected="true">All</li>
+                    <li role="option" data-value="B">B</li>
+                    <li role="option" data-value="C">C</li>
+                    <li role="option" data-value="D">D</li>
+                    <li role="option" data-value="F">F</li>
+                    </ul>
+                </div>
 
-            <!-- STATUS FILTER -->
-            <div class="dropdown" data-filter="status">
-                <button
-                id="statusBtn"
-                class="dropdown_button"
-                aria-haspopup="listbox"
-                aria-expanded="false"
-                >
-                <span class="dropdown_label">Status</span>
-                <span id="statusValue" class="dropdown_value">All</span>
-                <span class="dropdown_chevron" aria-hidden="true">▾</span>
-                </button>
+                <!-- STATUS FILTER -->
+                <div class="dropdown" data-filter="status">
+                    <button
+                    id="statusBtn"
+                    class="dropdown_button"
+                    aria-haspopup="listbox"
+                    aria-expanded="false"
+                    >
+                    <span class="dropdown_label">Status</span>
+                    <span id="statusValue" class="dropdown_value">All</span>
+                    <span class="dropdown_chevron" aria-hidden="true">▾</span>
+                    </button>
 
-                <ul
-                id="statusMenu"
-                class="dropdown_menu"
-                role="listbox"
-                aria-labelledby="statusBtn"
-                >
-                <li role="option" data-value="All" aria-selected="true">All</li>
-                <li role="option" data-value="Ongoing">Ongoing</li>
-                <li role="option" data-value="Upcoming">Upcoming</li>
-                <li role="option" data-value="Coming Soon">Coming Soon</li>
-                </ul>
-            </div>
+                    <ul
+                    id="statusMenu"
+                    class="dropdown_menu"
+                    role="listbox"
+                    aria-labelledby="statusBtn"
+                    >
+                    <li role="option" data-value="All" aria-selected="true">All</li>
+                    <li role="option" data-value="Ongoing">Ongoing</li>
+                    <li role="option" data-value="Upcoming">Upcoming</li>
+                    <li role="option" data-value="Coming Soon">Coming Soon</li>
+                    </ul>
+                </div>
 
-            <!-- DATE RANGE -->
-            <div class="date-range">
-                <label class="date-chip">
-                <span>From:</span>
-                <input id="fromDate" type="date" aria-label="From date" />
-                </label>
+                <!-- DATE RANGE -->
+                <div class="date-range">
+                    <label class="date-chip">
+                    <span>From:</span>
+                    <input id="fromDate" type="date" aria-label="From date" />
+                    </label>
 
-                <label class="date-chip">
-                <span>To:</span>
-                <input id="toDate" type="date" aria-label="To date" />
-                </label>
+                    <label class="date-chip">
+                    <span>To:</span>
+                    <input id="toDate" type="date" aria-label="To date" />
+                    </label>
 
-                <button id="clearDates" class="btn-outline" type="button">
-                Clear
-                </button>
-            </div>
+                    <button id="clearDates" class="btn-outline" type="button">
+                        Clear
+                    </button>
+                </div>
             </div>
         </section>
 
