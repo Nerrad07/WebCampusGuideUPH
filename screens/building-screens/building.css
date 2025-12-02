@@ -16,6 +16,25 @@ body{
     background: #f8fafc;
 }
 
+body {
+    position: relative;
+    min-height: 100vh;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 72px 0 0 0;
+    z-index: -1;
+    pointer-events: none;
+
+    background:
+        linear-gradient(to right, rgba(2, 6, 23, 0.079) 1px, transparent 1px) 0 0 / 24px 24px,
+        linear-gradient(to bottom, rgba(2, 6, 23, 0.079) 1px, transparent 1px) 0 0 / 24px 24px,
+        radial-gradient(1200px 420px at 65% -10%, rgba(15, 23, 42, .08), transparent 55%),
+        radial-gradient(1000px 360px at -10% 100%, rgba(2, 6, 23, .06), transparent 55%);
+}
+
 /* NAVBAR & SIDE BAR */
 .topbar nav{    
     padding: 1rem;
