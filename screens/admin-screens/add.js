@@ -310,9 +310,38 @@ async function checkAdminSession() {
     }
 }
 
-/* --------------------------
-   INIT
----------------------------*/
+function attachLeaveAdminConfirm() {
+    const mapLink   = document.querySelector(".mapwhite a");
+    const eventLink = document.querySelector(".eventwhite a");
+
+    const links = [mapLink, eventLink].filter(Boolean);
+
+    links.forEach(link => {
+        link.addEventListener("click", async (e) => {
+            e.preventDefault();
+
+            const ok = confirm(
+                "You are currently logged in as admin. Going to the user screen will log you out. Continue?"
+            );
+
+            if (!ok) return;
+
+            // optional logout hit
+            try {
+                await fetch(`${API_BASE}/logout`, {
+                    method: "POST",
+                    credentials: "include"
+                });
+            } catch (err) {
+                console.error("Logout request failed, redirecting anyway:", err);
+            }
+
+            window.location.href = link.href;
+        });
+    });
+}
+
+
 window.addEventListener("DOMContentLoaded", async () => {
     const isAdmin = await checkAdminSession();
 
@@ -328,4 +357,5 @@ window.addEventListener("DOMContentLoaded", async () => {
     document.querySelector("form").addEventListener("submit", handleFormSubmit);
 
     await loadEventForEdit();
+    attachLeaveAdminConfirm();   // ✅ add this line
 });
