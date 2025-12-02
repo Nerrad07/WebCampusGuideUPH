@@ -77,10 +77,10 @@ body {
 .right{
     display: flex;
     align-items: center;
-    gap: 60%;
-    justify-content: center;
-    margin-left: 8.5%;
-    padding-right: 50px;
+    gap: 3rem;
+    margin-left: auto;
+    padding-right: 70px;
+    justify-content: flex-end;
 }
 
 .logotop{
@@ -97,14 +97,15 @@ body {
 .topbar .middle{
     padding: 0.5rem;
     display: flex;
-    justify-content: center;
     align-items: center;
     background-color: lightgray;
-    width: 62%;
+    flex: 1;
+    max-width: 880px;
     border-radius: 10px;
     height: auto;
-    margin-left: 60px;
+    margin: 0 24px;
     color: gray;
+    margin-left: 50px;
 }
 
 /* Search bar */

@@ -76,26 +76,27 @@ body{
 .right{
     display: flex;
     align-items: center;
-    gap: 60%;
-    justify-content: center;
-    margin-left: 8.5%;
-    padding-right: 50px;
-    margin-bottom: 2%;
-    margin-right: 3%;
+    gap: 3rem;
+    margin-left: auto;
+    padding-right: 70px;
+    margin-bottom: 30px;
+    justify-content: flex-end;
 }
 
 .topbar .middle{
     padding: 0.5rem;
     display: flex;
-    justify-content: center;
     align-items: center;
     background-color: lightgray;
-    width: 59.8%;
+    flex: 1;
+    max-width: 880px;
     border-radius: 10px;
     height: auto;
-    margin-left: 60px;
+    margin: 0 24px;
     color: gray;
+    margin-left: 50px;
 }
+
 
 /* Search bar */
 .searchbar{

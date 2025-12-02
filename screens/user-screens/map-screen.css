@@ -220,12 +220,11 @@ main{
     display: block;
 }
 
-.buttons{    
+.buttons {
     position: relative;
-    width: min(90%, 92vw);
-    margin: 0 auto;
-    margin-left: 10%;
-    margin-bottom: 60px;
+    max-width: 100%;
+    width: min(1100px, 100%);
+    margin-inline: auto;
 }
 
 .buttons button{
@@ -240,45 +239,47 @@ main{
     z-index: 2;
 }
 
-.pin { 
+.pin {
     position: absolute;
-    width: 40px;
-    height: 40px;
+    width: 3.2%;
+    aspect-ratio: 1 / 1;
     border-radius: 50%;
-    display: grid;
-    place-items: center;
-    border: 0;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid #000;
+    background: #ffe4b5;
+    font-weight: 700;
+    font-size: clamp(10px, 1.1vw, 16px);
     cursor: pointer;
-    z-index: 2;
-    border: 2px solid black;
 }
-
 .pin-b {
-    left: 22%;
-    top: 64%;
+    left: 26.3%;
+    top: 67%;
     background: rgb(255, 223, 186);
 }
 
 .pin-c{
-    left: 18.8%;
-    top: 29.8%;
+    left: 22.8%;
+    top: 32.8%;
     background: rgb(255, 189, 189);
 }
 
 .pin-d {
-    left: 46.4%;
-    top: 41.7%;
+    left: 53.4%;
+    top: 43.7%;
     background: rgb(186, 255, 201);
 }
 
 .pin-f {
-    left: 55%;
-    top: 18.4%;
+    left: 63%;
+    top: 21.4%;
     background: rgb(255, 255, 186);
 }
 
 .pin:hover {
-    transform: translate(-0%, -0%) scale(1.35);
+    transform: translate(-50%, -50%) scale(1.5);
 }
 
 .left {
@@ -468,6 +469,9 @@ main::before {
     box-shadow:
         0 14px 28px rgba(2, 6, 23, 0.525),
         inset 0 0 0 1px rgba(2, 6, 23, 0.399);
+    display: block;
+    width: 100%;
+    height: auto;
 }
 
 /* @media (max-width: 1024px) {
