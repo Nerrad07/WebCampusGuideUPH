@@ -303,6 +303,5 @@ function bindFacultyCards() {
 	const filtered = allEvents.filter(
 		(e) => e.building?.toUpperCase() === BUILDING
 	);
-a
 	renderEvents(filtered);
 })();
