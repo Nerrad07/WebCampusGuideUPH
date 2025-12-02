@@ -34,6 +34,7 @@ app.use(
         origin: [
         "https://frontendcampusguidemap.vercel.app",
         "https://web-campus-guide-uph.vercel.app",
+        "https://nerrad07.github.io",
         "http://localhost:3000",
         "http://localhost:5500",
         "http://127.0.0.1:5500",
