@@ -223,7 +223,7 @@ if (BUILDING == "B") {
 	facultyImages = {
 		lib: "jo_library_l2.jpg",
 		chapel: "grand_chapel_l7.jpg",
-		registrar: "Registrar_Office.jpg",
+		registrar: "registrar_office.jpg",
 		rector: "rectorate_office.jpg",
 	};
 } else if (BUILDING == "D") {
