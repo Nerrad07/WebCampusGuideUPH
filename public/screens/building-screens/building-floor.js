@@ -53,7 +53,12 @@ imageElement.style.width = "100%";
 imageElement.style.borderRadius = "12px";
 imageElement.style.marginTop = "10px";
 
-const BUCKET = "campus-guide-map-uph.firebasestorage.app";
+/* ---------------------------
+   IMAGE FETCHING (UPDATED)
+--------------------------- */
+
+const API_BASE = "https://web-campus-guide-uph.vercel.app";
+
 
 const prefixMap = {
     B: "bb",
@@ -64,17 +69,39 @@ const prefixMap = {
 
 const prefix = prefixMap[building];
 
-if (prefix && DATA[building][floor]) {
+async function loadMapImage() {
+    if (!prefix || !DATA[building][floor]) {
+        console.warn("Invalid building or floor");
+        return;
+    }
+
     const fileName = `${prefix}_f${floor}.jpg`;
     const storagePath = `maps/${building}/${fileName}`;
-    const encodedPath = encodeURIComponent(storagePath);
-    const imgURL =
-      `https://firebasestorage.googleapis.com/v0/b/${BUCKET}/o/${encodedPath}?alt=media`;
 
-    imageElement.src = imgURL;
+    try {
+        const res = await fetch(
+            `${API_BASE}/map-image?path=${encodeURIComponent(storagePath)}`,
+            {
+                method: "GET",
+                credentials: "include"
+            }
+        );
 
-} else {
-    imageElement.src = "";
+        if (!res.ok) {
+            console.error("Failed to load map image");
+            return;
+        }
+
+        const data = await res.json();
+        imageElement.src = data.url;
+
+    } catch (err) {
+        console.error("Error fetching map image:", err);
+    }
 }
+
+loadMapImage();
+
+/* --------------------------------- */
 
 document.querySelector(".panel").after(imageElement);
