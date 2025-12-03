@@ -1,6 +1,7 @@
 *{
     margin: 0;
     padding: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
 }
 
 .topbar nav{
@@ -30,6 +31,7 @@
     height: 50px;
 }
 
+/* bgnya */
 main::before { 
     content:"";
     position:absolute;
@@ -37,17 +39,17 @@ main::before {
     z-index:-1;              
     pointer-events:none;
 
+
     /* bikin grid aesthetic */
     background:
         /* vertical grid lines */
-        linear-gradient(to right, rgba(2, 6, 23, 0.079) 1px, transparent 1px) 0 0 / 24px 24px,
+        linear-gradient(to right, rgba(2, 6, 23, 0.130) 1px, transparent 1px) 0 0 / 24px 24px,
         /* horizontal grid lines */
-        linear-gradient(to bottom, rgba(2, 6, 23, 0.079) 1px, transparent 1px) 0 0 / 24px 24px,
+        linear-gradient(to bottom, rgba(2, 6, 23, 0.130) 1px, transparent 1px) 0 0 / 24px 24px,
         /* vignette washes for depth */
         radial-gradient(1200px 420px at 65% -10%, rgba(15, 23, 42, .08), transparent 55%),
         radial-gradient(1000px 360px at -10% 100%, rgba(2, 6, 23, .06), transparent 55%);
 }
-
 main{
     display: flex;
     flex-direction: column;
@@ -61,6 +63,8 @@ main{
 
 body{
     padding-top: 72px;
+    background: #f3f4f6;  /*bg*/
+    color: #0f172a;   
 }
 
 .left{
@@ -132,8 +136,8 @@ nav button{
     border: 2px solid black;
     padding-top: 7px;
     padding-bottom: 10px;
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-left: 13px;
+    padding-right: 13px;
     border-radius: 60%;
     background-color: lightgray;
     cursor: pointer;
@@ -261,10 +265,12 @@ main h3{
 
 .container{
     background-color: rgb(29, 33, 96);
-    height: 30rem;
+    height: auto;
     color: white;
     border-radius: 20px;
-    padding: 40px;
+    padding: 30px;
+    max-width: 430px;
+    width: 100%;
 }
 
 .container form .start,
@@ -273,17 +279,13 @@ main h3{
 .container form .floor,
 .container form p{
     display: block;
-    margin-bottom: 30px;
+    margin-bottom: 16px;
 }
 
 .container form .time,
 .container form .held,
 .container form .name{
-    margin-bottom: 30px;
-}
-
-.container form{
-    margin-bottom: 30px;
+    margin-bottom: 16px;
 }
 
 .container form .start input,
@@ -334,6 +336,14 @@ main h3{
     padding-left: 5px;
 }
 
+.start .held label{
+    margin-right: 6px;
+}
+
+.start .date label{
+    margin-right: 2px;
+}
+
 .time{
     display: flex;
 }
@@ -351,7 +361,11 @@ main h3{
 }
 
 .time .to label{
-    margin-right: 5px;
+    margin-right: 3px;
+}
+
+.time .tm label{
+    margin-right: 4px;
 }
 
 .loc{
@@ -359,7 +373,7 @@ main h3{
 }
 
 .loc p{
-    margin-right: 70px;
+    margin-right: 67px;
 }
 
 .loc select{
@@ -397,7 +411,8 @@ main h3{
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 13vh;
+    height: auto;
+    margin-top: 16px;
 }
 
 .submit input{
@@ -425,7 +440,7 @@ main h3{
 
     .container{
         background-color: rgb(29, 33, 96);
-        height: 35rem;
+        height: auto;
         color: white;
         border-radius: 20px;
         padding: 10px;
@@ -453,13 +468,13 @@ main h3{
     .container form .floor,
     .container form p{
         display: block;
-        margin-bottom: 30px;
+        margin-bottom: 16px;
     }
 
     .container form .time,
     .container form .held,
     .container form .name{
-        margin-bottom: 30px;
+        margin-bottom: 16px;
     }
 
     .container form{
@@ -568,7 +583,8 @@ main h3{
         display: flex;
         align-items: center;
         justify-content: center;
-        height: 13vh;
+        height: auto;
+        margin-top: 16px;
     }
 
     .submit input{

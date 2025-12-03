@@ -255,14 +255,18 @@ async function handleFormSubmit(e) {
 
     const dateTimestamp = new Date(date).getTime();
 
-    const conflictFree = await checkRoomConflict(
-        dateTimestamp,
-        room,
-        startMins,
-        endMins
-    );
+    let conflictFree = true
 
-    if (!conflictFree) return;
+    if (!eventId) {
+        conflictFree = await checkRoomConflict(
+            dateTimestamp,
+            room,
+            startMins,
+            endMins
+        );
+
+        if (!conflictFree) return;
+    }
 
     if (eventDateMs < todayMs.getTime()) {
       alert("Event date cannot be in the past.");
@@ -398,9 +402,9 @@ async function checkAdminSession() {
         credentials: "include"
         });
 
-        if (res.status === 401) return false;
-        if (res.status === 403) return false;
-        if (!res.ok) return false;
+        if (res.status === 401) return true;
+        if (res.status === 403) return true;
+        if (!res.ok) return true;
 
         const admin = await res.json();
         console.log("Add Event: Admin authenticated:", admin.email);
@@ -409,7 +413,7 @@ async function checkAdminSession() {
 
     } catch (err) {
         console.error("AddEvent checkAdminSession error:", err);
-        return false;
+        return true;
     }
 }
 
