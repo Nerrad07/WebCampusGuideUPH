@@ -377,6 +377,29 @@ app.post("/eventsByDate", async (req, res) => {
     }
 });
 
+app.get("/map-image", async (req, res) => {
+    try {
+        const { path } = req.query;
+
+        if (!path) {
+            return res.status(400).json({ message: "Missing file path" });
+        }
+
+        const file = bucket.file(path);
+
+        const [url] = await file.getSignedUrl({
+            action: "read",
+            expires: Date.now() + 12 * 60 * 60 * 1000
+        });
+
+        return res.json({ url });
+
+    } catch (err) {
+        console.error("map-image error:", err);
+        return res.status(500).json({ message: "Failed to load map image" });
+    }
+});
+
 
 app.get("/events", async (req, res) => {
     try {

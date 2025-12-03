@@ -208,8 +208,6 @@ function renderEvents(events) {
 	}
 }
 
-const BUCKET = "campus-guide-map-uph.firebasestorage.app";
-
 let facultyImages;
 
 if (BUILDING == "B") {
@@ -237,7 +235,7 @@ if (BUILDING == "B") {
 	};
 }
 
-document.querySelectorAll(".faculty-card").forEach((btn) => {
+document.querySelectorAll(".faculty-card").forEach(async (btn) => {
 	const key = btn.dataset.faculty;
 	const img = btn.querySelector(".faculty-icon");
 
@@ -248,12 +246,29 @@ document.querySelectorAll(".faculty-card").forEach((btn) => {
 	if (BUILDING == "C") {
 		storagePath = `featured/${fileName}`;
 	}
-	const encodedPath = encodeURIComponent(storagePath);
 
-	const url = `https://firebasestorage.googleapis.com/v0/b/${BUCKET}/o/${encodedPath}?alt=media`;
+	try {
+		const res = await fetch(
+			`${API_BASE}/map-image?path=${encodeURIComponent(storagePath)}`,
+			{
+				method: "GET",
+				credentials: "include",
+			}
+		);
 
-	img.src = url;
+		if (!res.ok) {
+			console.error("Failed to load faculty image");
+			return;
+		}
+
+		const data = await res.json();
+		img.src = data.url;
+
+	} catch (err) {
+		console.error("Faculty image fetch error:", err);
+	}
 });
+
 
 const modal = {
 	root: $("#facultyModal"),
